@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Import & Sales Management System</title>
+  <meta name="description"
+    content="Professional import and sales management system for tracking products, expenses, inventory and profits.">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    /* Extra login page animations */
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+
+    .login-features {
+      display: flex;
+      gap: 16px;
+      margin-top: 24px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .login-feature {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    .login-feature span {
+      color: var(--accent);
+    }
+  </style>
+</head>
+
+<body class="login-page">
+  <!-- Background -->
+  <div class="login-bg">
+    <div class="grid-bg"></div>
+    <div class="login-orbs">
+      <div class="orb orb-1"></div>
+      <div class="orb orb-2"></div>
+      <div class="orb orb-3"></div>
+    </div>
+  </div>
+  <!-- Language Toggle -->
+  <div style="position:absolute; top:20px; right:20px; z-index:100;">
+    <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
+      style="background:var(--bg-card); backdrop-filter:blur(10px);">🌐 عربي</button>
+  </div>
+
+  <!-- Login Card -->
+  <div class="login-card fade-in">
+    <!-- Logo -->
+    <div class="login-logo">
+      <div class="login-logo-icon">📦</div>
+      <div>
+        <div class="login-logo-text">Smart<span>IMS</span></div>
+        <div style="font-size:0.72rem;color:var(--text-muted);">Import & Sales System</div>
+      </div>
+    </div>
+
+    <div class="login-title">
+      <h2 id="loginTitleText" data-i18n="login_welcome">Welcome Back 👋</h2>
+      <p id="loginSubText" data-i18n="login_subtitle">Sign in to manage your business</p>
+    </div>
+
+    <!-- Auth Mode Tabs -->
+    <div style="display:flex; background:rgba(255,255,255,0.06); border-radius:12px; padding:3px; margin-top:10px; margin-bottom:10px;">
+      <button type="button" id="tabSignIn" onclick="switchAuthTab('login')"
+        style="flex:1; padding:7px; border-radius:9px; border:none; font-weight:700; font-size:0.85rem; cursor:pointer; background:var(--primary); color:#fff; transition:all 0.2s;">
+        🔑 Sign In
+      </button>
+      <button type="button" id="tabSignUp" onclick="switchAuthTab('register')"
+        style="flex:1; padding:7px; border-radius:9px; border:none; font-weight:600; font-size:0.85rem; cursor:pointer; background:transparent; color:var(--text-muted); transition:all 0.2s;">
+        📝 Register
+      </button>
+    </div>
+
+    <div class="login-divider" style="margin:8px 0;"></div>
+
+    <!-- Sign In Section -->
+    <div id="loginSection">
+      <!-- Error message -->
+      <div class="login-error" id="loginError">
+        ⚠️ <span id="loginErrorText" data-i18n="login_invalid">Invalid credentials</span>
+      </div>
+
+      <!-- Form -->
+      <form id="loginForm" autocomplete="off">
+        <div class="form-group" style="margin-bottom:12px;">
+          <label for="loginEmail" data-i18n="login_email">Email Address</label>
+          <div class="input-wrap">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+              <polyline points="22,6 12,13 2,6" />
+            </svg>
+            <input type="email" id="loginEmail" class="input" placeholder="admin@business.com" value="admin@business.com" required
+              autocomplete="email" data-i18n-ph="login_email_ph" style="padding-left: 42px !important;">
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label for="loginPassword" data-i18n="login_password">Password</label>
+          <div class="input-wrap">
+            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+            </svg>
+            <input type="password" id="loginPassword" class="input" placeholder="Enter your password" value="admin123" required
+              autocomplete="current-password" data-i18n-ph="login_pwd_ph" style="padding-left: 42px !important; padding-right: 42px !important;">
+            <button type="button" class="pwd-toggle" id="pwdToggle" onclick="togglePassword('loginPassword', 'eyeIcon')" style="right: 14px; top: 50%; transform: translateY(-50%);">
+              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginBtn" data-i18n="login_btn" style="width:100%; padding: 11px; font-size: 0.95rem; margin-top: 8px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
+          Sign In to Dashboard
+        </button>
+      </form>
+
+      <!-- Features -->
+      <div class="login-features">
+        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_1">Products & Inventory</span></div>
+        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_2">Sales Tracking</span></div>
+        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_3">Auto Profit Calc</span></div>
+        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_4">Reports & Export</span></div>
+      </div>
+
+      <div class="login-hint" style="margin-top:10px;">
+        <span data-i18n="login_hint">Default</span>: <span>admin@business.com</span> / <span>admin123</span>
+      </div>
+    </div>
+
+    <!-- Register Section -->
+    <div id="registerSection" style="display:none;">
+      <!-- Error message -->
+      <div class="login-error" id="regError">
+        ⚠️ <span id="regErrorText">Error</span>
+      </div>
+
+      <form id="registerForm" autocomplete="off">
+        <div style="display:flex; gap:12px; margin-bottom:12px;">
+          <div class="form-group" style="flex:1; margin-bottom:0;">
+            <label style="font-size:0.78rem;">👤 Full Name *</label>
+            <div class="input-wrap">
+              <input type="text" id="regName" class="input" placeholder="e.g. John Doe" required style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+            </div>
+          </div>
+          <div class="form-group" style="flex:1; margin-bottom:0;">
+            <label style="font-size:0.78rem;">🏢 Store Name *</label>
+            <div class="input-wrap">
+              <input type="text" id="regBusiness" class="input" placeholder="e.g. Cairo Store" required style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom:12px;">
+          <label style="font-size:0.78rem;">📧 Email Address *</label>
+          <div class="input-wrap">
+            <input type="email" id="regEmail" class="input" placeholder="you@company.com" required autocomplete="email" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+          </div>
+        </div>
+
+        <div style="display:flex; gap:12px; margin-bottom:16px;">
+          <div class="form-group" style="flex:1; margin-bottom:0;">
+            <label style="font-size:0.78rem;">🔒 Password *</label>
+            <div class="input-wrap">
+              <input type="password" id="regPassword" class="input" placeholder="••••••••" required minlength="6" autocomplete="new-password" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 34px 10px 12px;color:#fff;font-size:0.85rem;">
+              <button type="button" class="pwd-toggle" onclick="togglePassword('regPassword', 'eyeIconReg')" style="right:10px;top:50%;transform:translateY(-50%);">
+                <svg id="eyeIconReg" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-group" style="flex:1; margin-bottom:0;">
+            <label style="font-size:0.78rem;">🔒 Confirm *</label>
+            <div class="input-wrap">
+              <input type="password" id="regConfirm" class="input" placeholder="••••••••" required minlength="6" autocomplete="new-password" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="regBtn" style="width:100%; padding: 13px; font-size: 0.95rem; margin-top: 6px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);">
+          🚀 Create Account & Start
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="js/i18n.js"></script>
+  <script src="js/db.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // Initialise DB and translation layout on first load
+    (async () => {
+      I18n.init();
+      await DB.seed();
+      // If already logged in, redirect to app
+      if (Auth.isLoggedIn()) window.location.href = 'app.html';
+    })();
+
+    function switchAuthTab(tab) {
+      const isLogin = tab === 'login';
+      const btnIn = document.getElementById('tabSignIn');
+      const btnUp = document.getElementById('tabSignUp');
+      const secIn = document.getElementById('loginSection');
+      const secUp = document.getElementById('registerSection');
+      const title = document.getElementById('loginTitleText');
+      const sub   = document.getElementById('loginSubText');
+
+      if (btnIn && btnUp) {
+        btnIn.style.background = isLogin ? 'var(--primary)' : 'transparent';
+        btnIn.style.color      = isLogin ? '#fff' : 'var(--text-muted)';
+        btnUp.style.background = isLogin ? 'transparent' : 'var(--primary)';
+        btnUp.style.color      = isLogin ? 'var(--text-muted)' : '#fff';
+      }
+      if (secIn) secIn.style.display = isLogin ? 'block' : 'none';
+      if (secUp) secUp.style.display = isLogin ? 'none' : 'block';
+
+      if (title) title.textContent = isLogin 
+        ? (I18n.getLang() === 'ar' ? 'مرحباً بعودتك 👋' : 'Welcome Back 👋')
+        : (I18n.getLang() === 'ar' ? 'إنشاء حساب جديد ✨' : 'Create New Account ✨');
+      if (sub) sub.textContent = isLogin
+        ? (I18n.getLang() === 'ar' ? 'سجل الدخول لإدارة عملك' : 'Sign in to manage your business')
+        : (I18n.getLang() === 'ar' ? 'سجل عملك للبدء في تتبع المخزون والمبيعات' : 'Register your business to start tracking');
+    }
+
+    // Toggle password visibility
+    function togglePassword(inputId = 'loginPassword', iconId = 'eyeIcon') {
+      const pwd = document.getElementById(inputId);
+      const icon = document.getElementById(iconId);
+      if (!pwd || !icon) return;
+      const show = pwd.type === 'password';
+      pwd.type = show ? 'text' : 'password';
+      icon.innerHTML = show
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+    }
+
+    // Login form submit
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('loginBtn');
+      const err = document.getElementById('loginError');
+      const errText = document.getElementById('loginErrorText');
+      btn.innerHTML = `<div class="spinner"></div> ${I18n.t('login_signing_in')}`;
+      btn.disabled = true;
+      err.classList.remove('show');
+
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        const result = await Auth.login(email, password);
+        if (result.success) {
+          btn.innerHTML = '✓ ...';
+          setTimeout(() => { window.location.href = 'app.html'; }, 600);
+        } else {
+          errText.textContent = result.message;
+          err.classList.add('show');
+          btn.innerHTML = I18n.t('login_btn');
+          btn.disabled = false;
+        }
+      } catch (ex) {
+        errText.textContent = 'Error';
+        err.classList.add('show');
+        btn.innerHTML = I18n.t('login_btn');
+        btn.disabled = false;
+      }
+    });
+
+    // Register form submit
+    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('regBtn');
+      const err = document.getElementById('regError');
+      const errText = document.getElementById('regErrorText');
+      btn.innerHTML = `<div class="spinner"></div> ${I18n.getLang() === 'ar' ? 'جاري الإنشاء...' : 'Creating Account...'}`;
+      btn.disabled = true;
+      err.classList.remove('show');
+
+      const name = document.getElementById('regName').value.trim();
+      const business = document.getElementById('regBusiness').value.trim();
+      const email = document.getElementById('regEmail').value.trim();
+      const pwd = document.getElementById('regPassword').value;
+      const confirm = document.getElementById('regConfirm').value;
+
+      if (pwd !== confirm) {
+        errText.textContent = I18n.getLang() === 'ar' ? 'كلمات المرور غير متطابقة' : 'Passwords do not match!';
+        err.classList.add('show');
+        btn.innerHTML = '🚀 Create Account & Start';
+        btn.disabled = false;
+        return;
+      }
+
+      try {
+        const result = await Auth.register(name, business, email, pwd);
+        if (result.success) {
+          btn.innerHTML = '✓ Account Created!';
+          setTimeout(() => { window.location.href = 'app.html'; }, 600);
+        } else {
+          errText.textContent = result.message;
+          err.classList.add('show');
+          btn.innerHTML = '🚀 Create Account & Start';
+          btn.disabled = false;
+        }
+      } catch (ex) {
+        errText.textContent = 'Error creating account.';
+        err.classList.add('show');
+        btn.innerHTML = '🚀 Create Account & Start';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+
+</html>
