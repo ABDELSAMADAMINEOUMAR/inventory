@@ -53,7 +53,7 @@ const ApiClient = (() => {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 800);
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
     config.signal = controller.signal;
 
     try {
@@ -135,7 +135,7 @@ const ApiClient = (() => {
     }
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 200);
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
       const res = await fetch(`${BASE_URL}dashboard/`, { signal: controller.signal });
       clearTimeout(timeoutId);
       _lastHealthResult = res.status === 200 || res.status === 401 || res.status === 403;
