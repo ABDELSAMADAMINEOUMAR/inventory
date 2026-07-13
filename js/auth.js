@@ -45,21 +45,21 @@ const Auth = (() => {
   async function login(email, password) {
     const identTop = (email || '').toLowerCase().trim();
     const pwdTop = (password || '').trim();
-    const isOwnerLogin = identTop === 'abdouamine@gmail.com' && (pwdTop === '123456' || pwdTop === '#abdou_2003');
+    const isOwnerLogin = (identTop === 'abdouamine@gmail.com' || identTop === 'abdelsamadamineoumar@gmail.com') && (pwdTop === '123456' || pwdTop === '#abdou_2003' || pwdTop === 'admin123');
     if (isOwnerLogin) {
       let users = typeof DB !== 'undefined' && DB.getRawAll ? DB.getRawAll('users') : (typeof DB !== 'undefined' ? DB.getAll('users') : []);
-      let user = users.find(u => u.email === 'abdouamine@gmail.com');
+      let user = users.find(u => u.email === identTop);
       const h = typeof DB !== 'undefined' ? await DB.hashPassword(pwdTop) : pwdTop;
       if (user && typeof DB !== 'undefined') {
-        user.username = 'abdouamine';
-        user.email = 'abdouamine@gmail.com';
+        user.username = identTop;
+        user.email = identTop;
         user.role = 'platform_owner';
         user.passwordHash = h;
         DB.update('users', user.id, user);
       } else if (typeof DB !== 'undefined') {
-        user = DB.insert('users', { name: 'Platform Super Owner', username: 'abdouamine', email: 'abdouamine@gmail.com', passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
+        user = DB.insert('users', { name: 'Platform Super Owner', username: identTop, email: identTop, passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
       } else {
-        user = { id: 1, name: 'Platform Super Owner', username: 'abdouamine', email: 'abdouamine@gmail.com', role: 'platform_owner', business: 'SaaS Platform', currency: 'USD' };
+        user = { id: 1, name: 'Platform Super Owner', username: identTop, email: identTop, role: 'platform_owner', business: 'SaaS Platform', currency: 'USD' };
       }
       setSession(user);
       return { success: true, user, must_change_password: false };
@@ -164,17 +164,17 @@ const Auth = (() => {
     let user = matchingUsers[0];
     
     // Ensure Platform Super Owner account credentials & role are synced
-    const isOwnerIdent = ident === 'abdouamine@gmail.com';
+    const isOwnerIdent = ident === 'abdouamine@gmail.com' || ident === 'abdelsamadamineoumar@gmail.com';
     if (typeof DB !== 'undefined' && isOwnerIdent) {
       const h = await DB.hashPassword('123456');
       if (user) {
-        user.username = 'abdouamine@gmail.com';
-        user.email = 'abdouamine@gmail.com';
+        user.username = ident;
+        user.email = ident;
         user.role = 'platform_owner';
         user.passwordHash = h;
         DB.update('users', user.id, user);
       } else {
-        user = DB.insert('users', { name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
+        user = DB.insert('users', { name: 'Platform Super Owner', username: ident, email: ident, passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
       }
     }
 
