@@ -2,6 +2,7 @@ services:
   - type: web
     name: inventory-backend
     env: python
+    plan: free
     rootDir: backend
     buildCommand: pip install -r requirements.txt && python manage.py migrate
     startCommand: gunicorn sims_backend.wsgi:application --bind 0.0.0.0:$PORT
