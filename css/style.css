@@ -622,14 +622,23 @@ textarea {
   display: flex !important;
   flex-direction: row !important;
   align-items: center !important;
-  justify-content: center !important;
-  gap: 3px !important;
-  margin: 0 6px !important;
+  justify-content: flex-start !important;
+  gap: 6px !important;
+  margin: 0 8px !important;
   flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth;
 }
 
 .sidebar-nav::-webkit-scrollbar {
-  display: none;
+  height: 4px;
+}
+
+.sidebar-nav::-webkit-scrollbar-thumb {
+  background: rgba(124, 58, 237, 0.25);
+  border-radius: 4px;
 }
 
 .nav-item {
@@ -2763,11 +2772,26 @@ input.input.filter-search {
 }
 
 @media (max-width: 768px) {
+  .login-page, .login-form-pane {
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+  }
+
   .sidebar {
     transform: none !important;
     position: sticky !important;
     top: 0 !important;
     width: 100% !important;
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+
+  .sidebar-nav {
+    overflow-x: auto !important;
+    -webkit-overflow-scrolling: touch !important;
+    justify-content: flex-start !important;
   }
 
   [dir="rtl"] .sidebar {
