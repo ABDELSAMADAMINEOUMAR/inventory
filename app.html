@@ -129,6 +129,11 @@
           <!-- Language Toggle -->
           <button class="lang-btn" onclick="I18n.toggle()" id="langToggleBtn">🌐 عربي</button>
 
+          <!-- Quick Mobile Logout Button -->
+          <button class="lang-btn" onclick="Auth.logout()" title="Sign Out" style="background:rgba(225,29,72,0.12);color:#f43f5e;border:1px solid rgba(225,29,72,0.3);font-weight:600;">
+            🚪 <span data-i18n="signout">Logout</span>
+          </button>
+
           <!-- Notification Bell -->
           <button class="notif-btn" onclick="UI.showNotifications()" title="Notifications">
             🔔
