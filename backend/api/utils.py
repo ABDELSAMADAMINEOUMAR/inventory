@@ -78,8 +78,11 @@ def send_verification_email(user, request=None):
     token = token_generator.make_token(user)
     origin = "http://127.0.0.1:8000"
     if request:
+        referer = request.headers.get('Referer') or request.META.get('HTTP_REFERER')
         req_origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN')
-        if req_origin and req_origin != "null":
+        if referer and "verify-email.html" not in referer:
+            origin = referer.rsplit('/', 1)[0]
+        elif req_origin and req_origin != "null":
             origin = req_origin
     link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
     try:

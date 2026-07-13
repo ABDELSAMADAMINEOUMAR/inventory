@@ -1273,9 +1273,7 @@ const UI = (() => {
     toast('success', 'Tenant Created Successfully!', `Activation link sent to ${adminEmail}.`);
     renderPlatform();
 
-    const baseUrl = window.location.protocol === 'file:' 
-      ? window.location.href.substring(0, window.location.href.lastIndexOf('/'))
-      : window.location.origin;
+    const baseUrl = window.location.href.substring(0, window.location.href.lastIndexOf('/'));
     const activationUrl = `${baseUrl}/verify-email.html?uid=${encodeURIComponent(adminUsername)}&token=activate_token&email=${encodeURIComponent(adminEmail)}`;
 
         const emailSubject = encodeURIComponent('SmartIMS: Activate Your Tenant Account & Set Password');
