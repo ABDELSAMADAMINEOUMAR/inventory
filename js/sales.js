@@ -10,17 +10,28 @@ const Sales = (() => {
   let _filterProduct = '';
   let _filterPayment = '';
 
+  function canViewProfit() {
+    if (typeof UI !== 'undefined' && UI.canViewProfit) return UI.canViewProfit();
+    const u = typeof Auth !== 'undefined' ? Auth.currentUser() : null;
+    if (!u) return true;
+    return (u.role || '').toLowerCase() === 'admin';
+  }
+
   function render(container) {
     const sales = DB.getAllEnrichedSales();
+    const showProfit = canViewProfit();
     const totalRevenue   = sales.reduce((a, s) => a + s.revenue, 0);
     const totalProfit    = sales.reduce((a, s) => a + s.profit, 0);
     const totalCost      = sales.reduce((a, s) => a + s.cost, 0);
     const avgMargin      = sales.length ? sales.reduce((a, s) => a + s.profitMargin, 0) / sales.length : 0;
 
-    // Credit stats
-    const creditSales    = sales.filter(s => s.paymentStatus === 'credit');
-    const paidSales      = sales.filter(s => s.paymentStatus !== 'credit');
-    const outstanding    = creditSales.reduce((a, s) => a + Math.max(0, (s.revenue || 0) - (s.amountPaid || 0)), 0);
+    // Credit stats (only count sales that have an actual unpaid remaining balance)
+    const getPaidAmt = s => (s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? Number(s.amountPaid) : Number(s.revenue || 0);
+    const getRemAmt  = s => Math.max(0, Number(s.revenue || 0) - getPaidAmt(s));
+
+    const creditSales    = sales.filter(s => getRemAmt(s) > 0.01);
+    const paidSales      = sales.filter(s => getRemAmt(s) <= 0.01);
+    const outstanding    = creditSales.reduce((a, s) => a + getRemAmt(s), 0);
     const overdueCount   = creditSales.filter(s => s.dueDate && s.dueDate < new Date().toISOString().split('T')[0]).length;
 
     container.innerHTML = `
@@ -37,11 +48,11 @@ const Sales = (() => {
 
       <div class="kpi-grid stagger-children">
         ${statCard('💰', t('th_revenue'), UI.fmtCurrency(totalRevenue), 'green')}
-        ${statCard('📈', t('th_profit'),  UI.fmtCurrency(totalProfit),  'purple')}
-        ${statCard('💸', t('th_cost'),    UI.fmtCurrency(totalCost),    'orange')}
-        ${statCard('📊', t('th_margin'),    UI.fmtPct(avgMargin),         'blue')}
-        ${statCard('🛒', t('nav_sales'),   sales.length,                  'teal')}
-        ${statCard('💳', t('kpi_credit'),   UI.fmtCurrency(outstanding),  'red', creditSales.length + ' ' + (I18n.getLang() === 'ar' ? 'متبقية' : 'unpaid'))}
+        ${showProfit ? statCard('📈', t('th_profit'), UI.fmtCurrency(totalProfit), 'purple') : ''}
+        ${showProfit ? statCard('💸', t('th_cost'), UI.fmtCurrency(totalCost), 'orange') : ''}
+        ${showProfit ? statCard('📊', t('th_margin'), UI.fmtPct(avgMargin), 'blue') : ''}
+        ${statCard('🛒', t('nav_sales'), sales.length, 'teal')}
+        ${statCard('💳', t('kpi_credit'), UI.fmtCurrency(outstanding), 'red', creditSales.length + ' ' + (I18n.getLang() === 'ar' ? 'متبقية' : 'unpaid'))}
       </div>
 
       ${creditSales.length ? `
@@ -89,8 +100,7 @@ const Sales = (() => {
                 <th>${t('th_qty')}</th>
                 <th>${t('th_unit_price')}</th>
                 <th>${t('th_revenue')}</th>
-                <th>${t('th_profit')}</th>
-                <th>${t('th_margin')}</th>
+                ${showProfit ? `<th>${t('th_profit')}</th><th>${t('th_margin')}</th>` : ''}
                 <th>${t('th_customer')}</th>
                 <th>${t('th_date')}</th>
                 <th>${t('th_payment')}</th>
@@ -136,23 +146,29 @@ const Sales = (() => {
     const from = document.getElementById('sDateFrom')?.value;
     const to   = document.getElementById('sDateTo')?.value;
     const today = new Date().toISOString().split('T')[0];
+    const showProfit = canViewProfit();
 
     let data = DB.getAllEnrichedSales();
     if (_search)        data = data.filter(s => s.productName?.toLowerCase().includes(_search) || s.customer?.toLowerCase().includes(_search));
     if (_filterProduct) data = data.filter(s => s.productId == _filterProduct);
-    if (_filterPayment === 'paid')    data = data.filter(s => s.paymentStatus !== 'credit');
-    if (_filterPayment === 'credit')  data = data.filter(s => s.paymentStatus === 'credit');
-    if (_filterPayment === 'overdue') data = data.filter(s => s.paymentStatus === 'credit' && s.dueDate && s.dueDate < today);
+    const getPaid = s => (s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? Number(s.amountPaid) : Number(s.revenue || 0);
+    const getRem  = s => Math.max(0, Number(s.revenue || 0) - getPaid(s));
+
+    if (_filterPayment === 'paid')    data = data.filter(s => getRem(s) <= 0.01);
+    if (_filterPayment === 'credit')  data = data.filter(s => getRem(s) > 0.01);
+    if (_filterPayment === 'overdue') data = data.filter(s => getRem(s) > 0.01 && s.dueDate && s.dueDate < today);
     if (from) data = data.filter(s => s.saleDate >= from);
     if (to)   data = data.filter(s => s.saleDate <= to);
 
     if (!data.length) {
-      body.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🛒</div><h3>${I18n.getLang() === 'ar' ? 'لم يتم العثور على مبيعات' : 'No sales found'}</h3><p>${I18n.getLang() === 'ar' ? 'سجل عملية البيع الأولى لبدء التتبع.' : 'Record your first sale to start tracking profit.'}</p><button class="btn btn-primary" onclick="Sales.openAdd()">${t('btn_record_sale')}</button></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="${showProfit ? 12 : 10}"><div class="empty-state"><div class="empty-icon">🛒</div><h3>${I18n.getLang() === 'ar' ? 'لم يتم العثور على مبيعات' : 'No sales found'}</h3><p>${I18n.getLang() === 'ar' ? 'سجل عملية البيع الأولى لبدء التتبع.' : 'Record your first sale to start tracking profit.'}</p><button class="btn btn-primary" onclick="Sales.openAdd()">${t('btn_record_sale')}</button></div></td></tr>`;
       return;
     }
 
     body.innerHTML = data.map(s => {
-      const isCredit  = s.paymentStatus === 'credit';
+      const paidAmt   = getPaid(s);
+      const remAmt    = getRem(s);
+      const isCredit  = remAmt > 0.01;
       const isOverdue = isCredit && s.dueDate && s.dueDate < today;
       const rowStyle  = isOverdue ? 'background:rgba(239,68,68,0.04);' : isCredit ? 'background:rgba(245,158,11,0.03);' : '';
 
@@ -166,20 +182,21 @@ const Sales = (() => {
         <td class="text-center">${s.quantity}</td>
         <td>${UI.fmtCurrency(s.sellingPrice)}</td>
         <td class="text-accent fw-600">${UI.fmtCurrency(s.revenue)}</td>
+        ${showProfit ? `
         <td class="${s.profit >= 0 ? 'text-success' : 'text-danger'} fw-600">${UI.fmtCurrency(s.profit)}</td>
         <td>
           <span class="badge ${s.profitMargin >= 20 ? 'badge-success' : s.profitMargin >= 10 ? 'badge-warning' : 'badge-danger'}">
             ${UI.fmtPct(s.profitMargin)}
           </span>
-        </td>
+        </td>` : ''}
         <td style="font-weight:500">${s.customer || '—'}</td>
         <td class="td-muted">${UI.fmtDate(s.saleDate)}</td>
-        <td>${paymentBadge(s.paymentStatus, isOverdue)}</td>
+        <td>${paymentBadge(isCredit ? 'credit' : 'paid', isOverdue)}</td>
         <td>
           ${isCredit
             ? `<div style="line-height:1.35;white-space:nowrap">
-                 <div style="font-size:0.78rem;color:var(--success);font-weight:600">✓ ${I18n.getLang() === 'ar' ? 'مدفوع:' : 'Paid:'} ${UI.fmtCurrency(s.amountPaid || 0)}</div>
-                 <div style="font-size:0.82rem;color:var(--danger);font-weight:700">⏳ ${I18n.getLang() === 'ar' ? 'متبقي:' : 'Rem:'} ${UI.fmtCurrency(Math.max(0, (s.revenue || 0) - (s.amountPaid || 0)))}</div>
+                 <div style="font-size:0.78rem;color:var(--success);font-weight:600">✓ ${I18n.getLang() === 'ar' ? 'مدفوع:' : 'Paid:'} ${UI.fmtCurrency(paidAmt)}</div>
+                 <div style="font-size:0.82rem;color:var(--danger);font-weight:700">⏳ ${I18n.getLang() === 'ar' ? 'متبقي:' : 'Rem:'} ${UI.fmtCurrency(Math.max(0, Number(s.revenue || 0) - paidAmt))}</div>
                  ${s.dueDate ? `<div style="font-size:0.7rem;color:${isOverdue?'var(--danger)':'var(--text-muted)'};margin-top:2px">📅 ${UI.fmtDate(s.dueDate)}</div>` : ''}
                </div>`
             : `<span class="badge badge-success" style="font-size:0.75rem;white-space:nowrap">${I18n.getLang() === 'ar' ? 'مدفوع كلياً' : 'Paid Full'}</span>`}
@@ -211,9 +228,10 @@ const Sales = (() => {
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
         <label>${t('lbl_product')} <span class="req">*</span></label>
+        <input class="input" type="text" id="sProductSearch" placeholder="🔍 Search product by name or code..." oninput="Sales.filterProducts()" style="margin-bottom:8px">
         <select class="select" id="sProduct" onchange="Sales.updateCalc()" required>
           <option value="">${I18n.getLang() === 'ar' ? 'اختر منتجاً للبيع' : 'Select product to sell'}</option>
-          ${products.map(p => `<option value="${p.id}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${p.name} (${p.code}) — Stock: ${p.currentStock}</option>`).join('')}
+          ${products.map(p => `<option value="${p.id}" data-search="${p.name.toLowerCase()} ${p.code.toLowerCase()}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${p.name} (${p.code}) — Stock: ${p.currentStock}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -222,10 +240,11 @@ const Sales = (() => {
         <span class="field-hint" id="sStockHint">${t('available_stock')}: —</span>
       </div>
       <div class="field">
-        <label>${t('lbl_sell_price')} <span class="req">*</span></label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span>
-          <input class="input" type="number" id="sSellPrice" value="${s.sellingPrice||''}" placeholder="0" oninput="Sales.updateCalc()" required>
+        <label>${UI.isRiyalMode() ? 'سعر الوحدة (ريال)' : t('lbl_sell_price')} <span class="req">*</span></label>
+        <div class="input-prefix-wrap"><span class="input-prefix">${UI.isRiyalMode() ? 'ريال' : 'F'}</span>
+          <input class="input" type="text" id="sSellPrice" value="${UI.toInputMoney(s.sellingPrice)}" placeholder="0" oninput="Sales.updateCalc()" required>
         </div>
+        ${UI.isRiyalMode() ? '<div id="sSellPriceFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
       </div>
       <div class="field">
         <label>${t('lbl_sale_date')}</label>
@@ -268,16 +287,17 @@ const Sales = (() => {
         <label>${t('lbl_due_date')}</label>
         <input class="input" type="date" id="sDueDate" value="${s.dueDate||''}">
       </div>
-      <div class="field" id="partialWrap" style="display:${isCredit?'flex':'none'};flex-direction:column;gap:6px">
-        <label>${t('lbl_amount_paid')}</label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span>
-          <input class="input" type="number" id="sAmountPaid" value="${s.amountPaid||0}" placeholder="0" oninput="Sales.updateCalc()">
+      <div class="field" id="partialWrap" style="display:flex;flex-direction:column;gap:6px">
+        <label>${UI.isRiyalMode() ? 'المبلغ المدفوع مقدماً (ريال)' : (I18n.getLang() === 'ar' ? 'المبلغ المدفوع مقدماً (FCFA)' : 'Amount Paid Upfront (FCFA)')}</label>
+        <div class="input-prefix-wrap"><span class="input-prefix">${UI.isRiyalMode() ? 'ريال' : 'F'}</span>
+          <input class="input" type="text" id="sAmountPaid" value="${(s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? UI.toInputMoney(s.amountPaid) : ''}" placeholder="${UI.isRiyalMode() ? 'اتركه فارغاً إذا تم الدفع كلياً' : (I18n.getLang() === 'ar' ? 'اتركه فارغاً إذا تم الدفع كلياً' : 'Leave empty if fully paid')}" oninput="Sales.updateCalc()">
         </div>
+        ${UI.isRiyalMode() ? '<div id="sAmountPaidFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
       </div>
-      <div class="field col-span-2" id="remBalanceWrap" style="display:${isCredit?'block':'none'};margin-top:-2px;margin-bottom:4px">
+      <div class="field col-span-2" id="remBalanceWrap" style="display:block;margin-top:-2px;margin-bottom:4px">
         <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
           <span style="font-weight:600;font-size:0.85rem;color:var(--danger)">⏳ ${I18n.getLang() === 'ar' ? 'المبلغ المتبقي على العميل لسداده:' : 'Remaining Amount to be Paid by Customer:'}</span>
-          <span style="font-weight:800;font-size:1.05rem;color:var(--danger)" id="sRemainingDisplay">${UI.fmtCurrency(Math.max(0, (s.revenue || 0) - (s.amountPaid || 0)))}</span>
+          <span style="font-weight:800;font-size:1.05rem;color:var(--danger)" id="sRemainingDisplay">${UI.fmtCurrency(Math.max(0, (s.revenue || 0) - ((s.amountPaid !== undefined && s.amountPaid !== null) ? s.amountPaid : (s.revenue || 0))))}</span>
         </div>
       </div>
 
@@ -287,17 +307,17 @@ const Sales = (() => {
       </div>
     </div>
 
-    <!-- Live Profit Calculator -->
+    <!-- Live Calculator -->
     <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px;box-shadow:var(--shadow)">
       <div style="font-size:0.9rem;font-weight:700;margin-bottom:14px;color:var(--text-primary);display:flex;align-items:center;gap:8px">
-        <span>📊</span> ${t('profit_calc')}
+        <span>📊</span> ${canViewProfit() ? t('profit_calc') : (I18n.getLang() === 'ar' ? 'ملخص البيع' : 'Sale Summary')}
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
         ${calcBox('sCalcRevenue', t('th_revenue'), 'var(--accent)')}
-        ${calcBox('sCalcCost', t('th_cost'), 'var(--warning)')}
-        ${calcBox('sCalcProfit', t('th_profit'), 'var(--success)')}
-        ${calcBox('sCalcCPU', t('th_cpu'), 'var(--primary-light)')}
-        ${calcBox('sCalcMargin', t('th_margin'), '#60A5FA')}
+        ${canViewProfit() ? calcBox('sCalcCost', t('th_cost'), 'var(--warning)') : ''}
+        ${canViewProfit() ? calcBox('sCalcProfit', t('th_profit'), 'var(--success)') : ''}
+        ${canViewProfit() ? calcBox('sCalcCPU', t('th_cpu'), 'var(--primary-light)') : ''}
+        ${canViewProfit() ? calcBox('sCalcMargin', t('th_margin'), '#60A5FA') : ''}
         ${calcBox('sCalcRemaining', I18n.getLang() === 'ar' ? 'المتبقي للسداد' : 'Remaining to Pay', 'var(--danger)')}
       </div>
     </div>`;
@@ -325,20 +345,16 @@ const Sales = (() => {
     if (dotPaid) { dotPaid.style.background = isPaid ? 'var(--accent)' : 'var(--border-light)'; dotPaid.textContent = isPaid ? '✓' : ''; }
     if (dotCredit) { dotCredit.style.background = !isPaid ? 'var(--warning)' : 'var(--border-light)'; dotCredit.textContent = !isPaid ? '✓' : ''; }
 
-    // Show/hide credit fields
-    const dueWrap     = document.getElementById('dueDateWrap');
-    const partialWrap = document.getElementById('partialWrap');
-    const remWrap     = document.getElementById('remBalanceWrap');
-    if (dueWrap)     dueWrap.style.display     = isPaid ? 'none' : 'flex';
-    if (partialWrap) partialWrap.style.display  = isPaid ? 'none' : 'flex';
-    if (remWrap)     remWrap.style.display      = isPaid ? 'none' : 'block';
+    // Show/hide due date field
+    const dueWrap = document.getElementById('dueDateWrap');
+    if (dueWrap) dueWrap.style.display = isPaid ? 'none' : 'flex';
     updateCalc();
   }
 
   function calcBox(id, label, color) {
     return `<div style="background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:12px 10px;text-align:center;box-shadow:var(--shadow);transition:var(--transition);position:relative;overflow:hidden">
       <div style="position:absolute;top:0;left:0;right:0;height:2.5px;background:${color}"></div>
-      <div style="font-size:1.1rem;font-weight:800;color:${color};margin-bottom:3px" id="${id}">0 FCFA</div>
+      <div style="font-size:1.1rem;font-weight:800;color:${color};margin-bottom:3px" id="${id}">0 ${UI.getCurrency()}</div>
       <div style="font-size:0.72rem;font-weight:600;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px">${label}</div>
     </div>`;
   }
@@ -349,10 +365,16 @@ const Sales = (() => {
     const cpu   = parseFloat(opt?.dataset.cpu) || 0;
     const stock = parseInt(opt?.dataset.stock) || 0;
     const qty   = parseInt(document.getElementById('sQty')?.value) || 0;
-    const price = parseFloat(document.getElementById('sSellPrice')?.value) || 0;
+    const rawPrice = document.getElementById('sSellPrice')?.value;
+    const price    = UI.fromInputMoney(rawPrice) || 0;
 
     const hint = document.getElementById('sStockHint');
     if (hint) hint.textContent = `Available stock: ${stock} units`;
+
+    const priceHint = document.getElementById('sSellPriceFCFAHint');
+    if (priceHint && UI.isRiyalMode()) {
+      priceHint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
+    }
 
     const revenue = price * qty;
     const cost    = cpu * qty;
@@ -366,8 +388,19 @@ const Sales = (() => {
     set('sCalcCPU',     UI.fmtCurrency(cpu));
     set('sCalcMargin',  UI.fmtPct(margin));
 
-    const paid = parseFloat(document.getElementById('sAmountPaid')?.value) || 0;
-    const rem  = Math.max(0, revenue - paid);
+    const paidInput = document.getElementById('sAmountPaid')?.value;
+    let paid;
+    if (paidInput !== undefined && paidInput !== '' && !isNaN(UI.fromInputMoney(paidInput))) {
+      paid = UI.fromInputMoney(paidInput);
+    } else {
+      paid = (_paymentStatus === 'credit' ? 0 : revenue);
+    }
+    const paidHint = document.getElementById('sAmountPaidFCFAHint');
+    if (paidHint && UI.isRiyalMode()) {
+      paidHint.textContent = paidInput ? `= ${UI.fmt(paid, 0)} FCFA` : '';
+    }
+
+    const rem = Math.max(0, revenue - paid);
     set('sCalcRemaining', UI.fmtCurrency(rem));
     const remDisp = document.getElementById('sRemainingDisplay');
     if (remDisp) remDisp.textContent = UI.fmtCurrency(rem);
@@ -399,18 +432,14 @@ const Sales = (() => {
     setTimeout(updateCalc, 100);
   }
 
-  function save() {
+  async function save() {
     const productId    = parseInt(document.getElementById('sProduct')?.value);
     const qty          = parseInt(document.getElementById('sQty')?.value);
-    const sellingPrice = parseFloat(document.getElementById('sSellPrice')?.value);
+    const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
     const saleDate     = document.getElementById('sSaleDate')?.value;
     const customer     = document.getElementById('sCustomer')?.value.trim();
     const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
     const note         = document.getElementById('sNote')?.value.trim();
-    const paymentStatusRaw = _paymentStatus || 'paid';
-    const dueDate      = paymentStatusRaw === 'credit' ? document.getElementById('sDueDate')?.value : null;
-    let amountPaid     = paymentStatusRaw === 'credit' ? (parseFloat(document.getElementById('sAmountPaid')?.value) || 0) : null;
-    let paymentStatus  = paymentStatusRaw;
 
     if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
       UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
@@ -433,10 +462,15 @@ const Sales = (() => {
     const profit       = revenue - cost;
     const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-    if (paymentStatus === 'credit' && amountPaid >= revenue) {
-      paymentStatus = 'paid';
-      amountPaid = revenue;
+    const paidInputVal = document.getElementById('sAmountPaid')?.value;
+    let amountPaid;
+    if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
+      amountPaid = UI.fromInputMoney(paidInputVal);
+    } else {
+      amountPaid = (_paymentStatus === 'credit') ? 0 : revenue;
     }
+    let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
+    const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
 
     const data = {
       productId, quantity: qty, sellingPrice,
@@ -446,13 +480,19 @@ const Sales = (() => {
       paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
     };
 
-    if (_editId) DB.update('sales', _editId, data);
-    else DB.insert('sales', data);
+    try {
+      if (_editId) await DB.update('sales', _editId, data);
+      else await DB.insert('sales', data);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
 
     UI.closeModal('saleModal');
+    const showProfit = canViewProfit();
     const extra = paymentStatus === 'credit'
       ? `⏳ Credit — due ${dueDate ? UI.fmtDate(dueDate) : 'TBD'}`
-      : `Revenue: ${UI.fmtCurrency(revenue)} | Profit: ${UI.fmtCurrency(profit)}`;
+      : `Revenue: ${UI.fmtCurrency(revenue)}${showProfit ? ` | Profit: ${UI.fmtCurrency(profit)}` : ''}`;
     UI.toast('success', _editId ? 'Sale Updated' : 'Sale Recorded', extra);
     UI.navigate('sales');
   }
@@ -484,10 +524,11 @@ const Sales = (() => {
       </div>
 
       <div class="field">
-        <label>${isAr?'المبلغ المراد سداده الآن':'Payment Amount Now'} <span class="req">*</span></label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span>
-          <input class="input" type="number" id="payModalAmount" value="${rem}" min="1" max="${rem}" placeholder="0">
+        <label>${isAr?'المبلغ المراد سداده الآن':'Payment Amount Now'} (${UI.isRiyalMode()?'ريال':UI.getCurrency()}) <span class="req">*</span></label>
+        <div class="input-prefix-wrap"><span class="input-prefix">${UI.isRiyalMode()?'ريال':'F'}</span>
+          <input class="input" type="text" id="payModalAmount" value="${UI.toInputMoney(rem)}" placeholder="0" oninput="Sales.updatePayModalHint()">
         </div>
+        ${UI.isRiyalMode()?'<div id="payModalHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:4px"></div>':''}
         <span class="field-hint">${isAr?'أدخل المبلغ المدفوع جزئياً أو كلياً':'Enter partial or full payment amount being settled now.'}</span>
       </div>
 
@@ -505,10 +546,18 @@ const Sales = (() => {
     );
   }
 
-  function confirmPayment(id) {
+  function updatePayModalHint() {
+    const hint = document.getElementById('payModalHint');
+    if (!hint || !UI.isRiyalMode()) return;
+    const raw = document.getElementById('payModalAmount')?.value;
+    const fcfa = UI.fromInputMoney(raw) || 0;
+    hint.textContent = raw ? `= ${UI.fmt(fcfa, 0)} FCFA` : '';
+  }
+
+  async function confirmPayment(id) {
     const s = DB.getById('sales', id);
     if (!s) return;
-    const addVal = parseFloat(document.getElementById('payModalAmount')?.value) || 0;
+    const addVal = UI.fromInputMoney(document.getElementById('payModalAmount')?.value) || 0;
     const payDate = document.getElementById('payModalDate')?.value || new Date().toISOString().split('T')[0];
     if (isNaN(addVal) || addVal <= 0) {
       UI.toast('error', 'Invalid Amount', 'Please enter a valid payment amount.');
@@ -519,11 +568,16 @@ const Sales = (() => {
     const rem     = Math.max(0, s.revenue - newPaid);
     const isFull  = rem === 0;
 
-    DB.update('sales', id, {
-      amountPaid: Math.min(s.revenue, newPaid),
-      paymentStatus: isFull ? 'paid' : 'credit',
-      paidAt: isFull ? payDate : (s.paidAt || null)
-    });
+    try {
+      await DB.update('sales', id, {
+        amountPaid: Math.min(s.revenue, newPaid),
+        paymentStatus: isFull ? 'paid' : 'credit',
+        paidAt: isFull ? payDate : (s.paidAt || null)
+      });
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
 
     UI.closeModal('payModal');
     const isAr = I18n.getLang() === 'ar';
@@ -542,14 +596,40 @@ const Sales = (() => {
     if (!s) return;
     const ok = await UI.confirm('Delete Sale?', `Sale of "${s.productName}" (${s.quantity} units) will be permanently deleted.`);
     if (!ok) return;
-    DB.remove('sales', id);
+    try {
+      await DB.remove('sales', id);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.toast('success', 'Sale Deleted');
     renderTable();
+  }
+
+  function filterProducts() {
+    const q = (document.getElementById('sProductSearch')?.value || '').toLowerCase().trim();
+    const sel = document.getElementById('sProduct');
+    if (!sel) return;
+    const opts = Array.from(sel.options);
+    opts.forEach((opt, idx) => {
+      if (idx === 0) return; // Keep default placeholder option
+      const searchStr = (opt.dataset.search || opt.text || '').toLowerCase();
+      const match = !q || searchStr.includes(q);
+      opt.hidden = !match;
+      opt.style.display = match ? '' : 'none';
+    });
+    if (q) {
+      const firstVisible = opts.find((opt, idx) => idx > 0 && !opt.hidden);
+      if (firstVisible) {
+        sel.value = firstVisible.value;
+        updateCalc();
+      }
+    }
   }
 
   return {
     render, setSearch, setFilter, filterPayment, renderTable,
     openAdd, openEdit, save, delete: del,
-    updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment,
+    updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment, updatePayModalHint, filterProducts,
   };
 })();

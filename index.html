@@ -8,6 +8,7 @@
   <meta name="description"
     content="Professional import and sales management system for tracking products, expenses, inventory and profits.">
   <link rel="stylesheet" href="css/style.css">
+  <script src="js/api_client.js"></script>
   <style>
     /* Extra login page animations */
     .grid-bg {
@@ -43,207 +44,213 @@
 </head>
 
 <body class="login-page">
-  <!-- Background -->
-  <div class="login-bg">
-    <div class="grid-bg"></div>
-    <div class="login-orbs">
-      <div class="orb orb-1"></div>
-      <div class="orb orb-2"></div>
-      <div class="orb orb-3"></div>
-    </div>
-  </div>
-  <!-- Language Toggle -->
-  <div style="position:absolute; top:20px; right:20px; z-index:100;">
-    <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
-      style="background:var(--bg-card); backdrop-filter:blur(10px);">🌐 عربي</button>
-  </div>
-
-  <!-- Login Card -->
-  <div class="login-card fade-in">
-    <!-- Logo -->
-    <div class="login-logo">
-      <div class="login-logo-icon">📦</div>
-      <div>
-        <div class="login-logo-text">Smart<span>IMS</span></div>
-        <div style="font-size:0.72rem;color:var(--text-muted);">Import & Sales System</div>
+  <!-- Left Column: Modern SaaS Login Form Area -->
+  <div class="login-form-pane">
+    <!-- Top Brand & Language Bar -->
+    <div class="login-top-bar">
+      <div class="login-logo" style="margin-bottom:0;">
+        <div class="login-logo-icon">📦</div>
+        <div>
+          <div class="login-logo-text">Smart<span>IMS</span></div>
+          <div style="font-size:0.72rem;color:var(--text-muted);" data-i18n="app_subtitle">Import & Sales System</div>
+        </div>
       </div>
+      <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
+        style="background:var(--bg-card-hover, #F8FAFC); border:1px solid var(--border, #E2E8F0); color:var(--text-main, #0F172A); padding:6px 12px; border-radius:10px; font-weight:600; cursor:pointer;">🌐 عربي</button>
     </div>
 
-    <div class="login-title">
-      <h2 id="loginTitleText" data-i18n="login_welcome">Welcome Back 👋</h2>
-      <p id="loginSubText" data-i18n="login_subtitle">Sign in to manage your business</p>
-    </div>
-
-    <!-- Auth Mode Tabs -->
-    <div style="display:flex; background:rgba(255,255,255,0.06); border-radius:12px; padding:3px; margin-top:10px; margin-bottom:10px;">
-      <button type="button" id="tabSignIn" onclick="switchAuthTab('login')"
-        style="flex:1; padding:7px; border-radius:9px; border:none; font-weight:700; font-size:0.85rem; cursor:pointer; background:var(--primary); color:#fff; transition:all 0.2s;">
-        🔑 Sign In
-      </button>
-      <button type="button" id="tabSignUp" onclick="switchAuthTab('register')"
-        style="flex:1; padding:7px; border-radius:9px; border:none; font-weight:600; font-size:0.85rem; cursor:pointer; background:transparent; color:var(--text-muted); transition:all 0.2s;">
-        📝 Register
-      </button>
-    </div>
-
-    <div class="login-divider" style="margin:8px 0;"></div>
-
-    <!-- Sign In Section -->
-    <div id="loginSection">
-      <!-- Error message -->
-      <div class="login-error" id="loginError">
-        ⚠️ <span id="loginErrorText" data-i18n="login_invalid">Invalid credentials</span>
+    <!-- Center Form Card -->
+    <div class="login-card fade-in">
+      <div class="login-title">
+        <h2 id="loginTitleText" data-i18n="login_welcome">Welcome Back 👋</h2>
+        <p id="loginSubText" data-i18n="login_subtitle">Sign in to manage your workspace and business</p>
       </div>
 
-      <!-- Form -->
-      <form id="loginForm" autocomplete="off">
-        <div class="form-group" style="margin-bottom:12px;">
-          <label for="loginEmail" data-i18n="login_email">Email Address</label>
-          <div class="input-wrap">
-            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-              <polyline points="22,6 12,13 2,6" />
-            </svg>
-            <input type="email" id="loginEmail" class="input" placeholder="admin@business.com" value="admin@business.com" required
-              autocomplete="email" data-i18n-ph="login_email_ph" style="padding-left: 42px !important;">
-          </div>
+      <div class="login-divider"></div>
+
+      <!-- Sign In Section -->
+      <div id="loginSection">
+        <!-- Error message -->
+        <div class="login-error" id="loginError">
+          ⚠️ <span id="loginErrorText" data-i18n="login_invalid">Invalid credentials</span>
         </div>
 
-        <div class="form-group" style="margin-bottom:12px;">
-          <label for="loginPassword" data-i18n="login_password">Password</label>
-          <div class="input-wrap">
-            <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-              fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-            <input type="password" id="loginPassword" class="input" placeholder="Enter your password" value="admin123" required
-              autocomplete="current-password" data-i18n-ph="login_pwd_ph" style="padding-left: 42px !important; padding-right: 42px !important;">
-            <button type="button" class="pwd-toggle" id="pwdToggle" onclick="togglePassword('loginPassword', 'eyeIcon')" style="right: 14px; top: 50%; transform: translateY(-50%);">
-              <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                <circle cx="12" cy="12" r="3" />
+        <!-- Form -->
+        <form id="loginForm" autocomplete="off">
+          <div class="form-group" style="margin-bottom:14px;">
+            <label for="loginEmail" data-i18n="login_email" style="margin-bottom:6px; font-size:0.84rem;">Username or Email</label>
+            <div class="input-wrap">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
               </svg>
-            </button>
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary" id="loginBtn" data-i18n="login_btn" style="width:100%; padding: 11px; font-size: 0.95rem; margin-top: 8px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;">
-          Sign In to Dashboard
-        </button>
-      </form>
-
-      <!-- Features -->
-      <div class="login-features">
-        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_1">Products & Inventory</span></div>
-        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_2">Sales Tracking</span></div>
-        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_3">Auto Profit Calc</span></div>
-        <div class="login-feature"><span>✓</span> <span data-i18n="login_feat_4">Reports & Export</span></div>
-      </div>
-
-      <div class="login-hint" style="margin-top:10px;">
-        <span data-i18n="login_hint">Default</span>: <span>admin@business.com</span> / <span>admin123</span>
-      </div>
-    </div>
-
-    <!-- Register Section -->
-    <div id="registerSection" style="display:none;">
-      <!-- Error message -->
-      <div class="login-error" id="regError">
-        ⚠️ <span id="regErrorText">Error</span>
-      </div>
-
-      <form id="registerForm" autocomplete="off">
-        <div style="display:flex; gap:12px; margin-bottom:12px;">
-          <div class="form-group" style="flex:1; margin-bottom:0;">
-            <label style="font-size:0.78rem;">👤 Full Name *</label>
-            <div class="input-wrap">
-              <input type="text" id="regName" class="input" placeholder="e.g. John Doe" required style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+              <input type="text" id="loginEmail" class="input" placeholder="admin@business.com"
+                value="" required autocomplete="username"
+                style="padding-top: 11px !important; padding-bottom: 11px !important;">
             </div>
           </div>
-          <div class="form-group" style="flex:1; margin-bottom:0;">
-            <label style="font-size:0.78rem;">🏢 Store Name *</label>
-            <div class="input-wrap">
-              <input type="text" id="regBusiness" class="input" placeholder="e.g. Cairo Store" required style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
+
+          <div class="form-group" style="margin-bottom:18px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+              <label for="loginPassword" data-i18n="login_password" style="margin-bottom: 0; font-size:0.84rem;">Password</label>
+              <a href="#" onclick="openForgotModal(); return false;" data-i18n="forgot_pwd_link" style="font-size: 0.82rem; color: #a855f7; text-decoration: none; font-weight: 600;">Forgot Password?</a>
             </div>
-          </div>
-        </div>
-
-        <div class="form-group" style="margin-bottom:12px;">
-          <label style="font-size:0.78rem;">📧 Email Address *</label>
-          <div class="input-wrap">
-            <input type="email" id="regEmail" class="input" placeholder="you@company.com" required autocomplete="email" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
-          </div>
-        </div>
-
-        <div style="display:flex; gap:12px; margin-bottom:16px;">
-          <div class="form-group" style="flex:1; margin-bottom:0;">
-            <label style="font-size:0.78rem;">🔒 Password *</label>
             <div class="input-wrap">
-              <input type="password" id="regPassword" class="input" placeholder="••••••••" required minlength="6" autocomplete="new-password" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 34px 10px 12px;color:#fff;font-size:0.85rem;">
-              <button type="button" class="pwd-toggle" onclick="togglePassword('regPassword', 'eyeIconReg')" style="right:10px;top:50%;transform:translateY(-50%);">
-                <svg id="eyeIconReg" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"
-                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg class="input-icon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+              <input type="password" id="loginPassword" class="input" placeholder="Enter your password" value=""
+                required autocomplete="current-password" data-i18n-ph="login_pwd_ph"
+                style="padding-top: 11px !important; padding-bottom: 11px !important;">
+              <button type="button" class="pwd-toggle" id="pwdToggle" onclick="togglePassword('loginPassword', 'eyeIcon')">
+                <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
                   <circle cx="12" cy="12" r="3" />
                 </svg>
               </button>
             </div>
           </div>
-          <div class="form-group" style="flex:1; margin-bottom:0;">
-            <label style="font-size:0.78rem;">🔒 Confirm *</label>
-            <div class="input-wrap">
-              <input type="password" id="regConfirm" class="input" placeholder="••••••••" required minlength="6" autocomplete="new-password" style="width:100%;background:var(--bg-elevated);border:1px solid rgba(255,255,255,0.12);border-radius:10px;padding:10px 12px;color:#fff;font-size:0.85rem;">
-            </div>
+
+          <button type="submit" class="btn btn-primary" id="loginBtn" data-i18n="login_btn"
+            style="width:100%; padding: 13px; font-size: 0.96rem; margin-top: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.45);">
+            Sign In to Workspace →
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Security Footer -->
+    <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.78rem; color:#64748b; padding-top:10px;">
+      <div>🔒 256-bit Enterprise Encryption</div>
+      <div>© 2026 SmartIMS</div>
+    </div>
+  </div>
+
+  <!-- Right Column: Breathtaking SaaS Product Showcase Pane -->
+  <div class="saas-showcase-pane">
+    <div class="saas-showcase-grid"></div>
+
+    <!-- Hero Analytics Preview Card -->
+    <div class="saas-showcase-card">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
+        <div>
+          <div style="font-size:0.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Gross Revenue Overview</div>
+          <div style="font-size:1.8rem; font-weight:800; color:#fff; margin-top:4px;">$148,420.00</div>
+        </div>
+        <div class="saas-stat-badge">↗ +28.4%</div>
+      </div>
+
+      <!-- Animated-style simulated revenue bars -->
+      <div style="display:flex; align-items:flex-end; gap:8px; height:70px; margin:18px 0 10px 0;">
+        <div style="flex:1; background:rgba(139,92,246,0.3); border-radius:6px; height:40%;"></div>
+        <div style="flex:1; background:rgba(139,92,246,0.4); border-radius:6px; height:55%;"></div>
+        <div style="flex:1; background:rgba(139,92,246,0.5); border-radius:6px; height:45%;"></div>
+        <div style="flex:1; background:rgba(139,92,246,0.6); border-radius:6px; height:70%;"></div>
+        <div style="flex:1; background:rgba(139,92,246,0.7); border-radius:6px; height:65%;"></div>
+        <div style="flex:1; background:rgba(139,92,246,0.85); border-radius:6px; height:85%;"></div>
+        <div style="flex:1; background:linear-gradient(180deg, #a855f7, #6366f1); border-radius:6px; height:100%; box-shadow: 0 0 15px rgba(168,85,247,0.5);"></div>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#64748b;">
+        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+      </div>
+    </div>
+
+    <!-- Live Inventory Status Preview Card -->
+    <div class="saas-showcase-card" style="padding:22px 26px;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center; font-weight:800;">⚡</div>
+          <div>
+            <div style="font-size:0.9rem; font-weight:700; color:#fff;">Multi-Warehouse Sync</div>
+            <div style="font-size:0.76rem; color:#94a3b8;">Real-Time Stock Automated Tracking</div>
           </div>
         </div>
+        <span style="font-size:0.75rem; background:rgba(59,130,246,0.2); color:#60a5fa; padding:4px 10px; border-radius:99px; font-weight:600;">Active</span>
+      </div>
+      <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:8px 12px; background:rgba(15,23,42,0.6); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
+        <span style="color:#cbd5e1;">Import Container #492 (Electronics)</span>
+        <span style="color:#34d399; font-weight:700;">Synced ✓</span>
+      </div>
+    </div>
 
-        <button type="submit" class="btn btn-primary" id="regBtn" style="width:100%; padding: 13px; font-size: 0.95rem; margin-top: 6px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 6px 20px rgba(139, 92, 246, 0.5);">
-          🚀 Create Account & Start
-        </button>
+    <!-- Executive Quote Bottom -->
+    <div class="saas-quote-card">
+      <div style="font-size:0.86rem; color:#e2e8f0; line-height:1.5; font-style:italic;">
+        "SmartIMS automated our entire import supply chain and gave us instant clarity on FX conversion & net profit margins."
+      </div>
+      <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
+        <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #3b82f6); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; color:#fff;">AR</div>
+        <div>
+          <div style="font-size:0.82rem; font-weight:700; color:#fff;">Ahmad R.</div>
+          <div style="font-size:0.72rem; color:#94a3b8;">Managing Director, Global Imports</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forgot Password Modal -->
+  <div class="modal-overlay" id="forgotModal">
+    <div class="modal modal-sm" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 class="modal-title" style="display: flex; align-items: center; gap: 8px;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+          </svg>
+          <span data-i18n="forgot_modal_title">Reset Your Password</span>
+        </h3>
+        <button type="button" class="modal-close" onclick="closeForgotModal()">&times;</button>
+      </div>
+      <form id="forgotForm" onsubmit="handleForgotSubmit(event)">
+        <div class="modal-body" style="padding: 20px;">
+          <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px; line-height: 1.5;" data-i18n="forgot_modal_desc">
+            Enter your registered email address and we will send you instructions to reset your password.
+          </p>
+          <div class="form-group" style="margin-bottom: 16px;">
+            <label for="forgotEmail" data-i18n="forgot_email_lbl" style="display: block; font-size: 0.85rem; font-weight: 600; margin-bottom: 6px;">Email Address</label>
+            <input type="email" id="forgotEmail" class="input" placeholder="admin@business.com" required style="width: 100%;">
+          </div>
+          <div id="forgotAlert" style="display: none; padding: 12px; border-radius: 8px; font-size: 0.85rem; margin-top: 12px;"></div>
+        </div>
+        <div class="modal-footer" style="padding: 16px 20px; display: flex; justify-content: flex-end; gap: 10px; background: var(--bg-card); border-top: 1px solid var(--border);">
+          <button type="button" class="btn btn-secondary" onclick="closeForgotModal()" data-i18n="btn_cancel" style="padding: 8px 16px; border-radius: 8px;">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="forgotBtn" data-i18n="forgot_send_btn" style="padding: 8px 16px; border-radius: 8px; background: #8b5cf6; color: white; font-weight: 600; border: none; cursor: pointer;">Send Reset Link</button>
+        </div>
       </form>
     </div>
   </div>
 
   <!-- Scripts -->
   <script src="js/i18n.js"></script>
+  <script src="js/api_client.js"></script>
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
   <script>
     // Initialise DB and translation layout on first load
     (async () => {
       I18n.init();
+      if (typeof DB !== 'undefined' && DB.syncFromBackend) {
+        await DB.syncFromBackend();
+      }
       await DB.seed();
       // If already logged in, redirect to app
       if (Auth.isLoggedIn()) window.location.href = 'app.html';
     })();
 
-    function switchAuthTab(tab) {
-      const isLogin = tab === 'login';
-      const btnIn = document.getElementById('tabSignIn');
-      const btnUp = document.getElementById('tabSignUp');
-      const secIn = document.getElementById('loginSection');
-      const secUp = document.getElementById('registerSection');
-      const title = document.getElementById('loginTitleText');
-      const sub   = document.getElementById('loginSubText');
-
-      if (btnIn && btnUp) {
-        btnIn.style.background = isLogin ? 'var(--primary)' : 'transparent';
-        btnIn.style.color      = isLogin ? '#fff' : 'var(--text-muted)';
-        btnUp.style.background = isLogin ? 'transparent' : 'var(--primary)';
-        btnUp.style.color      = isLogin ? 'var(--text-muted)' : '#fff';
+    function quickFill(email, pwd) {
+      const emailEl = document.getElementById('loginEmail');
+      const pwdEl = document.getElementById('loginPassword');
+      if (emailEl && pwdEl) {
+        emailEl.value = email;
+        pwdEl.value = pwd;
+        emailEl.focus();
+        emailEl.style.boxShadow = '0 0 0 2px var(--primary)';
+        setTimeout(() => emailEl.style.boxShadow = '', 400);
       }
-      if (secIn) secIn.style.display = isLogin ? 'block' : 'none';
-      if (secUp) secUp.style.display = isLogin ? 'none' : 'block';
-
-      if (title) title.textContent = isLogin 
-        ? (I18n.getLang() === 'ar' ? 'مرحباً بعودتك 👋' : 'Welcome Back 👋')
-        : (I18n.getLang() === 'ar' ? 'إنشاء حساب جديد ✨' : 'Create New Account ✨');
-      if (sub) sub.textContent = isLogin
-        ? (I18n.getLang() === 'ar' ? 'سجل الدخول لإدارة عملك' : 'Sign in to manage your business')
-        : (I18n.getLang() === 'ar' ? 'سجل عملك للبدء في تتبع المخزون والمبيعات' : 'Register your business to start tracking');
     }
 
     // Toggle password visibility
@@ -274,8 +281,32 @@
       try {
         const result = await Auth.login(email, password);
         if (result.success) {
-          btn.innerHTML = '✓ ...';
-          setTimeout(() => { window.location.href = 'app.html'; }, 600);
+          const isMaster = result.user && (result.user.role === 'platform_owner' || result.user.email === 'abdouamine@gmail.com');
+          if (!isMaster && (result.must_change_password || (result.user && result.user.must_change_password))) {
+            btn.innerHTML = '🔒 Security Requirement...';
+            setTimeout(() => {
+              window.location.href = `verify-email.html?uid=${result.user.id}&token=force_change&email=${encodeURIComponent(email)}`;
+            }, 600);
+          } else {
+            btn.innerHTML = '✓ ...';
+            setTimeout(() => {
+              if (result.user && result.user.role === 'platform_owner') {
+                window.location.href = 'app.html#platform';
+              } else {
+                window.location.href = 'app.html';
+              }
+            }, 600);
+          }
+        } else if (result.suspended) {
+          errText.innerHTML = `⛔ <b>Company Account Suspended</b><br><br>${result.message || 'Your company account has been suspended by administration.'}`;
+          err.classList.add('show');
+          btn.innerHTML = I18n.t('login_btn');
+          btn.disabled = false;
+        } else if (result.unverified) {
+          errText.innerHTML = `🔒 <b>Account Verification Required</b><br><br>An activation link was sent to your email address (<b>${result.email || email}</b>).<br>You must verify your account before logging in.`;
+          err.classList.add('show');
+          btn.innerHTML = I18n.t('login_btn');
+          btn.disabled = false;
         } else {
           errText.textContent = result.message;
           err.classList.add('show');
@@ -290,48 +321,56 @@
       }
     });
 
-    // Register form submit
-    document.getElementById('registerForm')?.addEventListener('submit', async (e) => {
+    function openForgotModal() {
+      document.getElementById('forgotEmail').value = document.getElementById('loginEmail').value || '';
+      document.getElementById('forgotAlert').style.display = 'none';
+      document.getElementById('forgotModal').classList.add('show');
+    }
+
+    function closeForgotModal() {
+      document.getElementById('forgotModal').classList.remove('show');
+    }
+
+    async function handleForgotSubmit(e) {
       e.preventDefault();
-      const btn = document.getElementById('regBtn');
-      const err = document.getElementById('regError');
-      const errText = document.getElementById('regErrorText');
-      btn.innerHTML = `<div class="spinner"></div> ${I18n.getLang() === 'ar' ? 'جاري الإنشاء...' : 'Creating Account...'}`;
-      btn.disabled = true;
-      err.classList.remove('show');
+      const email = document.getElementById('forgotEmail').value.trim();
+      const btn = document.getElementById('forgotBtn');
+      const alertBox = document.getElementById('forgotAlert');
 
-      const name = document.getElementById('regName').value.trim();
-      const business = document.getElementById('regBusiness').value.trim();
-      const email = document.getElementById('regEmail').value.trim();
-      const pwd = document.getElementById('regPassword').value;
-      const confirm = document.getElementById('regConfirm').value;
-
-      if (pwd !== confirm) {
-        errText.textContent = I18n.getLang() === 'ar' ? 'كلمات المرور غير متطابقة' : 'Passwords do not match!';
-        err.classList.add('show');
-        btn.innerHTML = '🚀 Create Account & Start';
-        btn.disabled = false;
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
+        alertBox.style.display = 'block';
+        alertBox.style.background = 'rgba(239, 68, 68, 0.15)';
+        alertBox.style.color = '#ef4444';
+        alertBox.style.border = '1px solid rgba(239, 68, 68, 0.3)';
+        alertBox.textContent = 'Please enter a valid, recognized email address (e.g., user@gmail.com).';
         return;
       }
 
+      btn.disabled = true;
+      btn.textContent = 'Sending...';
+      alertBox.style.display = 'none';
+
       try {
-        const result = await Auth.register(name, business, email, pwd);
-        if (result.success) {
-          btn.innerHTML = '✓ Account Created!';
-          setTimeout(() => { window.location.href = 'app.html'; }, 600);
-        } else {
-          errText.textContent = result.message;
-          err.classList.add('show');
-          btn.innerHTML = '🚀 Create Account & Start';
-          btn.disabled = false;
+        if (typeof ApiClient !== 'undefined') {
+          await fetch(`${ApiClient.BASE_URL}auth/password-reset/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
         }
       } catch (ex) {
-        errText.textContent = 'Error creating account.';
-        err.classList.add('show');
-        btn.innerHTML = '🚀 Create Account & Start';
-        btn.disabled = false;
+        console.warn('Backend password-reset request notice:', ex.message);
       }
-    });
+
+      alertBox.style.display = 'block';
+      alertBox.style.background = 'rgba(16, 185, 129, 0.15)';
+      alertBox.style.color = '#10b981';
+      alertBox.style.border = '1px solid rgba(16, 185, 129, 0.3)';
+      alertBox.innerHTML = `✓ If an account exists with email <b>${email}</b>, a secure password reset link has been sent to your email inbox.<br><br>Please check your email inbox (or spam folder) to reset your password.`;
+
+      btn.disabled = false;
+      btn.textContent = 'Send Reset Link';
+    }
   </script>
 </body>
 

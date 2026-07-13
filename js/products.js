@@ -20,10 +20,10 @@ const Products = (() => {
           <p>${products.length} ${I18n.getLang() === 'ar' ? 'منتجات في الكتالوج' : 'products in catalogue'}</p>
         </div>
         <div class="page-actions">
-          <button class="btn btn-primary" onclick="Products.openAdd()">
+          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Products.openAdd()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             ${t('btn_add_product')}
-          </button>
+          </button>` : ''}
         </div>
       </div>
 
@@ -127,8 +127,8 @@ const Products = (() => {
         <td>
           <div class="actions">
             <button class="act-btn view" onclick="Products.view(${p.id})" title="View Details">👁</button>
-            <button class="act-btn edit" onclick="Products.openEdit(${p.id})" title="Edit">✏️</button>
-            <button class="act-btn del"  onclick="Products.delete(${p.id})" title="Delete">🗑️</button>
+            ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Products.openEdit(${p.id})" title="Edit">✏️</button>
+            <button class="act-btn del"  onclick="Products.delete(${p.id})" title="Delete">🗑️</button>` : ''}
           </div>
         </td>
       </tr>`).join('');
@@ -163,9 +163,10 @@ const Products = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_category')} <span class="req">*</span></label>
+        <input class="input" type="text" id="fCatSearch" placeholder="🔍 Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
         <select class="select" id="fCat" required>
           <option value="">${I18n.getLang() === 'ar' ? 'اختر فئة' : 'Select category'}</option>
-          ${cats.map(c => `<option value="${c.id}" ${p.categoryId==c.id?'selected':''}>${c.name}</option>`).join('')}
+          ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>${c.name}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -173,25 +174,13 @@ const Products = (() => {
         <input class="input" id="fSupp" value="${p.supplierName && p.supplierName !== 'N/A' ? p.supplierName : (p.supplierId ? '' : '')}" placeholder="${t('ph_supplier')}">
       </div>
       <div class="field">
-        <label>${t('lbl_price')} (FCFA) <span class="req">*</span></label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span><input class="input" type="number" id="fPrice" value="${p.purchasePrice||''}" placeholder="0" required></div>
+        <label>${t('lbl_price')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <input class="input" type="text" id="fPrice" value="${UI.toInputMoney(p.purchasePrice)}" placeholder="0" oninput="Products.calcPreview()" required>
+        ${UI.isRiyalMode() ? '<div id="fPriceFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
       </div>
       <div class="field">
         <label>${t('lbl_qty')} <span class="req">*</span></label>
         <input class="input" type="number" id="fQty" value="${p.quantity||''}" placeholder="e.g. 100" required>
-      </div>
-      <div class="field">
-        <label>${t('lbl_currency')}</label>
-        <select class="select" id="fCurrency">
-          <option value="FCFA" ${p.currency==='FCFA'?'selected':''}>FCFA (F)</option>
-          <option value="USD" ${p.currency==='USD'?'selected':''}>USD ($)</option>
-          <option value="EGP" ${p.currency==='EGP'?'selected':''}>EGP (£)</option>
-          <option value="EUR" ${p.currency==='EUR'?'selected':''}>EUR (€)</option>
-        </select>
-      </div>
-      <div class="field">
-        <label>${t('lbl_rate')}</label>
-        <input class="input" type="number" step="0.0001" id="fRate" value="${p.exchangeRate||1}" placeholder="1.0">
       </div>
       <div class="field">
         <label>${t('lbl_date')}</label>
@@ -214,7 +203,7 @@ const Products = (() => {
     </div>
     <div style="background:var(--bg-elevated);border-radius:10px;padding:12px 16px;margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
       <span style="color:var(--text-secondary)">${t('lbl_cpu_preview')}:</span>
-      <span style="font-size:1.1rem;font-weight:700;color:var(--accent)" id="costPerUnitPreview">0 FCFA</span>
+      <span style="font-size:1.1rem;font-weight:700;color:var(--accent)" id="costPerUnitPreview">0 ${UI.getCurrency()}</span>
     </div>`;
   }
 
@@ -233,11 +222,8 @@ const Products = (() => {
       <select class="select" onchange="Products.calcPreview()">
         ${types.map(t => `<option ${e.expenseType===t?'selected':''}>${t}</option>`).join('')}
       </select>
-      <div class="input-prefix-wrap">
-        <span class="input-prefix">F</span>
-        <input class="input expense-amount" type="number" value="${e.amount||''}" placeholder="0" oninput="Products.calcPreview()">
-      </div>
-      <button type="button" class="btn btn-sm btn-ghost" onclick="this.closest('.expense-row').remove();Products.calcPreview()">✕</button>
+      <input class="input expense-amount" type="number" value="${e.amount||''}" placeholder="Amount (${UI.getCurrency()})" oninput="Products.calcPreview()">
+      <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">🗑️ Delete</button>
     </div>`;
   }
 
@@ -260,7 +246,12 @@ const Products = (() => {
   }
 
   function calcPreview() {
-    const price = parseFloat(document.getElementById('fPrice')?.value) || 0;
+    const rawPrice = document.getElementById('fPrice')?.value;
+    const price = UI.fromInputMoney(rawPrice) || 0;
+    const hint = document.getElementById('fPriceFCFAHint');
+    if (hint && UI.isRiyalMode()) {
+      hint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
+    }
     const qty   = parseInt(document.getElementById('fQty')?.value) || 1;
     const expAmounts = [...document.querySelectorAll('.expense-amount')].map(i => parseFloat(i.value) || 0);
     const totalExp = expAmounts.reduce((a, v) => a + v, 0);
@@ -271,6 +262,7 @@ const Products = (() => {
   }
 
   function openAdd() {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to add products.'); return; }
     _editId = null;
     _imgData = null;
     UI.createModal('productModal', '📦 Add New Product',
@@ -283,6 +275,7 @@ const Products = (() => {
   }
 
   function openEdit(id) {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to edit products.'); return; }
     _editId = id;
     _imgData = null;
     const p = DB.getEnrichedProduct(id);
@@ -296,22 +289,33 @@ const Products = (() => {
     calcPreview();
   }
 
-  function save() {
+  async function save() {
+    const saveBtn = document.getElementById('productModal')?.querySelector('.btn-primary');
+    if (saveBtn) {
+      if (saveBtn.disabled) return;
+      saveBtn.disabled = true;
+      saveBtn.style.opacity = '0.65';
+    }
+
     const code  = document.getElementById('fCode')?.value.trim();
     const name  = document.getElementById('fName')?.value.trim();
     const catId = document.getElementById('fCat')?.value;
     const supplierName = document.getElementById('fSupp')?.value.trim();
-    const price = parseFloat(document.getElementById('fPrice')?.value);
+    const price = UI.fromInputMoney(document.getElementById('fPrice')?.value);
     const qty   = parseInt(document.getElementById('fQty')?.value);
-    const currency = document.getElementById('fCurrency')?.value;
-    const rate  = parseFloat(document.getElementById('fRate')?.value) || 1;
+    const currency = UI.getCurrency();
+    const rate  = 1;
     const date  = document.getElementById('fDate')?.value;
     const desc  = document.getElementById('fDesc')?.value.trim();
 
     if (!name || !catId || isNaN(price) || isNaN(qty)) {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
       UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
     }
-    if (qty < 0 || price < 0) { UI.toast('error', 'Invalid values'); return; }
+    if (qty < 0 || price < 0) {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+      UI.toast('error', 'Invalid values'); return;
+    }
 
     const data = {
       code, name, categoryId: parseInt(catId),
@@ -322,25 +326,32 @@ const Products = (() => {
     };
 
     let productId;
-    if (_editId) {
-      DB.update('products', _editId, data);
-      productId = _editId;
-      // Remove old expenses then re-add
-      DB.query('productExpenses', e => e.productId === _editId).forEach(e => DB.remove('productExpenses', e.id));
-    } else {
-      const prod = DB.insert('products', data);
-      productId = prod.id;
-    }
-
-    // Save expenses
-    const rows = document.querySelectorAll('.expense-row');
-    rows.forEach(row => {
-      const type = row.querySelector('select')?.value;
-      const amount = parseFloat(row.querySelector('.expense-amount')?.value) || 0;
-      if (amount > 0) {
-        DB.insert('productExpenses', { productId, expenseType: type, amount, note: '', date: date || new Date().toISOString().split('T')[0] });
+    try {
+      if (_editId) {
+        await DB.update('products', _editId, data);
+        productId = _editId;
+        // Remove old expenses then re-add
+        const oldExps = DB.query('productExpenses', e => e.productId === _editId);
+        for (const e of oldExps) { await DB.remove('productExpenses', e.id); }
+      } else {
+        const prod = await DB.insert('products', data);
+        productId = prod?.id;
       }
-    });
+
+      // Save expenses
+      const rows = document.querySelectorAll('.expense-row');
+      for (const row of rows) {
+        const type = row.querySelector('select')?.value;
+        const amount = parseFloat(row.querySelector('.expense-amount')?.value) || 0;
+        if (amount > 0) {
+          await DB.insert('productExpenses', { productId, expenseType: type, amount, note: '', date: date || new Date().toISOString().split('T')[0] });
+        }
+      }
+    } catch (err) {
+      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
 
     UI.closeModal('productModal');
     UI.toast('success', _editId ? 'Product Updated' : 'Product Added', `"${name}" has been saved.`);
@@ -348,12 +359,19 @@ const Products = (() => {
   }
 
   async function del(id) {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to delete products.'); return; }
     const p = DB.getById('products', id);
     if (!p) return;
     const ok = await UI.confirm('Delete Product?', `"${p.name}" will be permanently deleted along with all its expenses.`);
     if (!ok) return;
-    DB.query('productExpenses', e => e.productId === id).forEach(e => DB.remove('productExpenses', e.id));
-    DB.remove('products', id);
+    try {
+      const exps = DB.query('productExpenses', e => e.productId === id);
+      for (const e of exps) { await DB.remove('productExpenses', e.id); }
+      await DB.remove('products', id);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.toast('success', 'Product Deleted');
     renderTable();
   }
@@ -425,5 +443,20 @@ const Products = (() => {
     </div>`;
   }
 
-  return { render, setFilter, openAdd, openEdit, save, delete: del, view, addExpenseRow, handleImage, calcPreview };
+  function filterCategories() {
+    const q = document.getElementById('fCatSearch')?.value.toLowerCase().trim() || '';
+    const sel = document.getElementById('fCat');
+    if (!sel) return;
+    Array.from(sel.options).forEach(opt => {
+      if (!opt.value) return;
+      const searchStr = opt.dataset.search || opt.text.toLowerCase();
+      opt.style.display = searchStr.includes(q) ? '' : 'none';
+    });
+    const visibleOpts = Array.from(sel.options).filter(opt => opt.value && opt.style.display !== 'none');
+    if (visibleOpts.length === 1 && q.length >= 2) {
+      sel.value = visibleOpts[0].value;
+    }
+  }
+
+  return { render, setFilter, openAdd, openEdit, save, delete: del, view, addExpenseRow, handleImage, calcPreview, filterCategories };
 })();

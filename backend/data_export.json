@@ -1,0 +1,1029 @@
+[
+{
+  "model": "api.company",
+  "pk": 13,
+  "fields": {
+    "name": "kawre import",
+    "subscription_plan": "basic",
+    "status": "active",
+    "created_at": "2026-07-09T07:06:02.966Z",
+    "updated_at": "2026-07-09T08:47:51.969Z"
+  }
+},
+{
+  "model": "api.company",
+  "pk": 14,
+  "fields": {
+    "name": "Awladjamaan",
+    "subscription_plan": "basic",
+    "status": "active",
+    "created_at": "2026-07-09T07:41:23.965Z",
+    "updated_at": "2026-07-09T09:23:52.198Z"
+  }
+},
+{
+  "model": "api.company",
+  "pk": 15,
+  "fields": {
+    "name": "Hadil import",
+    "subscription_plan": "basic",
+    "status": "suspended",
+    "created_at": "2026-07-09T09:09:18.194Z",
+    "updated_at": "2026-07-09T09:24:00.696Z"
+  }
+},
+{
+  "model": "api.company",
+  "pk": 16,
+  "fields": {
+    "name": "GAGGA",
+    "subscription_plan": "basic",
+    "status": "active",
+    "created_at": "2026-07-09T12:29:18.834Z",
+    "updated_at": "2026-07-09T12:37:01.190Z"
+  }
+},
+{
+  "model": "api.company",
+  "pk": 17,
+  "fields": {
+    "name": "Maouloud import",
+    "subscription_plan": "free",
+    "status": "active",
+    "created_at": "2026-07-09T13:42:57.591Z",
+    "updated_at": "2026-07-09T13:48:45.232Z"
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$7axRBlvwfwZHFIlHbiMXJx$Up7EAKM/sjZoSRHgylH8AeLLfhsuenI5OMFCXgS8EUU=",
+    "last_login": null,
+    "is_superuser": true,
+    "username": "abdouamine@gmail.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": true,
+    "date_joined": "2026-07-06T18:33:54.046Z",
+    "name": "Platform Super Owner",
+    "email": "abdouamine@gmail.com",
+    "password_hash": null,
+    "role": "platform_owner",
+    "company": null,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": null,
+    "business": null,
+    "currency": "USD",
+    "created_at": "2026-07-06T18:33:56.048Z",
+    "updated_at": "2026-07-07T15:22:10.189Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$YTsb1ajAGDqXIA0auY6nGU$DCJLpK4v6EoXZOHSdN2gXhwE/lfM0bAzP37pGxSTMZU=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "kawre_import_admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T07:06:03.004Z",
+    "name": "kawre import Admin",
+    "email": "abdelsamadamine003@gmail.com",
+    "password_hash": null,
+    "role": "admin",
+    "company": 13,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "",
+    "currency": "FCFA",
+    "created_at": "2026-07-09T07:06:03.007Z",
+    "updated_at": "2026-07-09T19:27:26.481Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$U62z1C9l9UT6RunnpZ56g1$OG0TmEG/lr7H7H4WQp6mA7GmnN0pVojkKWYyEQa+DTA=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "awladjamaan_admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T07:41:24.003Z",
+    "name": "Awladjamaan Admin",
+    "email": "abdelsamadamineoumar@gmail.com",
+    "password_hash": null,
+    "role": "admin",
+    "company": 14,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": null,
+    "business": null,
+    "currency": "USD",
+    "created_at": "2026-07-09T07:41:24.004Z",
+    "updated_at": "2026-07-09T07:42:24.440Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$sMIJlaEXgQ9ggiAc6qs5go$nacfcTML0/gFm5ozoHUpxd49f5+FYMjBYempwJ+9VO0=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "amineoumar003@gmail.com",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T07:54:55.512Z",
+    "name": "staff",
+    "email": "amineoumar003@gmail.com",
+    "password_hash": null,
+    "role": "staff",
+    "company": 14,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "My Business",
+    "currency": "USD",
+    "created_at": "2026-07-09T07:54:55.513Z",
+    "updated_at": "2026-07-09T07:59:25.796Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$PuUS2tMUAmjzeLQy2y7Yp1$eCRKb/aVC/l/bt60qQGBgYygIm/nNDM0lNekZaE9T40=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ali",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T08:15:29.349Z",
+    "name": "ali",
+    "email": "ali@gmail.com",
+    "password_hash": null,
+    "role": "cashier",
+    "company": 14,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "My Business",
+    "currency": "USD",
+    "created_at": "2026-07-09T08:15:29.349Z",
+    "updated_at": "2026-07-09T08:15:32.141Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$RtPwbbn9kxXEYDPqpRKv7a$3cnV8EOwIefqOEcuwZpXi5eOqktWygbmIdN/SjVeD68=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "madiha_amine",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T09:09:18.231Z",
+    "name": "Madiha Amine",
+    "email": "abdelsamadamine03@gmail.com",
+    "password_hash": null,
+    "role": "admin",
+    "company": 15,
+    "status": "deactivated",
+    "is_active": false,
+    "must_change_password": false,
+    "phone": "",
+    "business": "",
+    "currency": "FCFA",
+    "created_at": "2026-07-09T09:09:18.233Z",
+    "updated_at": "2026-07-09T09:11:18.081Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$ccYSXKnosTBMmgyxxQhf3Y$3c1X32PP6X0V70CfX9VioUeCMKOvqBQ3y9cZpiGA+SY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "gagga_admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T12:29:18.867Z",
+    "name": "GAGGA Admin",
+    "email": "ousamagaga89@gmail.com",
+    "password_hash": null,
+    "role": "admin",
+    "company": 16,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "",
+    "currency": "USD",
+    "created_at": "2026-07-09T12:29:18.870Z",
+    "updated_at": "2026-07-09T12:42:29.731Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$2RWHYOS2XIhYH7xVWfL2UB$9/4JKUmXaDxV0Yky2BLOMTS9F93cv2DbvF89YyV52vY=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "ziad",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T12:32:55.865Z",
+    "name": "Ziad",
+    "email": "ziad@gmail.com",
+    "password_hash": null,
+    "role": "cashier",
+    "company": 16,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "My Business",
+    "currency": "USD",
+    "created_at": "2026-07-09T12:32:55.869Z",
+    "updated_at": "2026-07-09T12:32:58.485Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.user",
+  "fields": {
+    "password": "pbkdf2_sha256$1200000$bkYU5QL05eqzLo7YJDb8QT$BZ0ohDMjmjlebJhQgF9JudbLhV3evc0VDkcZToH5AOk=",
+    "last_login": null,
+    "is_superuser": false,
+    "username": "maouloud_import_admin",
+    "first_name": "",
+    "last_name": "",
+    "is_staff": false,
+    "date_joined": "2026-07-09T13:42:57.626Z",
+    "name": "Maouloud import Admin",
+    "email": "msadickmaouloud@gmail.com",
+    "password_hash": null,
+    "role": "admin",
+    "company": 17,
+    "status": "active",
+    "is_active": true,
+    "must_change_password": false,
+    "phone": "",
+    "business": "",
+    "currency": "USD",
+    "created_at": "2026-07-09T13:42:57.628Z",
+    "updated_at": "2026-07-09T18:43:32.667Z",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 1,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "3",
+    "created_at": "2026-07-06T19:07:17.655Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 2,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "3",
+    "created_at": "2026-07-06T19:07:17.733Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 3,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "plan_change_enterprise",
+    "target_type": "Company",
+    "target_id": "3",
+    "created_at": "2026-07-06T19:07:38.795Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 4,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "plan_change_pro",
+    "target_type": "Company",
+    "target_id": "3",
+    "created_at": "2026-07-06T19:07:38.835Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 5,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "5",
+    "created_at": "2026-07-06T19:08:28.505Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 6,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "plan_change_pro",
+    "target_type": "Company",
+    "target_id": "5",
+    "created_at": "2026-07-06T19:08:40.152Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 7,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "5",
+    "created_at": "2026-07-06T19:08:45.970Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 8,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "5",
+    "created_at": "2026-07-06T19:09:42.060Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 9,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "6",
+    "created_at": "2026-07-06T19:15:27.586Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 10,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "5",
+    "created_at": "2026-07-06T19:19:45.614Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 11,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T19:20:38.314Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 12,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "8",
+    "created_at": "2026-07-06T19:20:38.294Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 13,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T19:37:55.359Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 14,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T19:39:22.873Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 15,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "9",
+    "created_at": "2026-07-06T19:40:31.590Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 16,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "9",
+    "created_at": "2026-07-06T19:43:24.441Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 17,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "10",
+    "created_at": "2026-07-06T20:28:40.258Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 18,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "plan_change_pro",
+    "target_type": "Company",
+    "target_id": "9",
+    "created_at": "2026-07-06T20:31:50.437Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 19,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T21:06:39.510Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 20,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T21:07:31.272Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 21,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T21:18:03.271Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 22,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "7",
+    "created_at": "2026-07-06T21:18:41.716Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 23,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "10",
+    "created_at": "2026-07-06T21:57:40.515Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 24,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "11",
+    "created_at": "2026-07-06T22:00:15.589Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 25,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "11",
+    "created_at": "2026-07-06T22:03:16.273Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 26,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "11",
+    "created_at": "2026-07-06T22:04:46.206Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 27,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "12",
+    "created_at": "2026-07-07T11:41:01.285Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 28,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "13",
+    "created_at": "2026-07-09T07:06:07.715Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 29,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "13",
+    "created_at": "2026-07-09T07:37:57.122Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 30,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "13",
+    "created_at": "2026-07-09T07:38:42.609Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 31,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "13",
+    "created_at": "2026-07-09T07:39:45.901Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 32,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "14",
+    "created_at": "2026-07-09T07:41:32.897Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 33,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "14",
+    "created_at": "2026-07-09T08:06:50.195Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 34,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "14",
+    "created_at": "2026-07-09T08:14:20.136Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 35,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "14",
+    "created_at": "2026-07-09T08:17:56.711Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 36,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "13",
+    "created_at": "2026-07-09T08:47:52.033Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 37,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "15",
+    "created_at": "2026-07-09T09:09:25.650Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 38,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "14",
+    "created_at": "2026-07-09T09:23:52.250Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 39,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "15",
+    "created_at": "2026-07-09T09:24:00.753Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 40,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "16",
+    "created_at": "2026-07-09T12:29:26.482Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 41,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "16",
+    "created_at": "2026-07-09T12:35:41.589Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 42,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "16",
+    "created_at": "2026-07-09T12:37:01.247Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 43,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "create_company",
+    "target_type": "Company",
+    "target_id": "17",
+    "created_at": "2026-07-09T13:43:07.204Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 44,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_suspended",
+    "target_type": "Company",
+    "target_id": "17",
+    "created_at": "2026-07-09T13:47:43.440Z"
+  }
+},
+{
+  "model": "api.auditlog",
+  "pk": 45,
+  "fields": {
+    "actor": [
+      "abdouamine@gmail.com"
+    ],
+    "action": "status_change_active",
+    "target_type": "Company",
+    "target_id": "17",
+    "created_at": "2026-07-09T13:48:45.290Z"
+  }
+},
+{
+  "model": "api.category",
+  "pk": 11,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "name": "cosmetics",
+    "description": "Cosmestic products with higher quality",
+    "created_at": "2026-07-09T07:27:52.316Z",
+    "updated_at": "2026-07-09T07:27:52.317Z"
+  }
+},
+{
+  "model": "api.category",
+  "pk": 12,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "name": "Electronics",
+    "description": "",
+    "created_at": "2026-07-09T07:28:12.114Z",
+    "updated_at": "2026-07-09T07:28:12.115Z"
+  }
+},
+{
+  "model": "api.product",
+  "pk": 12,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "code": "PRD-001",
+    "name": "Perfums",
+    "category": 11,
+    "supplier": null,
+    "description": "this product is my first i will try to sell if they like it i will continue buying stuff from this supplier",
+    "purchase_price": 50000.0,
+    "currency": "RWF",
+    "exchange_rate": 1.0,
+    "quantity": 20,
+    "purchase_date": "2026-07-09",
+    "status": "available",
+    "created_at": "2026-07-09T07:30:19.676Z",
+    "updated_at": "2026-07-09T07:30:19.677Z"
+  }
+},
+{
+  "model": "api.productexpense",
+  "pk": 9,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "product": 12,
+    "expense_type": "Packaging",
+    "amount": 2000.0,
+    "note": "",
+    "date": "2026-07-09",
+    "created_at": "2026-07-09T07:30:19.836Z",
+    "updated_at": "2026-07-09T07:30:19.836Z"
+  }
+},
+{
+  "model": "api.productexpense",
+  "pk": 10,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "product": 12,
+    "expense_type": "Transportation",
+    "amount": 3000.0,
+    "note": "",
+    "date": "2026-07-09",
+    "created_at": "2026-07-09T07:30:19.908Z",
+    "updated_at": "2026-07-09T07:30:19.908Z"
+  }
+},
+{
+  "model": "api.sale",
+  "pk": 8,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "product": 12,
+    "quantity": 5,
+    "selling_price": 3500.0,
+    "sale_date": "2026-07-09",
+    "customer": "",
+    "revenue": 17500.0,
+    "cost": 13750.0,
+    "profit": 3750.0,
+    "profit_margin": 21.428571428571427,
+    "payment_status": "credit",
+    "created_at": "2026-07-09T07:32:07.016Z",
+    "updated_at": "2026-07-09T07:32:47.536Z"
+  }
+},
+{
+  "model": "api.sale",
+  "pk": 9,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "product": 12,
+    "quantity": 3,
+    "selling_price": 4500.0,
+    "sale_date": "2026-07-09",
+    "customer": "ziad",
+    "revenue": 13500.0,
+    "cost": 8250.0,
+    "profit": 5250.0,
+    "profit_margin": 38.88888888888889,
+    "payment_status": "paid",
+    "created_at": "2026-07-09T12:47:41.495Z",
+    "updated_at": "2026-07-09T12:49:50.368Z"
+  }
+},
+{
+  "model": "api.sale",
+  "pk": 10,
+  "fields": {
+    "company": 13,
+    "user_id": 49,
+    "product": 12,
+    "quantity": 12,
+    "selling_price": 4500.0,
+    "sale_date": "2026-07-09",
+    "customer": "",
+    "revenue": 54000.0,
+    "cost": 33000.0,
+    "profit": 21000.0,
+    "profit_margin": 38.88888888888889,
+    "payment_status": "paid",
+    "created_at": "2026-07-09T12:51:47.309Z",
+    "updated_at": "2026-07-09T12:51:47.309Z"
+  }
+}
+]

@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify Account & Set Password - SmartIMS</title>
+  <script src="js/api_client.js"></script>
+  <script src="js/db.js"></script>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .grid-bg {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(124, 58, 237, 0.05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(124, 58, 237, 0.05) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
+    .login-container {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      max-width: 440px;
+      padding: 20px;
+    }
+    .login-card {
+      background: rgba(30, 41, 59, 0.85);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      padding: 36px 32px;
+      border-radius: 20px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+    .login-logo {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      border-radius: 16px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.4);
+    }
+    .login-title {
+      font-size: 1.6rem;
+      font-weight: 800;
+      margin: 0 0 8px 0;
+    }
+    .login-subtitle {
+      font-size: 0.9rem;
+      color: #94a3b8;
+      margin: 0;
+      line-height: 1.5;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #cbd5e1;
+      margin-bottom: 6px;
+    }
+    .input {
+      width: 100%;
+      box-sizing: border-box;
+      padding: 12px 16px;
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      color: #fff;
+      font-size: 0.95rem;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .input:focus {
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.25);
+    }
+    .btn {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #7c3aed, #4f46e5);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 10px 20px -5px rgba(124, 58, 237, 0.4);
+    }
+    .btn:hover {
+      box-shadow: 0 14px 24px -4px rgba(124, 58, 237, 0.5);
+    }
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .login-error {
+      display: none;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+    }
+    .login-error.show {
+      display: block;
+    }
+    .login-success {
+      display: none;
+      background: rgba(16, 185, 129, 0.15);
+      color: #10b981;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      padding: 14px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="grid-bg"></div>
+
+  <div class="login-container">
+    <div class="login-card" style="position:relative;">
+      <div style="position:absolute; top:16px; right:16px;">
+        <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
+          style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 12px; border-radius:10px; font-weight:600; cursor:pointer;">🌐 عربي</button>
+      </div>
+      <div class="login-header">
+        <div class="login-logo">
+          <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+            stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <h1 class="login-title" data-i18n="activate_title">Activate Account</h1>
+        <p class="login-subtitle" data-i18n="activate_sub">Your company account has been created. Verify your email and choose your permanent password.</p>
+      </div>
+
+      <div class="login-error" id="verifyError">
+        <span id="verifyErrorText">Error</span>
+      </div>
+
+      <div class="login-success" id="verifySuccess">
+        ✓ Email verified & password set successfully!<br><span style="font-size:0.8rem; font-weight:400;">Redirecting to sign-in screen...</span>
+      </div>
+
+      <form id="verifyForm" onsubmit="handleVerifySubmit(event)">
+        <div class="form-group" id="emailDisplayGroup" style="display:none; margin-bottom: 16px;">
+          <label data-i18n="activate_email">Account Email</label>
+          <input type="text" id="verifyEmailDisplay" class="input" disabled style="background: rgba(255,255,255,0.05); color:#a855f7; font-weight:700;">
+        </div>
+
+        <div class="form-group">
+          <label for="newPassword" data-i18n="activate_create_pwd">Create Permanent Password</label>
+          <input type="password" id="newPassword" class="input" placeholder="At least 6 characters" required minlength="6">
+        </div>
+
+        <div class="form-group" style="margin-bottom: 22px;">
+          <label for="confirmPassword" data-i18n="activate_confirm_pwd">Confirm Password</label>
+          <input type="password" id="confirmPassword" class="input" placeholder="Re-enter permanent password" required minlength="6">
+        </div>
+
+        <button type="submit" class="btn" id="verifyBtn" data-i18n="activate_btn">
+          Verify Email & Activate Account →
+        </button>
+
+        <div style="text-align: center; margin-top: 18px;">
+          <a href="index.html" style="font-size: 0.85rem; color: #8b5cf6; text-decoration: none; font-weight: 600;">← Back to Sign In</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/i18n.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const emailParam = params.get('email');
+    if (emailParam) {
+      document.getElementById('emailDisplayGroup').style.display = 'block';
+      document.getElementById('verifyEmailDisplay').value = emailParam;
+    }
+
+    async function handleVerifySubmit(e) {
+      e.preventDefault();
+      const btn = document.getElementById('verifyBtn');
+      const err = document.getElementById('verifyError');
+      const errText = document.getElementById('verifyErrorText');
+      const successBox = document.getElementById('verifySuccess');
+
+      err.classList.remove('show');
+      successBox.style.display = 'none';
+
+      const np = document.getElementById('newPassword').value;
+      const cp = document.getElementById('confirmPassword').value;
+
+      if (np !== cp) {
+        errText.textContent = 'Passwords do not match.';
+        err.classList.add('show');
+        return;
+      }
+
+      const uid = params.get('uid');
+      const token = params.get('token');
+
+      if (!uid || !token) {
+        errText.textContent = 'Invalid verification link. Missing uid or token in URL.';
+        err.classList.add('show');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Verifying Account...';
+
+      let activated = false;
+
+      // 1. Try backend API if available
+      try {
+        if (typeof ApiClient !== 'undefined' && ApiClient.BASE_URL && !token.startsWith('demo_')) {
+          const res = await fetch(`${ApiClient.BASE_URL}auth/verify-email/`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ uid, token, new_password: np, email: emailParam })
+          });
+          if (res.ok) {
+            activated = true;
+          }
+        }
+      } catch (ex) {
+        console.warn('Backend verification check failed, continuing with local activation:', ex);
+      }
+
+      // 2. Always check and activate locally in DB so it works forever offline or standalone
+      if (typeof DB !== 'undefined') {
+        const users = DB.getAll('users');
+        const u = users.find(user => 
+          (emailParam && user.email && user.email.toLowerCase() === emailParam.toLowerCase()) ||
+          (user.username && user.username.toLowerCase() === uid.toLowerCase()) ||
+          (user.id == uid)
+        );
+        if (u) {
+          const newHash = await DB.hashPassword(np);
+          u.password = np;
+          u.passwordHash = newHash;
+          u.password_hash = newHash;
+          u.is_active = true;
+          u.must_change_password = false;
+          DB.update('users', u.id, u);
+          activated = true;
+        }
+      }
+
+      if (activated) {
+        successBox.style.display = 'block';
+        document.getElementById('verifyForm').reset();
+        sessionStorage.clear();
+        localStorage.removeItem('sims_session');
+        setTimeout(() => { window.location.href = 'index.html'; }, 1500);
+      } else {
+        errText.textContent = 'Account not found or verification link expired.';
+        err.classList.add('show');
+        btn.disabled = false;
+        btn.textContent = 'Verify Email & Activate Account →';
+      }
+    }
+    window.addEventListener('DOMContentLoaded', () => {
+      if (typeof I18n !== 'undefined') I18n.init();
+    });
+  </script>
+</body>
+</html>

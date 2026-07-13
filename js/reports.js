@@ -30,6 +30,7 @@ const Reports = (() => {
         <button class="report-tab ${_period === 'weekly' ? 'active' : ''}"  onclick="Reports.setPeriod('weekly')">${t('rep_weekly')}</button>
         <button class="report-tab ${_period === 'monthly' ? 'active' : ''}" onclick="Reports.setPeriod('monthly')">${t('rep_monthly')}</button>
         <button class="report-tab ${_period === 'annual' ? 'active' : ''}"  onclick="Reports.setPeriod('annual')">${t('rep_annual')}</button>
+        <button class="report-tab ${_period === 'all' ? 'active' : ''}"     onclick="Reports.setPeriod('all')">${I18n.getLang() === 'ar' ? 'كل الأوقات' : 'All Time'}</button>
       </div>
 
       <div id="reportContent"></div>
@@ -41,7 +42,7 @@ const Reports = (() => {
   function setPeriod(p) {
     _period = p;
     document.querySelectorAll('.report-tab').forEach((el, i) => {
-      const periods = ['daily', 'weekly', 'monthly', 'annual'];
+      const periods = ['daily', 'weekly', 'monthly', 'annual', 'all'];
       el.classList.toggle('active', periods[i] === p);
     });
     renderReport();
@@ -110,7 +111,8 @@ const Reports = (() => {
       daily: isAr ? 'تقرير اليوم' : "Today's Report",
       weekly: isAr ? 'تقرير هذا الأسبوع' : "This Week's Report",
       monthly: isAr ? 'تقرير هذا الشهر' : "This Month's Report",
-      annual: isAr ? 'التقرير السنوي' : "Annual Report"
+      annual: isAr ? 'التقرير السنوي' : "Annual Report",
+      all: isAr ? 'تقرير كل الأوقات (شامل)' : "All Time Report (Complete History)"
     };
     return labels[_period] || (isAr ? 'تقرير' : 'Report');
   }
@@ -265,8 +267,8 @@ const Reports = (() => {
 
   // ── PDF Export ────────────────────────────
   function exportPDF() {
-    const { jsPDF } = window.jspdf;
-    if (!jsPDF) { UI.toast('error', 'PDF library not loaded'); return; }
+    const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
+    if (!jsPDF) { window.print(); return; }
 
     const doc = new jsPDF();
     const d = getPeriodData(_period);
@@ -337,61 +339,80 @@ const Reports = (() => {
 
   // ── Excel Export ──────────────────────────
   function exportExcel() {
-    if (!window.XLSX) { UI.toast('error', 'Excel library not loaded'); return; }
     const d = getPeriodData(_period);
-    const wb = XLSX.utils.book_new();
+    const nowStr = new Date().toISOString().split('T')[0];
+    const filename = `SmartIMS-${_period}-report-${nowStr}`;
 
-    // Sales sheet
     const salesRows = [
       ['Product', 'Code', 'Qty', 'Selling Price', 'Revenue', 'Cost', 'Profit', 'Margin %', 'Customer', 'Date']
     ];
     d.sales.forEach(s => salesRows.push([
-      s.productName, s.productCode, s.quantity,
-      s.sellingPrice, s.revenue, s.cost,
-      s.profit, parseFloat(s.profitMargin.toFixed(2)),
-      s.customer || '', s.saleDate
+      s.productName || '', s.productCode || '', s.quantity || 0,
+      s.sellingPrice || 0, s.revenue || 0, s.cost || 0,
+      s.profit || 0, parseFloat((s.profitMargin || 0).toFixed(2)),
+      s.customer || '', s.saleDate || ''
     ]));
-    const ws1 = XLSX.utils.aoa_to_sheet(salesRows);
-    XLSX.utils.book_append_sheet(wb, ws1, 'Sales');
 
-    // Business Expenses sheet
-    if (d.bizExp.length) {
-      const expRows = [['Title', 'Category', 'Amount', 'Date', 'Note']];
-      d.bizExp.forEach(e => expRows.push([e.title, e.category || '', e.amount, e.expenseDate, e.note || '']));
-      XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(expRows), 'Business Expenses');
+    if (window.XLSX) {
+      try {
+        const wb = XLSX.utils.book_new();
+        const ws1 = XLSX.utils.aoa_to_sheet(salesRows);
+        XLSX.utils.book_append_sheet(wb, ws1, 'Sales');
+
+        if (d.bizExp.length) {
+          const expRows = [['Title', 'Category', 'Amount', 'Date', 'Note']];
+          d.bizExp.forEach(e => expRows.push([e.title, e.category || '', e.amount, e.expenseDate, e.note || '']));
+          XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(expRows), 'Business Expenses');
+        }
+
+        const products = DB.getAllEnrichedProducts();
+        const invRows = [['Code', 'Product', 'Category', 'Supplier', 'Bought', 'In Stock', 'Cost/Unit', 'Stock Value', 'Status']];
+        products.forEach(p => invRows.push([
+          p.code, p.name, p.categoryName, p.supplierName,
+          p.quantity, p.currentStock,
+          parseFloat((p.costPerUnit || 0).toFixed(2)),
+          parseFloat(((p.costPerUnit || 0) * (p.currentStock || 0)).toFixed(2)),
+          p.stockStatus
+        ]));
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invRows), 'Inventory');
+
+        const summary = [
+          ['SmartIMS — ' + getPeriodLabel()],
+          ['Generated', new Date().toLocaleString()],
+          [],
+          ['METRIC', 'VALUE'],
+          ['Revenue', d.revenue],
+          ['Gross Profit', d.profit],
+          ['Net Profit', d.netProfit],
+          ['Business Expenses', d.bizExpTotal],
+          ['Import Expenses', d.impExpTotal],
+          ['Profit Margin %', parseFloat((d.margin || 0).toFixed(2))],
+          ['Units Sold', d.unitsSold],
+          ['Sales Count', d.sales.length],
+        ];
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary');
+
+        XLSX.writeFile(wb, `${filename}.xlsx`);
+        UI.toast('success', t('btn_export_excel') || 'Excel Exported', 'Spreadsheet downloaded successfully.');
+        return;
+      } catch (err) {
+        console.warn('XLSX export failed, falling back to CSV:', err);
+      }
     }
 
-    // Inventory sheet
-    const products = DB.getAllEnrichedProducts();
-    const invRows = [['Code', 'Product', 'Category', 'Supplier', 'Bought', 'In Stock', 'Cost/Unit', 'Stock Value', 'Status']];
-    products.forEach(p => invRows.push([
-      p.code, p.name, p.categoryName, p.supplierName,
-      p.quantity, p.currentStock,
-      parseFloat(p.costPerUnit.toFixed(2)),
-      parseFloat((p.costPerUnit * p.currentStock).toFixed(2)),
-      p.stockStatus
-    ]));
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invRows), 'Inventory');
-
-    // Summary sheet
-    const summary = [
-      ['SmartIMS — ' + getPeriodLabel()],
-      ['Generated', new Date().toLocaleString()],
-      [],
-      ['METRIC', 'VALUE'],
-      ['Revenue', d.revenue],
-      ['Gross Profit', d.profit],
-      ['Net Profit', d.netProfit],
-      ['Business Expenses', d.bizExpTotal],
-      ['Import Expenses', d.impExpTotal],
-      ['Profit Margin %', parseFloat(d.margin.toFixed(2))],
-      ['Units Sold', d.unitsSold],
-      ['Sales Count', d.sales.length],
-    ];
-    XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary');
-
-    XLSX.writeFile(wb, `SmartIMS-${_period}-report-${new Date().toISOString().split('T')[0]}.xlsx`);
-    UI.toast('success', 'Excel Exported', 'Spreadsheet downloaded successfully.');
+    // Direct Excel CSV fallback (UTF-8 BOM so Arabic & English open perfectly in Microsoft Excel)
+    const escapeCSV = val => `"${String(val === null || val === undefined ? '' : val).replace(/"/g, '""')}"`;
+    const csvContent = "\uFEFF" + salesRows.map(row => row.map(escapeCSV).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${filename}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    UI.toast('success', t('btn_export_excel') || 'Excel Exported', 'Spreadsheet downloaded successfully.');
   }
 
   return { render, setPeriod, exportPDF, exportExcel };

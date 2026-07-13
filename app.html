@@ -1,16 +1,22 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>SmartIMS — Import & Sales Management</title>
-  <meta name="description" content="Advanced Smart Import and Sales Management System with real-time analytics, inventory tracking, credit management, and multi-language support.">
+  <meta name="description"
+    content="Advanced Smart Import and Sales Management System with real-time analytics, inventory tracking, credit management, and multi-language support.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <link rel="stylesheet" href="css/style.css">
+  <script src="js/api_client.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;800&display=swap"
+    rel="stylesheet">
+  <script src="js/chart.min.js"></script>
+  <link rel="stylesheet" href="css/style.css?v=nexadash_2">
 </head>
+
 <body>
   <div class="app-container">
     <!-- Sidebar -->
@@ -20,13 +26,14 @@
           <div class="logo-mark">📦</div>
           <div>
             <div class="logo-name">Smart<span>IMS</span></div>
-            <div class="logo-sub">Import & Sales Pro</div>
+            <div class="logo-sub" data-i18n="app_subtitle">Import & Sales Pro</div>
           </div>
         </div>
       </div>
 
       <nav class="sidebar-nav">
-        <a href="#dashboard" class="nav-item active" data-page="dashboard" onclick="UI.navigate('dashboard'); return false;">
+        <a href="#dashboard" class="nav-item active" data-page="dashboard"
+          onclick="UI.navigate('dashboard'); return false;">
           <span class="nav-icon">📊</span>
           <span class="nav-label" id="nav_dashboard" data-i18n="nav_dashboard">Dashboard</span>
         </a>
@@ -34,7 +41,8 @@
           <span class="nav-icon">📦</span>
           <span class="nav-label" id="nav_products" data-i18n="nav_products">Products</span>
         </a>
-        <a href="#categories" class="nav-item" data-page="categories" onclick="UI.navigate('categories'); return false;">
+        <a href="#categories" class="nav-item" data-page="categories"
+          onclick="UI.navigate('categories'); return false;">
           <span class="nav-icon">🏷️</span>
           <span class="nav-label" id="nav_categories" data-i18n="nav_categories">Categories</span>
         </a>
@@ -48,16 +56,25 @@
         </a>
         <a href="#sales" class="nav-item" data-page="sales" onclick="UI.navigate('sales'); return false;">
           <span class="nav-icon">🛒</span>
-          <span class="nav-label" id="nav_sales" data-i18n="nav_sales">Sales Tracking</span>
+          <span class="nav-label" id="nav_sales" data-i18n="nav_sales">Sales</span>
         </a>
         <a href="#inventory" class="nav-item" data-page="inventory" onclick="UI.navigate('inventory'); return false;">
           <span class="nav-icon">📈</span>
-          <span class="nav-label" id="nav_inventory" data-i18n="nav_inventory">Stock Inventory</span>
+          <span class="nav-label" id="nav_inventory" data-i18n="nav_inventory">Inventory</span>
           <span class="nav-badge" id="stockAlertBadge" style="display:none">0</span>
         </a>
         <a href="#reports" class="nav-item" data-page="reports" onclick="UI.navigate('reports'); return false;">
           <span class="nav-icon">📑</span>
-          <span class="nav-label" id="nav_reports" data-i18n="nav_reports">Reports & Export</span>
+          <span class="nav-label" id="nav_reports" data-i18n="nav_reports">Reports</span>
+        </a>
+        <a href="#users" class="nav-item admin-only" data-page="users" id="navUsersBtn" onclick="UI.navigate('users'); return false;" style="display:none;">
+          <span class="nav-icon">👥</span>
+          <span class="nav-label" id="nav_users" data-i18n="nav_users">Users</span>
+        </a>
+        <a href="#platform" class="nav-item platform-only" data-page="platform" id="navPlatformBtn" onclick="UI.navigate('platform'); return false;" style="display:none;">
+          <span class="nav-icon">🏢</span>
+          <span class="nav-label" id="nav_platform" data-i18n="nav_platform">SaaS Platform</span>
+          <span class="nav-badge" style="background:#e11d48;color:#fff;font-size:10px;padding:2px 6px;border-radius:4px;">Owner</span>
         </a>
         <a href="#settings" class="nav-item" data-page="settings" onclick="UI.navigate('settings'); return false;">
           <span class="nav-icon">⚙️</span>
@@ -70,10 +87,12 @@
           <div class="user-avatar" id="userAvatarSidebar">AD</div>
           <div class="user-info">
             <div class="user-name" id="userNameSidebar">Administrator</div>
-            <div class="user-role" data-i18n="administrator">System Admin</div>
+            <div class="user-role" id="userRoleSidebar" data-i18n="administrator">System Admin</div>
+            <div class="user-tenant-badge" id="userTenantSidebar" style="font-size:11px;color:var(--primary);font-weight:600;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Tenant Company</div>
           </div>
           <button class="logout-icon-btn" onclick="Auth.logout()" title="Logout" aria-label="Logout">
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
               <polyline points="16 17 21 12 16 7"></polyline>
               <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -102,7 +121,8 @@
           <!-- Global Search Box -->
           <div class="search-box">
             <span class="search-icon">🔍</span>
-            <input type="text" id="globalSearch" placeholder="Search products, suppliers, categories..." oninput="UI.handleSearch(this.value)" autocomplete="off">
+            <input type="text" id="globalSearch" placeholder="Search products, suppliers, categories..."
+              oninput="UI.handleSearch(this.value)" autocomplete="off">
             <div class="search-dropdown" id="searchDropdown" style="display:none"></div>
           </div>
 
@@ -121,7 +141,8 @@
       <div class="page-content" id="pageContent">
         <!-- Loader during transitions -->
         <div class="page-loader">
-          <div class="spinner" style="width:36px;height:36px;border-color:rgba(124,58,237,0.2);border-top-color:var(--primary);"></div>
+          <div class="spinner"
+            style="width:36px;height:36px;border-color:rgba(124,58,237,0.2);border-top-color:var(--primary);"></div>
         </div>
       </div>
     </main>
@@ -130,24 +151,28 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toast-container"></div>
 
-  <!-- Confirm Dialog Modal -->
+  <!-- Premium Confirm Dialog Modal -->
   <div class="modal-overlay" id="confirmModal">
-    <div class="modal modal-sm">
-      <div class="confirm-icon" id="confirmIcon">🗑️</div>
-      <h3 class="modal-title" id="confirmTitle">Confirm Action</h3>
-      <p class="modal-body" id="confirmMessage">Are you sure you want to proceed?</p>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="UI.closeConfirm(false)">Cancel</button>
-        <button class="btn btn-danger" id="confirmOkBtn" onclick="UI.closeConfirm(true)">Delete</button>
+    <div class="modal modal-sm confirm-modal-card">
+      <div class="confirm-header-wrapper">
+        <div class="confirm-icon" id="confirmIcon">🗑️</div>
+      </div>
+      <h3 class="confirm-modal-title" id="confirmTitle">Confirm Action</h3>
+      <p class="confirm-modal-body" id="confirmMessage">Are you sure you want to proceed?</p>
+      <div class="confirm-modal-footer">
+        <button class="btn btn-secondary confirm-cancel-btn" onclick="UI.closeConfirm(false)">Cancel</button>
+        <button class="btn btn-danger confirm-action-btn" id="confirmOkBtn" onclick="UI.closeConfirm(true)">Delete</button>
       </div>
     </div>
   </div>
 
   <!-- Scripts -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/db.js"></script>
   <script src="js/auth.js"></script>
-  <script src="js/dashboard.js"></script>
+  <script src="js/dashboard.js?v=2"></script>
   <script src="js/products.js"></script>
   <script src="js/categories.js"></script>
   <script src="js/suppliers.js"></script>
@@ -155,6 +180,8 @@
   <script src="js/sales.js"></script>
   <script src="js/inventory.js"></script>
   <script src="js/reports.js"></script>
+  <script src="js/users.js"></script>
   <script src="js/app.js"></script>
 </body>
+
 </html>

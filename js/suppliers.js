@@ -13,10 +13,10 @@ const Suppliers = (() => {
       <div class="page-header">
         <div class="page-title"><h2>🏭 ${t('page_suppliers')}</h2><p>${supps.length} ${t('supp_registered')}</p></div>
         <div class="page-actions">
-          <button class="btn btn-primary" onclick="Suppliers.openAdd()">
+          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Suppliers.openAdd()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             ${t('btn_add_supp')}
-          </button>
+          </button>` : ''}
         </div>
       </div>
 
@@ -63,8 +63,8 @@ const Suppliers = (() => {
         <td><span class="badge badge-purple">${prodCount} ${prodCount !== 1 ? t('products_count') : t('product_count')}</span></td>
         <td class="td-muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.notes || '—'}</td>
         <td><div class="actions">
-          <button class="act-btn edit" onclick="Suppliers.openEdit(${s.id})" title="${t('btn_edit')}">✏️</button>
-          <button class="act-btn del"  onclick="Suppliers.delete(${s.id})" title="${t('btn_delete')}">🗑️</button>
+          ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Suppliers.openEdit(${s.id})" title="${t('btn_edit')}">✏️</button>
+          <button class="act-btn del"  onclick="Suppliers.delete(${s.id})" title="${t('btn_delete')}">🗑️</button>` : ''}
         </div></td>
       </tr>`;
     }).join('');
@@ -105,6 +105,7 @@ const Suppliers = (() => {
   }
 
   function openAdd() {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to add suppliers.'); return; }
     _editId = null;
     UI.createModal('suppModal', `🏭 ${t('btn_add_supp')}`,
       formBody(),
@@ -114,6 +115,7 @@ const Suppliers = (() => {
   }
 
   function openEdit(id) {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to edit suppliers.'); return; }
     _editId = id;
     const s = DB.getById('suppliers', id);
     if (!s) return;
@@ -124,7 +126,7 @@ const Suppliers = (() => {
     );
   }
 
-  function save() {
+  async function save() {
     const name = document.getElementById('suppName')?.value.trim();
     if (!name) { UI.toast('error', 'Supplier name required'); return; }
     const data = {
@@ -135,20 +137,31 @@ const Suppliers = (() => {
       address: document.getElementById('suppAddr')?.value.trim(),
       notes: document.getElementById('suppNotes')?.value.trim(),
     };
-    if (_editId) DB.update('suppliers', _editId, data);
-    else DB.insert('suppliers', data);
+    try {
+      if (_editId) await DB.update('suppliers', _editId, data);
+      else await DB.insert('suppliers', data);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.closeModal('suppModal');
     UI.toast('success', _editId ? 'Supplier Updated' : 'Supplier Added');
     UI.navigate('suppliers');
   }
 
   async function del(id) {
+    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to delete suppliers.'); return; }
     const s = DB.getById('suppliers', id);
     const c = DB.count('products', p => p.supplierId === id);
     if (c > 0) { UI.toast('error', 'Cannot Delete', `This supplier has ${c} product(s). Remove them first.`); return; }
     const ok = await UI.confirm(t('del_supp_title'), `"${s.name}" ${t('supp_del_msg')}`);
     if (!ok) return;
-    DB.remove('suppliers', id);
+    try {
+      await DB.remove('suppliers', id);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.toast('success', 'Supplier Deleted');
     UI.navigate('suppliers');
   }

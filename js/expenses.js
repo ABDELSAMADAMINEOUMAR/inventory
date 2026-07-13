@@ -167,8 +167,8 @@ const Expenses = (() => {
         </select>
       </div>
       <div class="field">
-        <label>Amount (FCFA) <span class="req">*</span></label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span><input class="input" type="number" id="ieAmount" value="${e.amount||''}" placeholder="0" required></div>
+        <label>Amount (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <input class="input" type="text" id="ieAmount" value="${UI.toInputMoney(e.amount)}" placeholder="0" required>
       </div>
       <div class="field">
         <label>Date</label>
@@ -198,15 +198,20 @@ const Expenses = (() => {
     );
   }
 
-  function saveImport() {
+  async function saveImport() {
     const productId = parseInt(document.getElementById('ieProduct')?.value);
     const type   = document.getElementById('ieType')?.value;
-    const amount = parseFloat(document.getElementById('ieAmount')?.value);
+    const amount = UI.fromInputMoney(document.getElementById('ieAmount')?.value);
     const date   = document.getElementById('ieDate')?.value;
     const note   = document.getElementById('ieNote')?.value.trim();
     if (!productId || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
-    if (_editId) DB.update('productExpenses', _editId, { productId, expenseType: type, amount, date, note });
-    else DB.insert('productExpenses', { productId, expenseType: type, amount, date, note });
+    try {
+      if (_editId) await DB.update('productExpenses', _editId, { productId, expenseType: type, amount, date, note });
+      else await DB.insert('productExpenses', { productId, expenseType: type, amount, date, note });
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.closeModal('ieModal');
     UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
     _tab = 'import'; _editId = null;
@@ -216,7 +221,12 @@ const Expenses = (() => {
   async function deleteImport(id) {
     const ok = await UI.confirm('Delete Expense?', 'This import expense will be removed.');
     if (!ok) return;
-    DB.remove('productExpenses', id);
+    try {
+      await DB.remove('productExpenses', id);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.toast('success', 'Expense Deleted');
     renderTab();
   }
@@ -238,8 +248,8 @@ const Expenses = (() => {
         </select>
       </div>
       <div class="field">
-        <label>Amount (FCFA) <span class="req">*</span></label>
-        <div class="input-prefix-wrap"><span class="input-prefix">F</span><input class="input" type="number" id="beAmount" value="${e.amount||''}" placeholder="0" required></div>
+        <label>Amount (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <input class="input" type="text" id="beAmount" value="${UI.toInputMoney(e.amount)}" placeholder="0" required>
       </div>
       <div class="field">
         <label>Date</label>
@@ -253,7 +263,7 @@ const Expenses = (() => {
   }
 
   function openAddBusiness() {
-    UI.createModal('beModal', '🏢 Add Business Expense', bizForm(),
+    UI.createModal('beModal', '💸 Add Business Expense', bizForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">Cancel</button>
        <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 Save Expense</button>`
     );
@@ -269,15 +279,20 @@ const Expenses = (() => {
     );
   }
 
-  function saveBusiness() {
+  async function saveBusiness() {
     const title  = document.getElementById('beTitle')?.value.trim();
-    const amount = parseFloat(document.getElementById('beAmount')?.value);
+    const amount = UI.fromInputMoney(document.getElementById('beAmount')?.value);
     const cat    = document.getElementById('beCat')?.value;
     const date   = document.getElementById('beDate')?.value;
     const note   = document.getElementById('beNote')?.value.trim();
     if (!title || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
-    if (_editId) DB.update('businessExpenses', _editId, { title, amount, category: cat, expenseDate: date, note });
-    else DB.insert('businessExpenses', { title, amount, category: cat, expenseDate: date, note });
+    try {
+      if (_editId) await DB.update('businessExpenses', _editId, { title, amount, category: cat, expenseDate: date, note });
+      else await DB.insert('businessExpenses', { title, amount, category: cat, expenseDate: date, note });
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.closeModal('beModal');
     UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
     _tab = 'business'; _editId = null;
@@ -287,7 +302,12 @@ const Expenses = (() => {
   async function deleteBusiness(id) {
     const ok = await UI.confirm('Delete Expense?', 'This business expense will be permanently removed.');
     if (!ok) return;
-    DB.remove('businessExpenses', id);
+    try {
+      await DB.remove('businessExpenses', id);
+    } catch (err) {
+      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      return;
+    }
     UI.toast('success', 'Expense Deleted');
     renderTab();
   }

@@ -4,41 +4,77 @@
    ============================================= */
 
 const DB = (() => {
-  const TABLES = ['users','categories','suppliers','products','productExpenses','sales','businessExpenses'];
+  const TABLES = ['users','categories','suppliers','products','productExpenses','sales','businessExpenses','companies'];
   const PREFIX = 'sims_';
 
   // ── Internal helpers ──────────────────────
   function _key(table) {
-    if (table === 'users') return PREFIX + 'users';
-    try {
-      const sess = JSON.parse(sessionStorage.getItem('sims_session'));
-      if (sess && sess.id && sess.id !== 1) {
-        return `${PREFIX}u${sess.id}_${table}`;
-      }
-    } catch (e) {}
     return PREFIX + table;
+  }
+
+  function _apiEndpoint(table) {
+    if (table === 'productExpenses') return 'product-expenses';
+    if (table === 'businessExpenses') return 'business-expenses';
+    if (table === 'companies') return 'platform/companies';
+    return table;
+  }
+
+  function _normalizeRecord(table, r) {
+    if (!r || typeof r !== 'object') return r;
+    const copy = { ...r };
+    if (table === 'users') {
+      if (copy.password_hash !== undefined && copy.passwordHash === undefined) copy.passwordHash = copy.password_hash;
+      if (copy.passwordHash !== undefined && copy.password_hash === undefined) copy.password_hash = copy.passwordHash;
+    } else if (table === 'products') {
+      if (copy.category !== undefined && copy.categoryId === undefined) copy.categoryId = copy.category;
+      if (copy.categoryId !== undefined && copy.category === undefined) copy.category = copy.categoryId;
+      if (copy.supplier !== undefined && copy.supplierId === undefined) copy.supplierId = copy.supplier;
+      if (copy.supplierId !== undefined && copy.supplier === undefined) copy.supplier = copy.supplierId;
+      if (copy.purchase_price !== undefined && copy.purchasePrice === undefined) copy.purchasePrice = copy.purchase_price;
+      if (copy.purchasePrice !== undefined && copy.purchase_price === undefined) copy.purchase_price = copy.purchasePrice;
+      if (copy.exchange_rate !== undefined && copy.exchangeRate === undefined) copy.exchangeRate = copy.exchange_rate;
+      if (copy.exchangeRate !== undefined && copy.exchange_rate === undefined) copy.exchange_rate = copy.exchangeRate;
+      if (copy.purchase_date !== undefined && copy.purchaseDate === undefined) copy.purchaseDate = copy.purchase_date;
+      if (copy.purchaseDate !== undefined && copy.purchase_date === undefined) copy.purchase_date = copy.purchaseDate;
+    } else if (table === 'productExpenses') {
+      if (copy.expense_type !== undefined && copy.expenseType === undefined) copy.expenseType = copy.expense_type;
+      if (copy.expenseType !== undefined && copy.expense_type === undefined) copy.expense_type = copy.expenseType;
+      if (copy.product !== undefined && copy.productId === undefined) copy.productId = copy.product;
+      if (copy.productId !== undefined && copy.product === undefined) copy.product = copy.productId;
+    } else if (table === 'sales') {
+      if (copy.product !== undefined && copy.productId === undefined) copy.productId = copy.product;
+      if (copy.productId !== undefined && copy.product === undefined) copy.product = copy.productId;
+      if (copy.selling_price !== undefined && copy.sellingPrice === undefined) copy.sellingPrice = copy.selling_price;
+      if (copy.sellingPrice !== undefined && copy.selling_price === undefined) copy.selling_price = copy.sellingPrice;
+      if (copy.sale_date !== undefined && copy.saleDate === undefined) copy.saleDate = copy.sale_date;
+      if (copy.saleDate !== undefined && copy.sale_date === undefined) copy.sale_date = copy.saleDate;
+      if (copy.payment_status !== undefined && copy.paymentStatus === undefined) copy.paymentStatus = copy.payment_status;
+      if (copy.paymentStatus !== undefined && copy.payment_status === undefined) copy.payment_status = copy.paymentStatus;
+      if (copy.amount_paid !== undefined && copy.amountPaid === undefined) copy.amountPaid = copy.amount_paid;
+      if (copy.amountPaid !== undefined && copy.amount_paid === undefined) copy.amount_paid = copy.amountPaid;
+      if (copy.due_date !== undefined && copy.dueDate === undefined) copy.dueDate = copy.due_date;
+      if (copy.dueDate !== undefined && copy.due_date === undefined) copy.due_date = copy.dueDate;
+    } else if (table === 'businessExpenses') {
+      if (copy.expense_date !== undefined && copy.expenseDate === undefined) copy.expenseDate = copy.expense_date;
+      if (copy.expenseDate !== undefined && copy.expense_date === undefined) copy.expense_date = copy.expenseDate;
+    }
+    return copy;
   }
 
   function _readTable(table) {
     try {
       const k = _key(table);
       let val = localStorage.getItem(k);
-      if (!val && table === 'categories' && k !== PREFIX + 'categories') {
-        const defaultCats = [
-          { id: 1, name: 'Electronics', description: 'Electronic devices and accessories', createdAt: _now(), updatedAt: _now() },
-          { id: 2, name: 'Clothing', description: 'Garments and fashion items', createdAt: _now(), updatedAt: _now() },
-          { id: 3, name: 'Food & Beverage', description: 'Consumable food and drink products', createdAt: _now(), updatedAt: _now() },
-          { id: 4, name: 'General', description: 'General merchandise and items', createdAt: _now(), updatedAt: _now() }
-        ];
-        localStorage.setItem(k, JSON.stringify(defaultCats));
-        return defaultCats;
-      }
-      return JSON.parse(val || '[]');
+      const raw = JSON.parse(val || '[]');
+      return Array.isArray(raw) ? raw.map(r => _normalizeRecord(table, r)) : [];
     } catch { return []; }
   }
 
   function _writeTable(table, data) {
     localStorage.setItem(_key(table), JSON.stringify(data));
+    if ((table === 'products' || table === 'sales') && typeof UI !== 'undefined' && UI.updateStockBadge) {
+      setTimeout(() => { try { UI.updateStockBadge(); } catch(e) {} }, 50);
+    }
   }
 
   function _nextId(table) {
@@ -49,21 +85,148 @@ const DB = (() => {
 
   function _now() { return new Date().toISOString(); }
 
+  function getTenantId() {
+    try {
+      const sess = JSON.parse(sessionStorage.getItem('sims_session'));
+      if (!sess) return null;
+      if (sess.role === 'admin') return Number(sess.id);
+      return Number(sess.userId || sess.user_id || sess.adminId || sess.ownerId || sess.id || 1);
+    } catch (e) { return null; }
+  }
+
+  function _seedTenantCategories(tenantId) {
+    if (!tenantId) return;
+    const cats = [
+      { name: 'Electronics', description: 'Electronic devices and accessories' },
+      { name: 'Clothing', description: 'Garments and fashion items' },
+      { name: 'Food & Beverage', description: 'Consumable food and drink products' },
+      { name: 'Cosmetics', description: 'Beauty and personal care products' },
+      { name: 'Home Appliances', description: 'Household appliances and equipment' },
+      { name: 'Furniture', description: 'Home and office furniture' },
+    ];
+    let rows = _readTable('categories');
+    let nextId = rows.length ? Math.max(...rows.map(r => r.id)) + 1 : 1;
+    cats.forEach(c => {
+      const row = _normalizeRecord('categories', { id: nextId++, userId: tenantId, user_id: tenantId, adminId: tenantId, ...c, createdAt: _now(), updatedAt: _now() });
+      rows.push(row);
+    });
+    localStorage.setItem(_key('categories'), JSON.stringify(rows));
+  }
+
+  function _tenantRows(table) {
+    const all = _readTable(table);
+    // If we're running against the real backend, Django already
+    // scoped this data correctly — don't re-filter with the old heuristic.
+    if (typeof ApiClient !== 'undefined' && sessionStorage.getItem('sims_token')) {
+      return all;
+    }
+    if (table === 'companies') return all;
+    const tenantId = getTenantId();
+    if (!tenantId) return all;
+    if (table === 'users') {
+      return all.filter(u => {
+        const uId = Number(u.id);
+        const uOwner = Number(u.userId || u.user_id || u.adminId || u.ownerId || 1);
+        const uComp = Number(u.company_id || u.company || 0);
+        return uId === tenantId || uOwner === tenantId || (uComp && uComp === tenantId);
+      });
+    }
+    const filtered = all.filter(r => {
+      const rOwner = Number(r.userId || r.user_id || r.adminId || r.ownerId || 1);
+      return rOwner === tenantId;
+    });
+    if (table === 'categories' && filtered.length === 0) {
+      _seedTenantCategories(tenantId);
+      return _readTable('categories').filter(r => {
+        const rOwner = Number(r.userId || r.user_id || r.adminId || r.ownerId || 1);
+        return rOwner === tenantId;
+      });
+    }
+    return filtered;
+  }
+
+  function _toServerPayload(table, data) {
+    if (!data || typeof data !== 'object') return data;
+    const p = { ...data };
+    if (table === 'products') {
+      if (p.categoryId !== undefined) p.category = (p.categoryId && !isNaN(p.categoryId)) ? parseInt(p.categoryId) : null;
+      if (p.supplierId !== undefined) p.supplier = (p.supplierId && !isNaN(p.supplierId)) ? parseInt(p.supplierId) : null;
+      if (p.purchasePrice !== undefined) p.purchase_price = parseFloat(p.purchasePrice) || 0;
+      if (p.exchangeRate !== undefined) p.exchange_rate = parseFloat(p.exchangeRate) || 1.0;
+      if (p.purchaseDate !== undefined) p.purchase_date = p.purchaseDate || null;
+    } else if (table === 'productExpenses') {
+      if (p.productId !== undefined) p.product = (p.productId && !isNaN(p.productId)) ? parseInt(p.productId) : null;
+      if (p.expenseType !== undefined) p.expense_type = p.expenseType;
+    } else if (table === 'sales') {
+      if (p.productId !== undefined) p.product = (p.productId && !isNaN(p.productId)) ? parseInt(p.productId) : null;
+      if (p.sellingPrice !== undefined) p.selling_price = parseFloat(p.sellingPrice) || 0;
+      if (p.saleDate !== undefined) p.sale_date = p.saleDate || null;
+      if (p.profitMargin !== undefined) p.profit_margin = parseFloat(p.profitMargin) || 0;
+      if (p.paymentStatus !== undefined) p.payment_status = p.paymentStatus;
+      if (p.amountPaid !== undefined) p.amount_paid = (p.amountPaid !== null && p.amountPaid !== '') ? parseFloat(p.amountPaid) : null;
+      if (p.dueDate !== undefined) p.due_date = p.dueDate || null;
+    } else if (table === 'businessExpenses') {
+      if (p.expenseDate !== undefined) p.expense_date = p.expenseDate || null;
+    } else if (table === 'inventoryEntries') {
+      if (p.productId !== undefined) p.product = (p.productId && !isNaN(p.productId)) ? parseInt(p.productId) : null;
+      if (p.entryType !== undefined) p.entry_type = p.entryType;
+      if (p.entryDate !== undefined) p.entry_date = p.entryDate || null;
+    } else if (table === 'users') {
+      if (p.passwordHash !== undefined) p.password_hash = p.passwordHash;
+      if (p.password !== undefined) p.password = p.password;
+    }
+    return p;
+  }
+
+  function getRawAll(table) { return _readTable(table); }
+
   // ── Public API ────────────────────────────
 
   /** Get all rows from a table */
-  function getAll(table) { return _readTable(table); }
+  function getAll(table) { return _tenantRows(table); }
 
   /** Get a single row by id */
   function getById(table, id) {
-    return _readTable(table).find(r => r.id === id) || null;
+    return _tenantRows(table).find(r => r.id === id || r.id == id || String(r.id) === String(id)) || null;
   }
 
   /** Insert a new row, returns the saved row (with id + timestamps) */
-  function insert(table, data) {
+  async function insert(table, data) {
+    const endpoint = _apiEndpoint(table);
+
+    if (table === 'products' && (!data.code || data.code === 'Auto-generated' || data.code.trim() === '')) {
+      data.code = generateProductCode();
+    }
+
+    if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
+      try {
+        const payload = _toServerPayload(table, data);
+        const saved = await ApiClient.insert(endpoint, payload);
+        const rows = _readTable(table);
+        const row = _normalizeRecord(table, { ...data, ...saved });
+        rows.push(row);
+        _writeTable(table, rows);
+        return row;
+      } catch (err) {
+        if (err.name !== 'AbortError' && !String(err.message).includes('Failed to fetch')) {
+          throw err;
+        }
+      }
+    }
+
+    // Offline fallback (no backend reachable) — local-only, unchanged behavior
     const rows = _readTable(table);
     const id = _nextId(table);
-    const row = { id, ...data, createdAt: _now(), updatedAt: _now() };
+    let tenantId = 1;
+    try {
+      if (table === 'users' && data && data.role === 'admin') {
+        tenantId = id;
+      } else {
+        const tid = getTenantId();
+        if (tid) tenantId = tid;
+      }
+    } catch (e) {}
+    const row = _normalizeRecord(table, { id, userId: tenantId, user_id: tenantId, adminId: tenantId, ...data, createdAt: _now(), updatedAt: _now() });
     if (table === 'products' && (!row.code || row.code === 'Auto-generated' || row.code.trim() === '')) {
       row.code = generateProductCode();
     }
@@ -73,20 +236,82 @@ const DB = (() => {
   }
 
   /** Update a row by id, returns updated row or null */
-  function update(table, id, data) {
+  async function update(table, id, data) {
+    const endpoint = _apiEndpoint(table);
+
+    if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
+      try {
+        const payload = _toServerPayload(table, data);
+        const saved = await ApiClient.update(endpoint, id, payload);
+        const rows = _readTable(table);
+        const idx = rows.findIndex(r => r.id === id || r.id == id);
+        if (idx !== -1) {
+          rows[idx] = _normalizeRecord(table, { ...rows[idx], ...data, ...saved });
+          _writeTable(table, rows);
+          return rows[idx];
+        }
+        return _normalizeRecord(table, { id, ...data, ...saved });
+      } catch (err) {
+        if (err.name !== 'AbortError' && !String(err.message).includes('Failed to fetch')) {
+          throw err;
+        }
+      }
+    }
+
+    // Offline fallback (no backend reachable) — local-only, unchanged behavior
     const rows = _readTable(table);
-    const idx = rows.findIndex(r => r.id === id);
+    const idx = rows.findIndex(r => r.id === id || r.id == id);
     if (idx === -1) return null;
-    rows[idx] = { ...rows[idx], ...data, updatedAt: _now() };
+    const tenantId = getTenantId();
+    if (tenantId && table !== 'companies') {
+      if (table === 'users') {
+        const uId = Number(rows[idx].id);
+        const uOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
+        if (uId !== tenantId && uOwner !== tenantId) return null;
+      } else {
+        const rOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
+        if (rOwner !== tenantId) return null;
+      }
+    }
+    const rowOwner = rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || tenantId || 1;
+    rows[idx] = _normalizeRecord(table, { ...rows[idx], ...data, userId: rowOwner, user_id: rowOwner, adminId: rowOwner, updatedAt: _now() });
     _writeTable(table, rows);
     return rows[idx];
   }
 
   /** Delete a row by id, returns true/false */
-  function remove(table, id) {
+  async function remove(table, id) {
+    const endpoint = _apiEndpoint(table);
+
+    if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
+      // Ask Django FIRST. If it rejects (403, 400, etc.), this throws
+      // and nothing gets removed locally.
+      await ApiClient.remove(endpoint, id); // throws on non-2xx
+
+      const rows = _readTable(table);
+      const idx = rows.findIndex(r => r.id === id || r.id == id);
+      if (idx !== -1) {
+        rows.splice(idx, 1);
+        _writeTable(table, rows);
+      }
+      return true;
+    }
+
+    // Offline fallback (no backend reachable) — local-only, unchanged behavior
     const rows = _readTable(table);
-    const idx = rows.findIndex(r => r.id === id);
+    const idx = rows.findIndex(r => r.id === id || r.id == id);
     if (idx === -1) return false;
+    const tenantId = getTenantId();
+    if (tenantId) {
+      if (table === 'users') {
+        const uId = Number(rows[idx].id);
+        const uOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
+        if (uId !== tenantId && uOwner !== tenantId) return false;
+      } else {
+        const rOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
+        if (rOwner !== tenantId) return false;
+      }
+    }
     rows.splice(idx, 1);
     _writeTable(table, rows);
     return true;
@@ -94,18 +319,18 @@ const DB = (() => {
 
   /** Query rows with a filter function */
   function query(table, filterFn) {
-    return _readTable(table).filter(filterFn);
+    return _tenantRows(table).filter(filterFn);
   }
 
   /** Count rows, optionally with filter */
   function count(table, filterFn) {
-    const rows = _readTable(table);
+    const rows = _tenantRows(table);
     return filterFn ? rows.filter(filterFn).length : rows.length;
   }
 
   /** Sum a numeric field, optionally with filter */
   function sum(table, field, filterFn) {
-    const rows = filterFn ? _readTable(table).filter(filterFn) : _readTable(table);
+    const rows = filterFn ? _tenantRows(table).filter(filterFn) : _tenantRows(table);
     return rows.reduce((acc, r) => acc + (parseFloat(r[field]) || 0), 0);
   }
 
@@ -126,149 +351,26 @@ const DB = (() => {
     return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
   }
 
-  /** Seed the database with demo data */
+  /** Seed the database with clean deployment data */
   async function seed() {
+    if (localStorage.getItem(PREFIX + 'clean_deploy_production_v3') !== '1') {
+      TABLES.forEach(t => localStorage.removeItem(_key(t)));
+      localStorage.setItem(PREFIX + 'clean_deploy_production_v3', '1');
+    }
     if (isInitialised()) return;
 
-    // Users
-    const pwHash = await hashPassword('admin123');
-    insert('users', { name: 'Admin User', email: 'admin@business.com', passwordHash: pwHash, role: 'admin', phone: '+250788000000', business: 'My Import Business', currency: 'USD' });
+    // Seed ONLY the Platform Super Owner account for fresh production management
+    const platHash = await hashPassword('123456');
+    insert('users', { name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', passwordHash: platHash, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
 
-    // Categories
+    // Seed empty clean categories
     const cats = [
+      { name: 'General', description: 'General merchandise' },
       { name: 'Electronics', description: 'Electronic devices and accessories' },
       { name: 'Clothing', description: 'Garments and fashion items' },
-      { name: 'Food & Beverage', description: 'Consumable food and drink products' },
-      { name: 'Cosmetics', description: 'Beauty and personal care products' },
-      { name: 'Home Appliances', description: 'Household appliances and equipment' },
-      { name: 'Furniture', description: 'Home and office furniture' },
+      { name: 'Food & Beverage', description: 'Consumable food and drink products' }
     ];
     cats.forEach(c => insert('categories', c));
-
-    // Suppliers
-    const supps = [
-      { name: 'Cairo Electronics Co.', phone: '+20112345678', email: 'info@cairoelec.com', address: '15 Tahrir St', country: 'Egypt', notes: 'Reliable electronics supplier' },
-      { name: 'Nile Fashion House', phone: '+20123456789', email: 'contact@nilefashion.com', address: '22 Ramses Ave', country: 'Egypt', notes: 'Clothing and accessories' },
-      { name: 'Delta Goods Ltd.', phone: '+20198765432', email: 'sales@deltagoods.com', address: '5 Port Said Rd', country: 'Egypt', notes: 'General merchandise' },
-      { name: 'Luxor Cosmetics', phone: '+20187654321', email: 'info@luxorcosm.com', address: '10 Queen St', country: 'Egypt', notes: 'Premium cosmetics' },
-    ];
-    const suppIds = supps.map(s => insert('suppliers', s).id);
-
-    // Products (with expenses already embedded for seeding)
-    const today = new Date();
-    const fmt = (d) => d.toISOString().split('T')[0];
-    const daysAgo = (n) => { const d = new Date(today); d.setDate(d.getDate() - n); return fmt(d); };
-
-    const products = [
-      {
-        code: 'PRD-001', name: 'Samsung LED TV 43"', categoryId: 1, supplierId: suppIds[0],
-        description: '43 inch LED Smart TV', purchasePrice: 180000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 20, purchaseDate: daysAgo(60), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 80000, note: 'Sea freight' },
-          { expenseType: 'Customs Duty', amount: 50000, note: 'Customs' },
-          { expenseType: 'Transportation', amount: 20000, note: 'Port to warehouse' },
-          { expenseType: 'Insurance', amount: 10000, note: 'Cargo insurance' },
-        ]
-      },
-      {
-        code: 'PRD-002', name: 'iPhone 13 Case (Pack of 50)', categoryId: 1, supplierId: suppIds[0],
-        description: 'Protective phone cases assorted colors', purchasePrice: 90000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 50, purchaseDate: daysAgo(45), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 18000, note: 'Air freight' },
-          { expenseType: 'Customs Duty', amount: 12000, note: 'Customs' },
-          { expenseType: 'Packaging', amount: 6000, note: 'Packaging material' },
-        ]
-      },
-      {
-        code: 'PRD-003', name: 'Men\'s Polo Shirts (100 pcs)', categoryId: 2, supplierId: suppIds[1],
-        description: 'Assorted colors polo shirts size M-XL', purchasePrice: 240000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 100, purchaseDate: daysAgo(30), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 36000, note: 'Sea freight' },
-          { expenseType: 'Customs Duty', amount: 48000, note: 'Customs' },
-          { expenseType: 'Transportation', amount: 12000, note: 'Delivery' },
-        ]
-      },
-      {
-        code: 'PRD-004', name: 'Face Cream Set (24 pcs)', categoryId: 4, supplierId: suppIds[3],
-        description: 'Luxury face cream and serum combo', purchasePrice: 144000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 24, purchaseDate: daysAgo(20), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 24000, note: 'Air freight' },
-          { expenseType: 'Customs Duty', amount: 21600, note: 'Customs' },
-          { expenseType: 'Insurance', amount: 7200, note: 'Cargo insurance' },
-        ]
-      },
-      {
-        code: 'PRD-005', name: 'Bluetooth Earbuds (30 pcs)', categoryId: 1, supplierId: suppIds[0],
-        description: 'Wireless earbuds with charging case', purchasePrice: 108000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 30, purchaseDate: daysAgo(15), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 15000, note: 'Air freight' },
-          { expenseType: 'Customs Duty', amount: 16200, note: 'Customs' },
-          { expenseType: 'Packaging', amount: 4800, note: 'Display boxes' },
-        ]
-      },
-      {
-        code: 'PRD-006', name: 'Women\'s Handbags (20 pcs)', categoryId: 2, supplierId: suppIds[1],
-        description: 'Leather handbags assorted styles', purchasePrice: 180000, currency: 'FCFA', exchangeRate: 1,
-        quantity: 20, purchaseDate: daysAgo(10), status: 'available',
-        expenses: [
-          { expenseType: 'Shipping', amount: 27000, note: 'Air freight' },
-          { expenseType: 'Customs Duty', amount: 36000, note: 'Customs' },
-          { expenseType: 'Insurance', amount: 9000, note: 'Cargo insurance' },
-        ]
-      },
-    ];
-
-    products.forEach(p => {
-      const { expenses, ...productData } = p;
-      const product = insert('products', productData);
-      expenses.forEach(e => insert('productExpenses', { ...e, productId: product.id, date: daysAgo(Math.floor(Math.random() * 10)) }));
-    });
-
-    // Sales (seed some historical sales)
-    const salesData = [
-      { productId: 1, quantity: 3, sellingPrice: 420000, saleDate: daysAgo(50), customer: 'John Electronics' },
-      { productId: 1, quantity: 2, sellingPrice: 420000, saleDate: daysAgo(40), customer: 'Kigali Shop' },
-      { productId: 2, quantity: 15, sellingPrice: 6000, saleDate: daysAgo(35), customer: 'Mobile Store RW' },
-      { productId: 3, quantity: 30, sellingPrice: 6000, saleDate: daysAgo(25), customer: 'Fashion Kigali' },
-      { productId: 4, quantity: 10, sellingPrice: 16000, saleDate: daysAgo(15), customer: 'Beauty Palace' },
-      { productId: 5, quantity: 8, sellingPrice: 12000, saleDate: daysAgo(10), customer: 'Tech Hub RW' },
-      { productId: 2, quantity: 10, sellingPrice: 6000, saleDate: daysAgo(8), customer: 'Phone World' },
-      { productId: 3, quantity: 20, sellingPrice: 6000, saleDate: daysAgo(5), customer: 'Wholesale Kigali' },
-      { productId: 1, quantity: 1, sellingPrice: 420000, saleDate: daysAgo(3), customer: 'Direct Customer' },
-      { productId: 5, quantity: 5, sellingPrice: 12000, saleDate: daysAgo(1), customer: 'Electronics Hub' },
-    ];
-
-    salesData.forEach(s => {
-      const product = getById('products', s.productId);
-      if (!product) return;
-      const expenses = query('productExpenses', e => e.productId === s.productId);
-      const totalExpenses = expenses.reduce((a, e) => a + e.amount, 0);
-      const totalCost = product.purchasePrice + totalExpenses;
-      const costPerUnit = totalCost / product.quantity;
-      const revenue = s.sellingPrice * s.quantity;
-      const cost = costPerUnit * s.quantity;
-      const profit = revenue - cost;
-      const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
-      insert('sales', { ...s, revenue, cost, profit, profitMargin, paymentStatus: 'paid' });
-    });
-
-    // Business Expenses
-    const bizExpenses = [
-      { title: 'Office Rent', amount: 300000, category: 'Rent', expenseDate: daysAgo(60), note: 'Monthly office rent' },
-      { title: 'Electricity Bill', amount: 48000, category: 'Electricity', expenseDate: daysAgo(58), note: '' },
-      { title: 'Internet Service', amount: 30000, category: 'Internet', expenseDate: daysAgo(58), note: 'Monthly broadband' },
-      { title: 'Staff Salary', amount: 480000, category: 'Salary', expenseDate: daysAgo(30), note: 'Monthly salary' },
-      { title: 'Office Rent', amount: 300000, category: 'Rent', expenseDate: daysAgo(30), note: 'Monthly office rent' },
-      { title: 'Marketing - Social Media', amount: 72000, category: 'Marketing', expenseDate: daysAgo(20), note: 'Facebook ads' },
-      { title: 'Fuel', amount: 36000, category: 'Fuel', expenseDate: daysAgo(10), note: 'Delivery fuel' },
-      { title: 'Office Supplies', amount: 27000, category: 'Office Supplies', expenseDate: daysAgo(5), note: 'Stationery' },
-    ];
-    bizExpenses.forEach(e => insert('businessExpenses', e));
 
     localStorage.setItem(PREFIX + 'init_v2', '1');
   }
@@ -336,9 +438,46 @@ const DB = (() => {
     };
   }
 
-  /** Get all enriched products */
+  /** Get all enriched products optimized O(N) */
   function getAllEnrichedProducts() {
-    return getAll('products').map(p => getEnrichedProduct(p.id)).filter(Boolean);
+    const products = getAll('products');
+    const categories = getAll('categories');
+    const catMap = new Map(categories.map(c => [c.id, c.name]));
+    const suppliers = getAll('suppliers');
+    const suppMap = new Map(suppliers.map(s => [s.id, s.name]));
+
+    const sales = getAll('sales');
+    const soldQtyMap = new Map();
+    for (let i = 0; i < sales.length; i++) {
+      const s = sales[i];
+      soldQtyMap.set(s.productId, (soldQtyMap.get(s.productId) || 0) + (s.quantity || 0));
+    }
+
+    const expenses = getAll('productExpenses');
+    const expMap = new Map();
+    for (let i = 0; i < expenses.length; i++) {
+      const e = expenses[i];
+      expMap.set(e.productId, (expMap.get(e.productId) || 0) + parseFloat(e.amount || 0));
+    }
+
+    return products.map(product => {
+      const totalExpenses = expMap.get(product.id) || 0;
+      const totalCost = parseFloat(product.purchasePrice || 0) + totalExpenses;
+      const costPerUnit = product.quantity > 0 ? totalCost / product.quantity : totalCost;
+      const soldQty = soldQtyMap.get(product.id) || 0;
+      const currentStock = Math.max(0, (product.quantity || 0) - soldQty);
+      const stockStatus = currentStock === 0 ? 'out' : (currentStock <= 5 ? 'low' : 'available');
+      return {
+        ...product,
+        categoryName: catMap.get(product.categoryId) || 'N/A',
+        supplierName: suppMap.get(product.supplierId) || product.supplierName || 'N/A',
+        totalExpenses,
+        totalCost,
+        costPerUnit,
+        currentStock,
+        stockStatus,
+      };
+    });
   }
 
   /** Get enriched sale (with product info) */
@@ -349,10 +488,14 @@ const DB = (() => {
     return { ...sale, productName: product?.name || 'Unknown', productCode: product?.code || '' };
   }
 
-  /** Get all enriched sales */
+  /** Get all enriched sales optimized O(N) */
   function getAllEnrichedSales() {
-    return getAll('sales').map(s => getEnrichedSale(s.id)).filter(Boolean)
-      .sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
+    const products = getAll('products');
+    const prodMap = new Map(products.map(p => [p.id, p]));
+    return getAll('sales').map(sale => {
+      const product = prodMap.get(sale.productId);
+      return { ...sale, productName: product?.name || 'Unknown', productCode: product?.code || '' };
+    }).sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
   }
 
   /** Dashboard summary stats */
@@ -435,9 +578,38 @@ const DB = (() => {
     return 'PRD-' + String(next).padStart(3, '0');
   }
 
+  async function syncFromBackend() {
+    if (typeof ApiClient === 'undefined') return false;
+    try {
+      const isOnline = await ApiClient.checkHealth();
+      if (!isOnline) {
+        console.warn('Django API is offline or unreachable. Using local cache.');
+        return false;
+      }
+      for (const table of TABLES) {
+        if (table === 'users') continue;
+        const endpoint = _apiEndpoint(table);
+        try {
+          const serverData = await ApiClient.getAll(endpoint);
+          if (Array.isArray(serverData)) {
+            const normalized = serverData.map(r => _normalizeRecord(table, r));
+            localStorage.setItem(_key(table), JSON.stringify(normalized));
+          }
+        } catch (err) {
+          console.warn(`Failed to sync table ${table} from Django API:`, err);
+        }
+      }
+      console.log('Successfully synchronized all data from Django backend!');
+      return true;
+    } catch (e) {
+      console.error('Failed during syncFromBackend:', e);
+      return false;
+    }
+  }
+
   return {
-    getAll, getById, insert, update, remove, query, count, sum,
-    clearAll, isInitialised, hashPassword, seed,
+    getAll, getRawAll, getTenantId, getById, insert, update, remove, query, count, sum,
+    clearAll, isInitialised, hashPassword, seed, syncFromBackend,
     getProductTotalExpenses, getProductCostPerUnit, getProductTotalCost,
     getProductStock, getStockStatus, getEnrichedProduct, getAllEnrichedProducts,
     getEnrichedSale, getAllEnrichedSales,
