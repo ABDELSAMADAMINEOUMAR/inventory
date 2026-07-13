@@ -2784,11 +2784,26 @@ input.input.filter-search {
     position: sticky !important;
     top: 0 !important;
     width: 100% !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch !important;
+    height: auto !important;
+    flex-wrap: wrap !important;
+    padding: 8px 12px !important;
+  }
+
+  .sidebar-header {
+    order: 1 !important;
+    flex: 1 !important;
+  }
+
+  .sidebar-footer {
+    order: 2 !important;
+    flex-shrink: 0 !important;
   }
 
   .sidebar-nav {
+    order: 3 !important;
+    width: 100% !important;
+    flex: 0 0 100% !important;
+    margin: 6px 0 2px !important;
     overflow-x: auto !important;
     -webkit-overflow-scrolling: touch !important;
     justify-content: flex-start !important;
