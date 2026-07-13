@@ -4,7 +4,9 @@
    ============================================= */
 
 const ApiClient = (() => {
-  const BASE_URL = 'http://127.0.0.1:8000/api/';
+  const BASE_URL = (window.location.hostname === '127.0.0.1' || window.location.hostname === 'localhost' || window.location.protocol === 'file:')
+    ? 'http://127.0.0.1:8000/api/'
+    : 'https://inventory-ts07.onrender.com/api/';
 
   // Helper to get JWT token from storage
   function _getToken() {
