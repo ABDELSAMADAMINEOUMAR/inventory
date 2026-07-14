@@ -85,7 +85,7 @@
                 <polyline points="22,6 12,13 2,6" />
               </svg>
               <input type="text" id="loginEmail" class="input" placeholder="admin@business.com"
-                value="" required autocomplete="username"
+                value="" required autocomplete="off"
                 style="padding-top: 11px !important; padding-bottom: 11px !important;">
             </div>
           </div>
@@ -102,7 +102,7 @@
                 <path d="M7 11V7a5 5 0 0 1 10 0v4" />
               </svg>
               <input type="password" id="loginPassword" class="input" placeholder="Enter your password" value=""
-                required autocomplete="current-password" data-i18n-ph="login_pwd_ph"
+                required autocomplete="new-password" data-i18n-ph="login_pwd_ph"
                 style="padding-top: 11px !important; padding-bottom: 11px !important;">
               <button type="button" class="pwd-toggle" id="pwdToggle" onclick="togglePassword('loginPassword', 'eyeIcon')">
                 <svg id="eyeIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -237,6 +237,12 @@
     // Initialise DB and translation layout on first load
     (async () => {
       I18n.init();
+      const em = document.getElementById('loginEmail');
+      const pw = document.getElementById('loginPassword');
+      if (em) em.value = '';
+      if (pw) pw.value = '';
+      setTimeout(() => { if (em) em.value = ''; if (pw) pw.value = ''; }, 100);
+
       // If already logged in, redirect to app immediately
       if (Auth.isLoggedIn()) {
         window.location.href = 'app.html';
