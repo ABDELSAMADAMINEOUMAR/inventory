@@ -864,9 +864,28 @@ const UI = (() => {
     if (!ok) return;
 
     if (typeof DB !== 'undefined') {
-      const rows = DB.getAll('companies').filter(c => c.id != id);
+      const allCompanies = DB.getAll('companies');
+      const targetComp = allCompanies.find(c => c.id == id);
+      if (targetComp) {
+        const archived = getArchivedCompanies();
+        if (!archived.some(c => c.id == id)) {
+          archived.push(targetComp);
+          localStorage.setItem('sims_archived_companies', JSON.stringify(archived));
+        }
+      }
+      const allUsers = DB.getAll('users');
+      const targetAdm = allUsers.find(u => u.company_id == id || u.company == id);
+      if (targetAdm) {
+        const archivedAdmins = getArchivedAdmins();
+        if (!archivedAdmins.some(a => a.email && targetAdm.email && a.email.toLowerCase() === targetAdm.email.toLowerCase())) {
+          archivedAdmins.push(targetAdm);
+          localStorage.setItem('sims_archived_admins', JSON.stringify(archivedAdmins));
+        }
+      }
+
+      const rows = allCompanies.filter(c => c.id != id);
       localStorage.setItem('sims_companies', JSON.stringify(rows));
-      const users = DB.getAll('users').filter(u => u.company_id != id && u.company != id);
+      const users = allUsers.filter(u => u.company_id != id && u.company != id);
       localStorage.setItem('sims_users', JSON.stringify(users));
     }
 
@@ -979,7 +998,37 @@ const UI = (() => {
     const comp = archived.find(c => c.id === id);
     if (!comp) return;
     const archivedAdmins = getArchivedAdmins();
-    const adm = archivedAdmins.find(a => a.company_id === id);
+    let adm = archivedAdmins.find(a => a.company_id === id);
+
+    if (typeof DB !== 'undefined') {
+      const activeUsers = DB.getAll('users');
+      if (activeUsers.some(u => u.email && comp.admin_email && u.email.toLowerCase() === comp.admin_email.toLowerCase())) {
+        const newEmail = prompt(
+          `⚠️ Email "${comp.admin_email}" is currently already in use by another active company.\n\nPlease enter a NEW email address for restoring "${comp.name}" admin:`,
+          `recovered_${comp.admin_email}`
+        );
+        if (!newEmail) {
+          toast('warning', 'Recovery Cancelled', 'A unique email address is required to restore this company.');
+          return;
+        }
+        comp.admin_email = newEmail.strip ? newEmail.strip() : newEmail.trim();
+        if (adm) {
+          adm.email = comp.admin_email;
+          adm.username = comp.admin_email.split('@')[0];
+        } else {
+          adm = {
+            name: `${comp.name} Admin`,
+            username: comp.admin_email.split('@')[0],
+            email: comp.admin_email,
+            role: 'admin',
+            company_id: id,
+            business: comp.name,
+            currency: comp.currency || 'FCFA',
+            is_active: true
+          };
+        }
+      }
+    }
 
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
       try {
@@ -1009,7 +1058,7 @@ const UI = (() => {
         const pwHash = await DB.hashPassword('RecoveredPassword123!');
         const users = DB.getAll('users');
         if (!users.some(u => u.email && u.email.toLowerCase() === adm.email.toLowerCase())) {
-          DB.insert('users', { ...adm, passwordHash: pwHash });
+          DB.insert('users', { ...adm, passwordHash: pwHash, password_hash: pwHash, password: 'RecoveredPassword123!' });
         }
       }
     }
