@@ -236,7 +236,7 @@ const Sales = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_qty_sold')} <span class="req">*</span></label>
-        <input class="input" type="number" id="sQty" value="${s.quantity||''}" placeholder="e.g. 5" min="1" oninput="Sales.updateCalc()" required>
+        <input class="input" type="text" inputmode="numeric" id="sQty" value="${s.quantity||''}" placeholder="e.g. 5" oninput="Sales.updateCalc()" required>
         <span class="field-hint" id="sStockHint">${t('available_stock')}: —</span>
       </div>
       <div class="field">
@@ -363,13 +363,13 @@ const Sales = (() => {
     const sel   = document.getElementById('sProduct');
     const opt   = sel?.selectedOptions[0];
     const cpu   = parseFloat(opt?.dataset.cpu) || 0;
-    const stock = parseInt(opt?.dataset.stock) || 0;
-    const qty   = parseInt(document.getElementById('sQty')?.value) || 0;
+    const stock = parseNum(opt?.dataset.stock) || 0;
+    const qty   = parseNum(document.getElementById('sQty')?.value) || 0;
     const rawPrice = document.getElementById('sSellPrice')?.value;
     const price    = UI.fromInputMoney(rawPrice) || 0;
 
     const hint = document.getElementById('sStockHint');
-    if (hint) hint.textContent = `Available stock: ${stock} units`;
+    if (hint) hint.textContent = `${t('available_stock')}: ${stock} ${I18n.getLang() === 'ar' ? 'وحدة' : 'units'}`;
 
     const priceHint = document.getElementById('sSellPriceFCFAHint');
     if (priceHint && UI.isRiyalMode()) {
@@ -434,7 +434,7 @@ const Sales = (() => {
 
   async function save() {
     const productId    = parseInt(document.getElementById('sProduct')?.value);
-    const qty          = parseInt(document.getElementById('sQty')?.value);
+    const qty          = parseNum(document.getElementById('sQty')?.value);
     const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
     const saleDate     = document.getElementById('sSaleDate')?.value;
     const customer     = document.getElementById('sCustomer')?.value.trim();

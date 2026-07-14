@@ -321,21 +321,22 @@ const UI = (() => {
     return symbols[c] || c;
   }
   function parseArabicDigits(str) {
+    if (typeof I18n !== 'undefined' && I18n.toWesternDigits) return I18n.toWesternDigits(str);
     if (str === null || str === undefined) return '';
-    return String(str).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    return String(str).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d)).replace(/٫/g, '.');
   }
   function isRiyalMode() {
     return typeof I18n !== 'undefined' && I18n.getLang() === 'ar' && getCurrency() === 'FCFA';
   }
   function toInputMoney(fcfaVal) {
     if (fcfaVal === undefined || fcfaVal === null || fcfaVal === '') return '';
-    const num = parseFloat(parseArabicDigits(fcfaVal));
+    const num = (typeof I18n !== 'undefined' && I18n.parseNum) ? I18n.parseNum(fcfaVal) : parseFloat(parseArabicDigits(fcfaVal));
     if (isNaN(num)) return '';
     return isRiyalMode() ? Math.round(num / 5) : num;
   }
   function fromInputMoney(inputVal) {
     if (inputVal === undefined || inputVal === null || inputVal === '') return NaN;
-    const num = parseFloat(parseArabicDigits(inputVal));
+    const num = (typeof I18n !== 'undefined' && I18n.parseNum) ? I18n.parseNum(inputVal) : parseFloat(parseArabicDigits(inputVal));
     if (isNaN(num)) return NaN;
     return isRiyalMode() ? num * 5 : num;
   }

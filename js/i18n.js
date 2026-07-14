@@ -155,6 +155,13 @@ const I18n = (() => {
       products_count: 'products', product_count: 'product',
       ph_date_from: 'From date', ph_date_to: 'To date',
       th_revenue: 'Revenue', th_profit: 'Profit', th_expenses: 'Expenses',
+      exp_Purchase_Cost: 'Purchase Cost', exp_Shipping: 'Shipping', exp_Customs_Duty: 'Customs Duty',
+      exp_Transportation: 'Transportation', exp_Packaging: 'Packaging', exp_Insurance: 'Insurance',
+      exp_Warehouse: 'Warehouse', exp_Taxes: 'Taxes', exp_Other: 'Other',
+      lbl_total_import_cost: 'Total Import Cost', lbl_cost_per_unit: 'Cost Per Unit',
+      lbl_total_expenses: 'Total Expenses', lbl_units_sold: 'Units Sold',
+      lbl_revenue_gen: 'Revenue Generated', lbl_profit_gen: 'Profit Generated',
+      lbl_type: 'Type', lbl_amount: 'Amount',
     },
 
     ar: {
@@ -303,10 +310,33 @@ const I18n = (() => {
       products_count: 'منتجات', product_count: 'منتج',
       ph_date_from: 'من تاريخ', ph_date_to: 'إلى تاريخ',
       th_revenue: 'الإيرادات', th_profit: 'الأرباح', th_expenses: 'المصروفات',
+      exp_Purchase_Cost: 'تكلفة الشراء', exp_Shipping: 'الشحن', exp_Customs_Duty: 'الرسوم الجمركية',
+      exp_Transportation: 'النقل', exp_Packaging: 'التغليف', exp_Insurance: 'التأمين',
+      exp_Warehouse: 'التخزين / المستودع', exp_Taxes: 'الضرائب', exp_Other: 'أخرى',
+      lbl_total_import_cost: 'إجمالي تكلفة الاستيراد', lbl_cost_per_unit: 'التكلفة لكل وحدة',
+      lbl_total_expenses: 'إجمالي المصاريف', lbl_units_sold: 'الكمية المباعة',
+      lbl_revenue_gen: 'الإيرادات المحققة', lbl_profit_gen: 'الأرباح المحققة',
+      lbl_type: 'النوع', lbl_amount: 'المبلغ',
     }
   };
 
   // ── Core Functions ────────────────────────
+
+  function toWesternDigits(str) {
+    if (str === null || str === undefined) return '';
+    return String(str)
+      .replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d))
+      .replace(/[۰-۹]/g, d => '۰۱۲۳۴۵۶۷۸۹'.indexOf(d))
+      .replace(/٫/g, '.');
+  }
+
+  function parseNum(val) {
+    if (val === null || val === undefined || val === '') return 0;
+    if (typeof val === 'number') return isNaN(val) ? 0 : val;
+    const cleanStr = toWesternDigits(val).replace(/[^0-9.-]+/g, '');
+    const n = parseFloat(cleanStr);
+    return isNaN(n) ? 0 : n;
+  }
 
   function getLang() {
     return localStorage.getItem(LANG_KEY) || 'en';
@@ -369,8 +399,10 @@ const I18n = (() => {
     _applyDir(getLang());
   }
 
-  return { getLang, setLang, t, toggle, init };
+  return { getLang, setLang, t, toggle, init, toWesternDigits, parseNum };
 })();
 
 // Global shorthand — all modules can call  t('key')
 window.t = I18n.t;
+window.parseNum = I18n.parseNum;
+window.toWesternDigits = I18n.toWesternDigits;

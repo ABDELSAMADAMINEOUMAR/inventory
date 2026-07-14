@@ -180,7 +180,7 @@ const Products = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_qty')} <span class="req">*</span></label>
-        <input class="input" type="number" id="fQty" value="${p.quantity||''}" placeholder="e.g. 100" required>
+        <input class="input" type="text" inputmode="numeric" id="fQty" value="${p.quantity||''}" placeholder="e.g. 100" required>
       </div>
       <div class="field">
         <label>${t('lbl_date')}</label>
@@ -220,9 +220,9 @@ const Products = (() => {
     return `
     <div class="expense-row" style="display:grid;grid-template-columns:1fr 1fr auto;gap:10px;margin-bottom:10px;align-items:center;">
       <select class="select" onchange="Products.calcPreview()">
-        ${types.map(t => `<option ${e.expenseType===t?'selected':''}>${t}</option>`).join('')}
+        ${types.map(typ => `<option value="${typ}" ${e.expenseType===typ?'selected':''}>${t('exp_' + typ.replace(/\s+/g, '_')) || typ}</option>`).join('')}
       </select>
-      <input class="input expense-amount" type="number" value="${e.amount||''}" placeholder="Amount (${UI.getCurrency()})" oninput="Products.calcPreview()">
+      <input class="input expense-amount" type="text" inputmode="decimal" value="${e.amount||''}" placeholder="Amount (${UI.getCurrency()})" oninput="Products.calcPreview()">
       <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">🗑️ Delete</button>
     </div>`;
   }
@@ -252,8 +252,8 @@ const Products = (() => {
     if (hint && UI.isRiyalMode()) {
       hint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
     }
-    const qty   = parseInt(document.getElementById('fQty')?.value) || 1;
-    const expAmounts = [...document.querySelectorAll('.expense-amount')].map(i => parseFloat(i.value) || 0);
+    const qty   = parseNum(document.getElementById('fQty')?.value) || 1;
+    const expAmounts = [...document.querySelectorAll('.expense-amount')].map(i => parseNum(i.value) || 0);
     const totalExp = expAmounts.reduce((a, v) => a + v, 0);
     const total = price + totalExp;
     const cpu = qty > 0 ? total / qty : total;
@@ -302,7 +302,7 @@ const Products = (() => {
     const catId = document.getElementById('fCat')?.value;
     const supplierName = document.getElementById('fSupp')?.value.trim();
     const price = UI.fromInputMoney(document.getElementById('fPrice')?.value);
-    const qty   = parseInt(document.getElementById('fQty')?.value);
+    const qty   = parseNum(document.getElementById('fQty')?.value);
     const currency = UI.getCurrency();
     const rate  = 1;
     const date  = document.getElementById('fDate')?.value;
@@ -342,7 +342,7 @@ const Products = (() => {
       const rows = document.querySelectorAll('.expense-row');
       for (const row of rows) {
         const type = row.querySelector('select')?.value;
-        const amount = parseFloat(row.querySelector('.expense-amount')?.value) || 0;
+        const amount = parseNum(row.querySelector('.expense-amount')?.value) || 0;
         if (amount > 0) {
           await DB.insert('productExpenses', { productId, expenseType: type, amount, note: '', date: date || new Date().toISOString().split('T')[0] });
         }
@@ -397,29 +397,29 @@ const Products = (() => {
       <div>
         <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px">${p.name}</h3>
         <div style="display:grid;gap:8px;font-size:0.875rem">
-          ${row('Category', p.categoryName)}
-          ${row('Supplier', p.supplierName)}
-          ${row('Purchase Date', UI.fmtDate(p.purchaseDate))}
-          ${row('Purchase Price', UI.fmtCurrency(p.purchasePrice))}
-          ${row('Quantity Bought', p.quantity)}
-          ${row('Current Stock', `<strong>${p.currentStock}</strong>`)}
+          ${row(t('lbl_category'), p.categoryName)}
+          ${row(t('lbl_supplier'), p.supplierName)}
+          ${row(t('lbl_date'), UI.fmtDate(p.purchaseDate))}
+          ${row(t('lbl_price'), UI.fmtCurrency(p.purchasePrice))}
+          ${row(t('lbl_qty'), p.quantity)}
+          ${row(t('th_stock'), `<strong>${p.currentStock}</strong>`)}
         </div>
       </div>
     </div>
     <div class="divider"></div>
     <div class="kpi-grid" style="margin-bottom:16px">
-      ${statBox('Total Import Cost', UI.fmtCurrency(p.totalCost), 'orange')}
-      ${statBox('Cost Per Unit', UI.fmtCurrency(p.costPerUnit), 'purple')}
-      ${statBox('Total Expenses', UI.fmtCurrency(p.totalExpenses), 'red')}
-      ${statBox('Units Sold', soldQty, 'blue')}
-      ${statBox('Revenue Generated', UI.fmtCurrency(totalRevenue), 'green')}
-      ${statBox('Profit Generated', UI.fmtCurrency(totalProfit), totalProfit>=0?'green':'red')}
+      ${statBox(t('lbl_total_import_cost'), UI.fmtCurrency(p.totalCost), 'orange')}
+      ${statBox(t('lbl_cost_per_unit'), UI.fmtCurrency(p.costPerUnit), 'purple')}
+      ${statBox(t('lbl_total_expenses'), UI.fmtCurrency(p.totalExpenses), 'red')}
+      ${statBox(t('lbl_units_sold'), soldQty, 'blue')}
+      ${statBox(t('lbl_revenue_gen'), UI.fmtCurrency(totalRevenue), 'green')}
+      ${statBox(t('lbl_profit_gen'), UI.fmtCurrency(totalProfit), totalProfit>=0?'green':'red')}
     </div>
     ${exps.length ? `
-    <div style="font-weight:600;margin-bottom:10px">💸 Import Expenses</div>
+    <div style="font-weight:600;margin-bottom:10px">💸 ${t('import_expenses')}</div>
     <table style="font-size:0.85rem">
-      <thead><tr><th>Type</th><th>Amount</th><th>Date</th></tr></thead>
-      <tbody>${exps.map(e => `<tr><td>${e.expenseType}</td><td class="text-accent">${UI.fmtCurrency(e.amount)}</td><td class="td-muted">${UI.fmtDate(e.date)}</td></tr>`).join('')}</tbody>
+      <thead><tr><th>${t('lbl_type')}</th><th>${t('lbl_amount')}</th><th>${t('th_date')}</th></tr></thead>
+      <tbody>${exps.map(e => `<tr><td>${t('exp_' + e.expenseType.replace(/\s+/g, '_')) || e.expenseType}</td><td class="text-accent">${UI.fmtCurrency(e.amount)}</td><td class="td-muted">${UI.fmtDate(e.date)}</td></tr>`).join('')}</tbody>
     </table>` : ''}
     ${p.description ? `<div class="divider"></div><p style="color:var(--text-secondary);font-size:0.875rem">${p.description}</p>` : ''}`;
 
