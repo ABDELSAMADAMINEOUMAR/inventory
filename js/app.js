@@ -328,17 +328,32 @@ const UI = (() => {
   function isRiyalMode() {
     return typeof I18n !== 'undefined' && I18n.getLang() === 'ar' && getCurrency() === 'FCFA';
   }
+  function toMarketRiyal(fcfaVal) {
+    const baseRiyal = Math.round(Number(fcfaVal || 0) / 5);
+    if (baseRiyal < 200000) return baseRiyal;
+    const millions = Math.floor(baseRiyal / 200000);
+    const remainder = baseRiyal % 200000;
+    return (millions * 1000000) + remainder;
+  }
+  function fromMarketRiyal(marketRiyal) {
+    const num = Number(marketRiyal || 0);
+    if (num < 1000000) return num * 5;
+    const millions = Math.floor(num / 1000000);
+    const remainder = num % 1000000;
+    const baseRiyal = (millions * 200000) + remainder;
+    return baseRiyal * 5;
+  }
   function toInputMoney(fcfaVal) {
     if (fcfaVal === undefined || fcfaVal === null || fcfaVal === '') return '';
     const num = (typeof I18n !== 'undefined' && I18n.parseNum) ? I18n.parseNum(fcfaVal) : parseFloat(parseArabicDigits(fcfaVal));
     if (isNaN(num)) return '';
-    return isRiyalMode() ? Math.round(num / 5) : num;
+    return isRiyalMode() ? toMarketRiyal(num) : num;
   }
   function fromInputMoney(inputVal) {
     if (inputVal === undefined || inputVal === null || inputVal === '') return NaN;
     const num = (typeof I18n !== 'undefined' && I18n.parseNum) ? I18n.parseNum(inputVal) : parseFloat(parseArabicDigits(inputVal));
     if (isNaN(num)) return NaN;
-    return isRiyalMode() ? num * 5 : num;
+    return isRiyalMode() ? fromMarketRiyal(num) : num;
   }
   function fmtCurrency(n, symbol = null) {
     if (!symbol) {
@@ -347,8 +362,8 @@ const UI = (() => {
       symbol = syms[cur] || (' ' + cur);
     }
     if (isRiyalMode() && !String(symbol).includes('ريال')) {
-      const riyal = Math.round(Number(n || 0) / 5);
-      return fmt(riyal, 0) + ' ريال (' + fmt(n, 0) + ' FCFA)';
+      const riyal = toMarketRiyal(n);
+      return fmt(riyal, 0) + ' ريال (FCFA ' + fmt(n, 0) + ')';
     }
     return fmt(n, 0) + symbol;
   }
@@ -1359,7 +1374,7 @@ const UI = (() => {
     openModal, closeModal, createModal,
     handleSearch, closeSearch, showNotifications,
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
-    parseArabicDigits, isRiyalMode, toInputMoney, fromInputMoney,
+    parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,
     toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecoverTenantsModal, recoverSingleTenant, recoverAllDeletedTenants,
   };
