@@ -74,7 +74,7 @@ const Dashboard = (() => {
       </div>` : ''}
 
       <!-- Top Row: 4 Signature Executive Metric Cards -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;margin-bottom:20px;">
+      <div class="dash-kpi-grid">
         <!-- Card 1: Gross Revenue -->
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
@@ -141,7 +141,7 @@ const Dashboard = (() => {
       </div>
 
       <!-- Secondary Operations & Asset Summary Strip -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px;margin-bottom:24px;">
+      <div class="dash-strip-grid">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🏪</div>
           <div>
@@ -176,7 +176,7 @@ const Dashboard = (() => {
       </div>
 
       <!-- Row 2: Analytics Grid -->
-      <div style="display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:18px;margin-bottom:24px;">
+      <div class="dash-charts-grid">
         <!-- Left: Monthly Revenue & Net Profit Analytics -->
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
@@ -203,7 +203,7 @@ const Dashboard = (() => {
       </div>
 
       <!-- Row 3: Financial Flow Grid -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:18px;margin-bottom:24px;">
+      <div class="dash-flow-grid">
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>

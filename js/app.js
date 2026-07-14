@@ -455,7 +455,7 @@ const UI = (() => {
         <div class="page-title"><h2>${t('page_settings')}</h2><p>${I18n.getLang() === 'ar' ? 'إدارة ملفك الشخصي وتفضيلات النظام' : 'Manage your profile and system preferences'}</p></div>
       </div>
 
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+      <div class="settings-grid">
         <!-- Profile Card -->
         <div class="card">
           <div class="card-header"><div class="card-title">${t('set_profile')}</div></div>

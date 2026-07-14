@@ -262,7 +262,7 @@ const Sales = (() => {
       <!-- ── Payment Section ── -->
       <div class="field col-span-2">
         <label>${t('lbl_payment')} <span class="req">*</span></label>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+        <div class="pay-toggle-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
           <label id="payOptPaid" onclick="Sales.togglePayment('paid')" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;border:2px solid ${!isCredit?'var(--accent)':'var(--border-light)'};background:${!isCredit?'rgba(6,214,160,0.08)':'var(--bg-elevated)'};transition:var(--transition)">
             <input type="radio" name="payStatus" value="paid" ${!isCredit?'checked':''} style="display:none">
             <span style="width:20px;height:20px;border-radius:50%;background:${!isCredit?'var(--accent)':'var(--border-light)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotPaid">${!isCredit?'✓':''}</span>

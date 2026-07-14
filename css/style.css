@@ -1526,34 +1526,88 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-/* Currency input prefix styling */
+/* Currency input prefix styling - Modern flex badge */
 .input-prefix-wrap {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
+  background: var(--bg-elevated);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+  overflow: hidden;
+}
+.input-prefix-wrap:focus-within {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3.5px rgba(99, 102, 241, 0.12);
+  background: var(--surface);
 }
 .input-prefix {
-  position: absolute;
-  left: 14px;
-  color: var(--text-muted);
+  position: static !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  min-height: 44px;
+  background: var(--bg-main);
+  color: var(--text-secondary);
   font-weight: 700;
-  font-size: 0.9rem;
-  pointer-events: none;
-  z-index: 2;
+  font-size: 0.88rem;
+  border-right: 1px solid var(--border);
+  flex-shrink: 0;
+  white-space: nowrap;
+  z-index: 1;
 }
 [dir="rtl"] .input-prefix {
-  left: auto;
-  right: 14px;
+  border-right: none;
+  border-left: 1px solid var(--border);
 }
 .input-prefix-wrap .input,
 .input-prefix-wrap input {
-  padding-left: 34px !important;
+  flex: 1 !important;
+  border: none !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  padding: 10px 14px !important;
+  width: auto !important;
+  border-radius: 0 !important;
+  min-width: 0;
 }
 [dir="rtl"] .input-prefix-wrap .input,
 [dir="rtl"] .input-prefix-wrap input {
-  padding-left: 16px !important;
-  padding-right: 34px !important;
+  padding: 10px 14px !important;
+}
+
+/* Responsive Grid Base Classes */
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+.dash-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 18px;
+  margin-bottom: 20px;
+}
+.dash-charts-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.dash-flow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: 18px;
+  margin-bottom: 24px;
+}
+.dash-strip-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 24px;
 }
 
 /* Filter Toolbar & Search Bars */
@@ -2889,19 +2943,33 @@ input.input.filter-search {
     width: 200px;
   }
 
-  .form-grid {
-    grid-template-columns: 1fr;
+  .form-grid,
+  .settings-grid,
+  .dash-charts-grid,
+  .dash-flow-grid,
+  .dash-strip-grid {
+    grid-template-columns: 1fr !important;
   }
 
-  .kpi-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 12px;
+  .kpi-grid,
+  .dash-kpi-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+    gap: 12px !important;
+  }
+}
+
+@media (max-width: 992px) {
+  .settings-grid,
+  .dash-charts-grid,
+  .dash-flow-grid {
+    grid-template-columns: 1fr !important;
   }
 }
 
 @media (max-width: 480px) {
-  .kpi-grid {
-    grid-template-columns: 1fr;
+  .kpi-grid,
+  .dash-kpi-grid {
+    grid-template-columns: 1fr !important;
   }
 
   .search-box {
@@ -2929,5 +2997,14 @@ input.input.filter-search {
   .notif-btn {
     width: 36px !important;
     height: 36px !important;
+  }
+
+  .form-grid-2 {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Payment option cards stack nicely on small phone screens */
+  .pay-toggle-grid {
+    grid-template-columns: 1fr !important;
   }
 }
