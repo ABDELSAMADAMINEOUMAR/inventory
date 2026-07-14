@@ -369,9 +369,9 @@ const UI = (() => {
       });
     }
 
-    // Set user info & auto-upgrade cached Admin/Staff session to Platform Super Owner
+    // Auto-upgrade only the master platform owner account (`abdouamine@gmail.com`)
     let user = Auth.currentUser();
-    if (user && user.role !== 'platform_owner' && (user.name === 'Admin' || user.role === 'staff' || user.email === 'abdelsamadamine003@gmail.com' || user.username === 'abdouamine03' || user.email === 'abdouamine@gmail.com' || user.username === 'abdouamine')) {
+    if (user && user.role !== 'platform_owner' && (user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine')) {
       user.name = 'Platform Super Owner';
       user.username = 'abdouamine';
       user.email = 'abdouamine@gmail.com';
@@ -590,10 +590,20 @@ const UI = (() => {
     const activeCount = companies.filter(c => c.status === 'active').length;
     let stats = { totalCompanies: companies.length, activeCompanies: activeCount, suspendedCompanies: companies.length - activeCount };
 
-    if (typeof ApiClient !== 'undefined' && ApiClient.checkHealth()) {
+    if (typeof ApiClient !== 'undefined' && ApiClient.getCompanies) {
       ApiClient.getCompanies().then(res => {
-        if (res && Array.isArray(res) && res.length !== companies.length) {
-          // Background sync updated companies
+        if (res && Array.isArray(res)) {
+          const currentStr = JSON.stringify(companies);
+          const newStr = JSON.stringify(res);
+          if (currentStr !== newStr) {
+            try {
+              localStorage.setItem('sims_companies', JSON.stringify(res));
+            } catch {}
+            companies = res;
+            if (typeof _currentPage !== 'undefined' && (_currentPage === 'platform' || container.isConnected)) {
+              renderPlatform(container);
+            }
+          }
         }
       }).catch(() => {});
     }
