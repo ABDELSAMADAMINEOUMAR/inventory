@@ -113,7 +113,15 @@ const Auth = (() => {
             headers: { 'Authorization': `Bearer ${data.access}` }
           }).then(r => r.json()).then(compData => {
             if (compData && compData.name) user.company_name = compData.name;
-            if (compData && compData.currency) user.currency = compData.currency;
+            if (compData && compData.currency) {
+              user.currency = compData.currency;
+              setSession(user);
+              if (typeof DB !== 'undefined' && (user.company_id || user.company)) {
+                try { DB.update('companies', user.company_id || user.company, { currency: compData.currency }); } catch {}
+              }
+              if (typeof renderPlatform === 'function') renderPlatform();
+              if (typeof render === 'function') render();
+            }
           }).catch(() => {});
         }
 
@@ -304,6 +312,19 @@ const Auth = (() => {
     let updated;
     try {
       updated = await DB.update('users', user.id, data);
+      if (data.currency && (user.company_id || user.company)) {
+        try { DB.update('companies', user.company_id || user.company, { currency: data.currency }); } catch {}
+        if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth() && user.role !== 'platform_owner') {
+          const token = sessionStorage.getItem('sims_token');
+          if (token) {
+            fetch(`${ApiClient.BASE_URL}settings/`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+              body: JSON.stringify({ currency: data.currency, name: data.business || user.company_name || user.business })
+            }).catch(() => {});
+          }
+        }
+      }
     } catch (e) {
       return { success: false, message: e.message || 'Failed to update profile.' };
     }

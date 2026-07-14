@@ -259,6 +259,8 @@ class CompanySettingsView(views.APIView):
         company = request.user.company
         serializer = CompanySerializer(company, data=request.data, partial=True)
         if serializer.is_valid():
-            serializer.save()
+            company = serializer.save()
+            if 'currency' in request.data and company.currency:
+                User.objects.filter(company=company).update(currency=company.currency)
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

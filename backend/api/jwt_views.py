@@ -92,6 +92,12 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         self.user = user
         refresh = self.get_token(user)
 
+        comp_currency = user.company.currency if user.company and user.company.currency else None
+        final_currency = comp_currency or getattr(user, 'currency', 'USD') or 'USD'
+        if comp_currency and getattr(user, 'currency', None) != comp_currency:
+            user.currency = comp_currency
+            user.save()
+
         data = {
             'refresh': str(refresh),
             'access': str(refresh.access_token),
@@ -100,7 +106,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'name': user.name,
             'email': user.email,
             'must_change_password': bool(user.must_change_password),
-            'currency': getattr(user, 'currency', 'USD') or 'USD'
+            'currency': final_currency
         }
         return data
 
@@ -212,6 +218,8 @@ class VerifyEmailView(views.APIView):
             user = User.objects.filter(email__iexact=email).first()
 
         if user is not None:
+            if user.company and user.company.currency:
+                user.currency = user.company.currency
             user.set_password(new_password)
             user.is_active = True
             user.status = 'active'

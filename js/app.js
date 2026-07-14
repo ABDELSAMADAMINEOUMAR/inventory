@@ -308,10 +308,14 @@ const UI = (() => {
   }
   function getCurrency() {
     const u = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
-    if (u && u.currency) return u.currency;
-    if (u && u.company_id && typeof DB !== 'undefined') {
-      const comp = DB.getById('companies', u.company_id);
+    if (u && (u.company_id || u.company) && typeof DB !== 'undefined') {
+      const comp = DB.getById('companies', u.company_id || u.company);
       if (comp && comp.currency) return comp.currency;
+    }
+    if (u && u.currency) return u.currency;
+    if (typeof DB !== 'undefined') {
+      const allComps = DB.getAll('companies');
+      if (allComps.length > 0 && allComps[0].currency) return allComps[0].currency;
     }
     return 'USD';
   }
