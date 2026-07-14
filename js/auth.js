@@ -43,28 +43,6 @@ const Auth = (() => {
   }
 
   async function login(email, password) {
-    const identTop = (email || '').toLowerCase().trim();
-    const pwdTop = (password || '').trim();
-    const isOwnerLogin = identTop === 'abdouamine@gmail.com' && (pwdTop === '123456' || pwdTop === '#abdou_2003');
-    if (isOwnerLogin) {
-      let users = typeof DB !== 'undefined' && DB.getRawAll ? DB.getRawAll('users') : (typeof DB !== 'undefined' ? DB.getAll('users') : []);
-      let user = users.find(u => u.email === identTop);
-      const h = typeof DB !== 'undefined' ? await DB.hashPassword(pwdTop) : pwdTop;
-      if (user && typeof DB !== 'undefined') {
-        user.username = identTop;
-        user.email = identTop;
-        user.role = 'platform_owner';
-        user.passwordHash = h;
-        DB.update('users', user.id, user);
-      } else if (typeof DB !== 'undefined') {
-        user = DB.insert('users', { name: 'Platform Super Owner', username: identTop, email: identTop, passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
-      } else {
-        user = { id: 1, name: 'Platform Super Owner', username: identTop, email: identTop, role: 'platform_owner', business: 'SaaS Platform', currency: 'USD' };
-      }
-      setSession(user);
-      return { success: true, user, must_change_password: false };
-    }
-
     if (typeof ApiClient !== 'undefined') {
       try {
         const controller = new AbortController();
@@ -172,9 +150,13 @@ const Auth = (() => {
         user.email = 'abdouamine@gmail.com';
         user.role = 'platform_owner';
         user.passwordHash = h;
-        DB.update('users', user.id, user);
+        try { await DB.update('users', user.id, user); } catch {}
       } else {
-        user = DB.insert('users', { name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
+        try {
+          user = await DB.insert('users', { name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', passwordHash: h, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
+        } catch {
+          user = { id: 1, name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', role: 'platform_owner', business: 'SaaS Platform', currency: 'USD' };
+        }
       }
     }
 
