@@ -1321,10 +1321,12 @@ const UI = (() => {
     }
 
     if (typeof DB !== 'undefined') {
-      const existingUser = DB.getAll('users').find(u => u.email && u.email.toLowerCase() === adminEmail.toLowerCase());
-      if (!existingUser || !created) {
+      const existingUser = DB.getAll('users').find(u => (u.email && u.email.toLowerCase() === adminEmail.toLowerCase()) || (u.username && u.username.toLowerCase() === adminUsername.toLowerCase()));
+      const pwHash = await DB.hashPassword(adminPwd);
+      let compId = backendComp && backendComp.id ? backendComp.id : undefined;
+      if (!existingUser) {
         const newComp = DB.insert('companies', {
-          id: backendComp && backendComp.id ? backendComp.id : undefined,
+          id: compId,
           name,
           subscription_plan: plan,
           monthly_fee: monthly_fee,
@@ -1333,8 +1335,7 @@ const UI = (() => {
           admin_email: adminEmail,
           created_at: new Date().toISOString()
         });
-        const pwHash = await DB.hashPassword(adminPwd);
-        const newUser = DB.insert('users', {
+        DB.insert('users', {
           name: adminName,
           username: adminUsername,
           email: adminEmail,
@@ -1349,6 +1350,12 @@ const UI = (() => {
           must_change_password: false,
           createdAt: new Date().toISOString()
         });
+      } else {
+        existingUser.username = adminUsername;
+        existingUser.password = adminPwd;
+        existingUser.passwordHash = pwHash;
+        existingUser.password_hash = pwHash;
+        DB.update('users', existingUser.id, existingUser);
       }
     } else if (!created) {
       toast('error', 'Creation Failed', 'Neither Backend API nor Local Storage is available.');
