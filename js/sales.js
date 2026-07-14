@@ -23,7 +23,7 @@ const Sales = (() => {
     const totalRevenue   = sales.reduce((a, s) => a + s.revenue, 0);
     const totalProfit    = sales.reduce((a, s) => a + s.profit, 0);
     const totalCost      = sales.reduce((a, s) => a + s.cost, 0);
-    const avgMargin      = sales.length ? sales.reduce((a, s) => a + s.profitMargin, 0) / sales.length : 0;
+    const avgMargin      = totalRevenue > 0 ? (totalProfit / totalRevenue) * 100 : 0;
 
     // Credit stats (only count sales that have an actual unpaid remaining balance)
     const getPaidAmt = s => (s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? Number(s.amountPaid) : Number(s.revenue || 0);

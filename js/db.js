@@ -48,6 +48,8 @@ const DB = (() => {
       if (copy.sellingPrice !== undefined && copy.selling_price === undefined) copy.selling_price = copy.sellingPrice;
       if (copy.sale_date !== undefined && copy.saleDate === undefined) copy.saleDate = copy.sale_date;
       if (copy.saleDate !== undefined && copy.sale_date === undefined) copy.sale_date = copy.saleDate;
+      if (copy.profit_margin !== undefined && copy.profitMargin === undefined) copy.profitMargin = copy.profit_margin;
+      if (copy.profitMargin !== undefined && copy.profit_margin === undefined) copy.profit_margin = copy.profitMargin;
       if (copy.payment_status !== undefined && copy.paymentStatus === undefined) copy.paymentStatus = copy.payment_status;
       if (copy.paymentStatus !== undefined && copy.payment_status === undefined) copy.payment_status = copy.paymentStatus;
       if (copy.amount_paid !== undefined && copy.amountPaid === undefined) copy.amountPaid = copy.amount_paid;
@@ -480,21 +482,67 @@ const DB = (() => {
     });
   }
 
-  /** Get enriched sale (with product info) */
+  /** Get enriched sale (with product info and verified financial figures) */
   function getEnrichedSale(saleId) {
     const sale = getById('sales', saleId);
     if (!sale) return null;
-    const product = getById('products', sale.productId);
-    return { ...sale, productName: product?.name || 'Unknown', productCode: product?.code || '' };
+    const product = getEnrichedProduct(sale.productId);
+    const qty = Number(sale.quantity || 0);
+    const sellingPrice = Number(sale.sellingPrice !== undefined ? sale.sellingPrice : (sale.selling_price || 0));
+    const cpu = product ? Number(product.costPerUnit || 0) : 0;
+
+    let revenue = (sale.revenue !== undefined && sale.revenue !== null && !isNaN(sale.revenue)) ? Number(sale.revenue) : (sellingPrice * qty);
+    if (revenue === 0 && sellingPrice * qty > 0) revenue = sellingPrice * qty;
+
+    let cost = (sale.cost !== undefined && sale.cost !== null && !isNaN(sale.cost)) ? Number(sale.cost) : (cpu * qty);
+    if (cost === 0 && cpu * qty > 0) cost = cpu * qty;
+
+    let profit = (sale.profit !== undefined && sale.profit !== null && !isNaN(sale.profit)) ? Number(sale.profit) : (revenue - cost);
+    if ((profit === 0 || isNaN(profit)) && (revenue !== cost || revenue > 0)) profit = revenue - cost;
+
+    const pmRaw = sale.profitMargin !== undefined ? sale.profitMargin : sale.profit_margin;
+    let profitMargin = (pmRaw !== undefined && pmRaw !== null && !isNaN(pmRaw)) ? Number(pmRaw) : (revenue > 0 ? (profit / revenue) * 100 : 0);
+    if ((profitMargin === 0 || isNaN(profitMargin)) && profit !== 0 && revenue > 0) profitMargin = (profit / revenue) * 100;
+
+    return {
+      ...sale,
+      revenue, cost, profit, profitMargin,
+      sellingPrice,
+      productName: product?.name || 'Unknown',
+      productCode: product?.code || ''
+    };
   }
 
   /** Get all enriched sales optimized O(N) */
   function getAllEnrichedSales() {
-    const products = getAll('products');
+    const products = getAllEnrichedProducts();
     const prodMap = new Map(products.map(p => [p.id, p]));
     return getAll('sales').map(sale => {
       const product = prodMap.get(sale.productId);
-      return { ...sale, productName: product?.name || 'Unknown', productCode: product?.code || '' };
+      const qty = Number(sale.quantity || 0);
+      const sellingPrice = Number(sale.sellingPrice !== undefined ? sale.sellingPrice : (sale.selling_price || 0));
+      const cpu = product ? Number(product.costPerUnit || 0) : 0;
+
+      let revenue = (sale.revenue !== undefined && sale.revenue !== null && !isNaN(sale.revenue)) ? Number(sale.revenue) : (sellingPrice * qty);
+      if (revenue === 0 && sellingPrice * qty > 0) revenue = sellingPrice * qty;
+
+      let cost = (sale.cost !== undefined && sale.cost !== null && !isNaN(sale.cost)) ? Number(sale.cost) : (cpu * qty);
+      if (cost === 0 && cpu * qty > 0) cost = cpu * qty;
+
+      let profit = (sale.profit !== undefined && sale.profit !== null && !isNaN(sale.profit)) ? Number(sale.profit) : (revenue - cost);
+      if ((profit === 0 || isNaN(profit)) && (revenue !== cost || revenue > 0)) profit = revenue - cost;
+
+      const pmRaw = sale.profitMargin !== undefined ? sale.profitMargin : sale.profit_margin;
+      let profitMargin = (pmRaw !== undefined && pmRaw !== null && !isNaN(pmRaw)) ? Number(pmRaw) : (revenue > 0 ? (profit / revenue) * 100 : 0);
+      if ((profitMargin === 0 || isNaN(profitMargin)) && profit !== 0 && revenue > 0) profitMargin = (profit / revenue) * 100;
+
+      return {
+        ...sale,
+        revenue, cost, profit, profitMargin,
+        sellingPrice,
+        productName: product?.name || 'Unknown',
+        productCode: product?.code || ''
+      };
     }).sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
   }
 
