@@ -260,6 +260,21 @@ const Auth = (() => {
     window.location.href = 'index.html';
   }
 
+  let _expiredHandled = false;
+  function handleExpiredSession() {
+    if (_expiredHandled) return;
+    _expiredHandled = true;
+    clearSession();
+    try {
+      localStorage.setItem('sims_session_expired_notice', '1');
+    } catch {}
+    if (typeof window !== 'undefined' && !window.location.pathname.endsWith('index.html') && !window.location.pathname.endsWith('reset-password.html') && !window.location.pathname.endsWith('verify-email.html')) {
+      window.location.href = 'index.html';
+    } else if (typeof window !== 'undefined' && window.location.pathname.endsWith('index.html')) {
+      window.location.reload();
+    }
+  }
+
   async function changePassword(currentPwd, newPwd) {
     const user = getSession();
     if (!user) return { success: false, message: 'Not logged in.' };
@@ -341,5 +356,5 @@ const Auth = (() => {
     return user && (user.role === 'platform_owner' || user.role === 'owner');
   }
 
-  return { login, register, logout, isLoggedIn, currentUser, isOwner, getTenantId, requireAuth, changePassword, updateProfile };
+  return { login, register, logout, handleExpiredSession, isLoggedIn, currentUser, isOwner, getTenantId, requireAuth, changePassword, updateProfile };
 })();

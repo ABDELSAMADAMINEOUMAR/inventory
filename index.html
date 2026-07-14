@@ -233,12 +233,21 @@
     // Initialise DB and translation layout on first load
     (async () => {
       I18n.init();
-      if (typeof DB !== 'undefined' && DB.syncFromBackend) {
-        await DB.syncFromBackend();
+      // If already logged in, redirect to app immediately
+      if (Auth.isLoggedIn()) {
+        window.location.href = 'app.html';
+        return;
+      }
+      if (localStorage.getItem('sims_session_expired_notice') === '1') {
+        localStorage.removeItem('sims_session_expired_notice');
+        const err = document.getElementById('loginError');
+        const errText = document.getElementById('loginErrorText');
+        if (err && errText) {
+          errText.innerHTML = `⏳ <b>Session Expired</b><br><br>Your session expired after inactivity. Please sign in again.`;
+          err.classList.add('show');
+        }
       }
       await DB.seed();
-      // If already logged in, redirect to app
-      if (Auth.isLoggedIn()) window.location.href = 'app.html';
     })();
 
     function quickFill(email, pwd) {

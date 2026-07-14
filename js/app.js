@@ -359,14 +359,15 @@ const UI = (() => {
     I18n.init(); // Initialize language & direction first
     localStorage.removeItem('sims_theme');
     document.body.classList.remove('theme-nordic');
+    if (!Auth.requireAuth()) return;
+
     if (typeof DB !== 'undefined' && DB.syncFromBackend) {
       DB.syncFromBackend().then(() => {
-        if (_currentPage) {
+        if (_currentPage && Auth.isLoggedIn()) {
           navigate(_currentPage);
         }
       });
     }
-    if (!Auth.requireAuth()) return;
 
     // Set user info & auto-upgrade cached Admin/Staff session to Platform Super Owner
     let user = Auth.currentUser();

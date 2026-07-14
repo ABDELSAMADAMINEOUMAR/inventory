@@ -39,6 +39,49 @@ const ApiClient = (() => {
     } catch { return null; }
   }
 
+  let _isRefreshing = false;
+  let _refreshPromise = null;
+
+  async function _refreshToken() {
+    if (_isRefreshing && _refreshPromise) {
+      return await _refreshPromise;
+    }
+    const refreshToken = sessionStorage.getItem('sims_refresh') || localStorage.getItem('sims_refresh');
+    if (!refreshToken || refreshToken === 'undefined' || refreshToken === 'null') {
+      return null;
+    }
+    _isRefreshing = true;
+    _refreshPromise = (async () => {
+      try {
+        const res = await fetch(`${BASE_URL}auth/refresh/`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ refresh: refreshToken })
+        });
+        if (!res.ok) {
+          return null;
+        }
+        const data = await res.json();
+        if (data && data.access) {
+          sessionStorage.setItem('sims_token', data.access);
+          localStorage.setItem('sims_token', data.access);
+          if (data.refresh) {
+            sessionStorage.setItem('sims_refresh', data.refresh);
+            localStorage.setItem('sims_refresh', data.refresh);
+          }
+          return data.access;
+        }
+        return null;
+      } catch {
+        return null;
+      } finally {
+        _isRefreshing = false;
+        _refreshPromise = null;
+      }
+    })();
+    return await _refreshPromise;
+  }
+
   // Helper for HTTP requests
   async function _request(endpoint, method = 'GET', data = null) {
     const headers = { 'Content-Type': 'application/json' };
@@ -57,8 +100,36 @@ const ApiClient = (() => {
     config.signal = controller.signal;
 
     try {
-      const response = await fetch(`${BASE_URL}${endpoint}/`, config);
+      let response = await fetch(`${BASE_URL}${endpoint}/`, config);
       clearTimeout(timeoutId);
+
+      if (response.status === 401 && _getToken()) {
+        const newToken = await _refreshToken();
+        if (newToken) {
+          config.headers['Authorization'] = `Bearer ${newToken}`;
+          const retryController = new AbortController();
+          const retryTimeoutId = setTimeout(() => retryController.abort(), 15000);
+          config.signal = retryController.signal;
+          response = await fetch(`${BASE_URL}${endpoint}/`, config);
+          clearTimeout(retryTimeoutId);
+        } else {
+          if (typeof Auth !== 'undefined' && Auth.handleExpiredSession) {
+            Auth.handleExpiredSession();
+          } else if (typeof Auth !== 'undefined' && Auth.logout) {
+            Auth.logout();
+          } else {
+            sessionStorage.clear();
+            localStorage.removeItem('sims_session');
+            localStorage.removeItem('sims_token');
+            localStorage.removeItem('sims_refresh');
+            if (window.location.pathname.endsWith('app.html')) {
+              window.location.href = 'index.html';
+            }
+          }
+          throw new Error('Session expired. Please sign in again.');
+        }
+      }
+
       if (!response.ok) {
         const errData = await response.json().catch(() => ({}));
         let errMsg = errData.detail;
@@ -112,12 +183,7 @@ const ApiClient = (() => {
   /** Get aggregated dashboard stats from Django backend */
   async function getDashboardStats() {
     try {
-      const headers = {};
-      const token = _getToken();
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      const response = await fetch(`${BASE_URL}dashboard/`, { headers });
-      if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      return await response.json();
+      return await _request('dashboard', 'GET');
     } catch (error) {
       console.error("Failed to fetch dashboard stats from Django API:", error);
       return null;
@@ -138,6 +204,18 @@ const ApiClient = (() => {
       const timeoutId = setTimeout(() => controller.abort(), 5000);
       const res = await fetch(`${BASE_URL}dashboard/`, { signal: controller.signal });
       clearTimeout(timeoutId);
+      if (res.status === 401 && _getToken()) {
+        const newToken = await _refreshToken();
+        if (newToken) {
+          _lastHealthResult = true;
+          _lastHealthCheck = Date.now();
+          return true;
+        } else {
+          if (typeof Auth !== 'undefined' && Auth.handleExpiredSession) {
+            Auth.handleExpiredSession();
+          }
+        }
+      }
       _lastHealthResult = res.status === 200 || res.status === 401 || res.status === 403;
       _lastHealthCheck = Date.now();
       return _lastHealthResult;
