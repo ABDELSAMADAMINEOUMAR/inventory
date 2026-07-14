@@ -181,14 +181,15 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
     def delete_all_companies(self, request):
-        count, _ = Company.objects.all().delete()
+        company_count, _ = Company.objects.all().delete()
+        user_count, _ = User.objects.exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
         AuditLog.objects.create(
             actor=request.user,
             action="delete_all_companies",
             target_type="Company",
             target_id="all"
         )
-        return Response({"detail": f"Successfully deleted {count} tenant companies."}, status=status.HTTP_200_OK)
+        return Response({"detail": f"Successfully deleted {company_count} tenant companies and {user_count} tenant users."}, status=status.HTTP_200_OK)
 
 
 class PlatformUserViewSet(viewsets.ModelViewSet):

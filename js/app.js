@@ -870,6 +870,9 @@ const UI = (() => {
       localStorage.setItem('sims_companies', JSON.stringify([]));
       const users = DB.getAll('users').filter(u => u.role === 'platform_owner' || u.role === 'owner');
       localStorage.setItem('sims_users', JSON.stringify(users));
+      ['categories', 'suppliers', 'products', 'productExpenses', 'sales', 'businessExpenses'].forEach(t => {
+        localStorage.setItem('sims_' + t, JSON.stringify([]));
+      });
     }
     localStorage.removeItem('sims_archived_companies');
     localStorage.removeItem('sims_archived_admins');
@@ -882,7 +885,7 @@ const UI = (() => {
       }
     }
 
-    toast('success', 'All Companies Removed', 'All tenant companies and recovery archives have been purged.');
+    toast('success', 'All Companies Removed', 'All tenant companies, users, and inventory data have been purged.');
     renderPlatform();
   }
 
