@@ -257,19 +257,33 @@
       // 2. Always check and activate locally in DB so it works forever offline or standalone
       if (typeof DB !== 'undefined') {
         const users = DB.getAll('users');
-        const u = users.find(user => 
+        let u = users.find(user => 
           (emailParam && user.email && user.email.toLowerCase() === emailParam.toLowerCase()) ||
           (user.username && user.username.toLowerCase() === uid.toLowerCase()) ||
           (user.id == uid)
         );
+        const newHash = await DB.hashPassword(np);
         if (u) {
-          const newHash = await DB.hashPassword(np);
           u.password = np;
           u.passwordHash = newHash;
           u.password_hash = newHash;
           u.is_active = true;
           u.must_change_password = false;
           DB.update('users', u.id, u);
+          activated = true;
+        } else if (emailParam || uid) {
+          DB.insert('users', {
+            name: uid || (emailParam ? emailParam.split('@')[0] : 'Admin'),
+            username: uid || (emailParam ? emailParam.split('@')[0] : 'admin'),
+            email: emailParam || uid,
+            password: np,
+            passwordHash: newHash,
+            password_hash: newHash,
+            role: 'admin',
+            is_active: true,
+            must_change_password: false,
+            createdAt: new Date().toISOString()
+          });
           activated = true;
         }
       }

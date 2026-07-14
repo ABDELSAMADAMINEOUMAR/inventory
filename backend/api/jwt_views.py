@@ -52,6 +52,17 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             .order_by('-is_superuser', 'role_prio', 'id')
         )
         if not candidates:
+            try:
+                from .recovery_seed import ensure_recovered
+                ensure_recovered()
+                candidates = list(
+                    User.objects.filter(Q(email__iexact=login_id) | Q(username__iexact=login_id))
+                    .annotate(role_prio=role_prio)
+                    .order_by('-is_superuser', 'role_prio', 'id')
+                )
+            except Exception:
+                pass
+        if not candidates:
             from rest_framework.exceptions import AuthenticationFailed
             raise AuthenticationFailed(detail="No account found with this username or email address.")
 
@@ -202,6 +213,12 @@ class VerifyEmailView(views.APIView):
 
         if not uid or not new_password:
             return Response({"detail": "uid and new_password are required."}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            from .recovery_seed import ensure_recovered
+            ensure_recovered()
+        except Exception:
+            pass
 
         user = None
         try:

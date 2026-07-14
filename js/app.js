@@ -1246,9 +1246,10 @@ const UI = (() => {
     }
 
     let created = false;
+    let backendComp = null;
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
       try {
-        await ApiClient.createCompany({
+        backendComp = await ApiClient.createCompany({
           name,
           subscription_plan: plan,
           monthly_fee: monthly_fee,
@@ -1270,9 +1271,11 @@ const UI = (() => {
       }
     }
 
-    if (!created) {
-      if (typeof DB !== 'undefined') {
+    if (typeof DB !== 'undefined') {
+      const existingUser = DB.getAll('users').find(u => u.email && u.email.toLowerCase() === adminEmail.toLowerCase());
+      if (!existingUser || !created) {
         const newComp = DB.insert('companies', {
+          id: backendComp && backendComp.id ? backendComp.id : undefined,
           name,
           subscription_plan: plan,
           monthly_fee: monthly_fee,
@@ -1297,10 +1300,10 @@ const UI = (() => {
           must_change_password: false,
           createdAt: new Date().toISOString()
         });
-      } else {
-        toast('error', 'Creation Failed', 'Neither Backend API nor Local Storage is available.');
-        return;
       }
+    } else if (!created) {
+      toast('error', 'Creation Failed', 'Neither Backend API nor Local Storage is available.');
+      return;
     }
 
     closeModal('createCompanyModal');
