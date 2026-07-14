@@ -1366,12 +1366,34 @@ const UI = (() => {
     }
   }
 
+  function lockBtn(btnElement, loadingText = null) {
+    if (!btnElement) return false;
+    if (btnElement.disabled || btnElement.dataset.locked === '1') return true; // ALREADY LOCKED, ABORT SUBMIT
+    btnElement.disabled = true;
+    btnElement.dataset.locked = '1';
+    btnElement.dataset.origHtml = btnElement.innerHTML;
+    const isAr = typeof I18n !== 'undefined' && I18n.getLang() === 'ar';
+    btnElement.innerHTML = loadingText || ('⏳ ' + (isAr ? 'جاري الحفظ...' : 'Saving...'));
+    btnElement.style.opacity = '0.65';
+    btnElement.style.cursor = 'not-allowed';
+    return false; // PROCEED WITH EXECUTION
+  }
+
+  function unlockBtn(btnElement) {
+    if (!btnElement) return;
+    btnElement.disabled = false;
+    btnElement.dataset.locked = '0';
+    if (btnElement.dataset.origHtml) btnElement.innerHTML = btnElement.dataset.origHtml;
+    btnElement.style.opacity = '1';
+    btnElement.style.cursor = 'pointer';
+  }
+
   const Settings = {};
 
   return {
     navigate, toggleSidebar, closeSidebar,
     toast, confirm, closeConfirm,
-    openModal, closeModal, createModal,
+    openModal, closeModal, createModal, lockBtn, unlockBtn,
     handleSearch, closeSearch, showNotifications,
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,

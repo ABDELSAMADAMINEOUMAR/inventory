@@ -199,23 +199,29 @@ const Expenses = (() => {
   }
 
   async function saveImport() {
-    const productId = parseInt(document.getElementById('ieProduct')?.value);
-    const type   = document.getElementById('ieType')?.value;
-    const amount = UI.fromInputMoney(document.getElementById('ieAmount')?.value);
-    const date   = document.getElementById('ieDate')?.value;
-    const note   = document.getElementById('ieNote')?.value.trim();
-    if (!productId || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+    const btn = document.querySelector('#ieModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      if (_editId) await DB.update('productExpenses', _editId, { productId, expenseType: type, amount, date, note });
-      else await DB.insert('productExpenses', { productId, expenseType: type, amount, date, note });
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
+      const productId = parseInt(document.getElementById('ieProduct')?.value);
+      const type   = document.getElementById('ieType')?.value;
+      const amount = UI.fromInputMoney(document.getElementById('ieAmount')?.value);
+      const date   = document.getElementById('ieDate')?.value;
+      const note   = document.getElementById('ieNote')?.value.trim();
+      if (!productId || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+      try {
+        if (_editId) await DB.update('productExpenses', _editId, { productId, expenseType: type, amount, date, note });
+        else await DB.insert('productExpenses', { productId, expenseType: type, amount, date, note });
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+      UI.closeModal('ieModal');
+      UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
+      _tab = 'import'; _editId = null;
+      UI.navigate('expenses');
+    } finally {
+      UI.unlockBtn(btn);
     }
-    UI.closeModal('ieModal');
-    UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
-    _tab = 'import'; _editId = null;
-    UI.navigate('expenses');
   }
 
   async function deleteImport(id) {
@@ -280,23 +286,29 @@ const Expenses = (() => {
   }
 
   async function saveBusiness() {
-    const title  = document.getElementById('beTitle')?.value.trim();
-    const amount = UI.fromInputMoney(document.getElementById('beAmount')?.value);
-    const cat    = document.getElementById('beCat')?.value;
-    const date   = document.getElementById('beDate')?.value;
-    const note   = document.getElementById('beNote')?.value.trim();
-    if (!title || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+    const btn = document.querySelector('#beModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      if (_editId) await DB.update('businessExpenses', _editId, { title, amount, category: cat, expenseDate: date, note });
-      else await DB.insert('businessExpenses', { title, amount, category: cat, expenseDate: date, note });
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
+      const title  = document.getElementById('beTitle')?.value.trim();
+      const amount = UI.fromInputMoney(document.getElementById('beAmount')?.value);
+      const cat    = document.getElementById('beCat')?.value;
+      const date   = document.getElementById('beDate')?.value;
+      const note   = document.getElementById('beNote')?.value.trim();
+      if (!title || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+      try {
+        if (_editId) await DB.update('businessExpenses', _editId, { title, amount, category: cat, expenseDate: date, note });
+        else await DB.insert('businessExpenses', { title, amount, category: cat, expenseDate: date, note });
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+      UI.closeModal('beModal');
+      UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
+      _tab = 'business'; _editId = null;
+      UI.navigate('expenses');
+    } finally {
+      UI.unlockBtn(btn);
     }
-    UI.closeModal('beModal');
-    UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
-    _tab = 'business'; _editId = null;
-    UI.navigate('expenses');
   }
 
   async function deleteBusiness(id) {

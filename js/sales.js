@@ -433,68 +433,74 @@ const Sales = (() => {
   }
 
   async function save() {
-    const productId    = parseInt(document.getElementById('sProduct')?.value);
-    const qty          = parseNum(document.getElementById('sQty')?.value);
-    const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
-    const saleDate     = document.getElementById('sSaleDate')?.value;
-    const customer     = document.getElementById('sCustomer')?.value.trim();
-    const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
-    const note         = document.getElementById('sNote')?.value.trim();
-
-    if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
-      UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
-    }
-
-    const product = DB.getEnrichedProduct(productId);
-    if (!product) { UI.toast('error', 'Product not found'); return; }
-
-    const availableStock = _editId
-      ? product.currentStock + (DB.getById('sales', _editId)?.quantity || 0)
-      : product.currentStock;
-
-    if (qty > availableStock) {
-      UI.toast('error', 'Insufficient Stock', `Only ${availableStock} units available.`); return;
-    }
-
-    const cpu          = product.costPerUnit;
-    const revenue      = sellingPrice * qty;
-    const cost         = cpu * qty;
-    const profit       = revenue - cost;
-    const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
-
-    const paidInputVal = document.getElementById('sAmountPaid')?.value;
-    let amountPaid;
-    if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
-      amountPaid = UI.fromInputMoney(paidInputVal);
-    } else {
-      amountPaid = (_paymentStatus === 'credit') ? 0 : revenue;
-    }
-    let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
-    const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
-
-    const data = {
-      productId, quantity: qty, sellingPrice,
-      revenue, cost, profit, profitMargin,
-      saleDate, customer, customerPhone, note,
-      paymentStatus, dueDate, amountPaid,
-      paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
-    };
-
+    const btn = document.querySelector('#saleModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      if (_editId) await DB.update('sales', _editId, data);
-      else await DB.insert('sales', data);
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
-    }
+      const productId    = parseInt(document.getElementById('sProduct')?.value);
+      const qty          = parseNum(document.getElementById('sQty')?.value);
+      const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
+      const saleDate     = document.getElementById('sSaleDate')?.value;
+      const customer     = document.getElementById('sCustomer')?.value.trim();
+      const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
+      const note         = document.getElementById('sNote')?.value.trim();
 
-    UI.closeModal('saleModal');
-    const showProfit = canViewProfit();
-    const extra = paymentStatus === 'credit'
-      ? `⏳ Credit — due ${dueDate ? UI.fmtDate(dueDate) : 'TBD'}`
-      : `Revenue: ${UI.fmtCurrency(revenue)}${showProfit ? ` | Profit: ${UI.fmtCurrency(profit)}` : ''}`;
-    UI.toast('success', _editId ? 'Sale Updated' : 'Sale Recorded', extra);
-    UI.navigate('sales');
+      if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
+        UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
+      }
+
+      const product = DB.getEnrichedProduct(productId);
+      if (!product) { UI.toast('error', 'Product not found'); return; }
+
+      const availableStock = _editId
+        ? product.currentStock + (DB.getById('sales', _editId)?.quantity || 0)
+        : product.currentStock;
+
+      if (qty > availableStock) {
+        UI.toast('error', 'Insufficient Stock', `Only ${availableStock} units available.`); return;
+      }
+
+      const cpu          = product.costPerUnit;
+      const revenue      = sellingPrice * qty;
+      const cost         = cpu * qty;
+      const profit       = revenue - cost;
+      const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
+
+      const paidInputVal = document.getElementById('sAmountPaid')?.value;
+      let amountPaid;
+      if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
+        amountPaid = UI.fromInputMoney(paidInputVal);
+      } else {
+        amountPaid = (_paymentStatus === 'credit') ? 0 : revenue;
+      }
+      let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
+      const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
+
+      const data = {
+        productId, quantity: qty, sellingPrice,
+        revenue, cost, profit, profitMargin,
+        saleDate, customer, customerPhone, note,
+        paymentStatus, dueDate, amountPaid,
+        paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
+      };
+
+      try {
+        if (_editId) await DB.update('sales', _editId, data);
+        else await DB.insert('sales', data);
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+
+      UI.closeModal('saleModal');
+      const showProfit = canViewProfit();
+      const extra = paymentStatus === 'credit'
+        ? `⏳ Credit — due ${dueDate ? UI.fmtDate(dueDate) : 'TBD'}`
+        : `Revenue: ${UI.fmtCurrency(revenue)}${showProfit ? ` | Profit: ${UI.fmtCurrency(profit)}` : ''}`;
+      UI.toast('success', _editId ? 'Sale Updated' : 'Sale Recorded', extra);
+      UI.navigate('sales');
+    } finally {
+      UI.unlockBtn(btn);
+    }
   }
 
   // ── Mark Credit as Paid / Add Customer Payment ───────────────────
@@ -555,35 +561,41 @@ const Sales = (() => {
   }
 
   async function confirmPayment(id) {
-    const s = DB.getById('sales', id);
-    if (!s) return;
-    const addVal = UI.fromInputMoney(document.getElementById('payModalAmount')?.value) || 0;
-    const payDate = document.getElementById('payModalDate')?.value || new Date().toISOString().split('T')[0];
-    if (isNaN(addVal) || addVal <= 0) {
-      UI.toast('error', 'Invalid Amount', 'Please enter a valid payment amount.');
-      return;
-    }
-    const oldPaid = s.amountPaid || 0;
-    const newPaid = oldPaid + addVal;
-    const rem     = Math.max(0, s.revenue - newPaid);
-    const isFull  = rem === 0;
-
+    const btn = document.querySelector('#payModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      await DB.update('sales', id, {
-        amountPaid: Math.min(s.revenue, newPaid),
-        paymentStatus: isFull ? 'paid' : 'credit',
-        paidAt: isFull ? payDate : (s.paidAt || null)
-      });
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
-    }
+      const s = DB.getById('sales', id);
+      if (!s) return;
+      const addVal = UI.fromInputMoney(document.getElementById('payModalAmount')?.value) || 0;
+      const payDate = document.getElementById('payModalDate')?.value || new Date().toISOString().split('T')[0];
+      if (isNaN(addVal) || addVal <= 0) {
+        UI.toast('error', 'Invalid Amount', 'Please enter a valid payment amount.');
+        return;
+      }
+      const oldPaid = s.amountPaid || 0;
+      const newPaid = oldPaid + addVal;
+      const rem     = Math.max(0, s.revenue - newPaid);
+      const isFull  = rem === 0;
 
-    UI.closeModal('payModal');
-    const isAr = I18n.getLang() === 'ar';
-    UI.toast('success', isAr ? 'تم تسجيل الدفعة' : 'Payment Recorded',
-      `${s.customer || '#' + id}: ${isAr?'تم دفع':'paid'} ${UI.fmtCurrency(addVal)}. ${isAr?'المتبقي:':'Remaining:'} ${UI.fmtCurrency(rem)}`);
-    renderTable();
+      try {
+        await DB.update('sales', id, {
+          amountPaid: Math.min(s.revenue, newPaid),
+          paymentStatus: isFull ? 'paid' : 'credit',
+          paidAt: isFull ? payDate : (s.paidAt || null)
+        });
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+
+      UI.closeModal('payModal');
+      const isAr = I18n.getLang() === 'ar';
+      UI.toast('success', isAr ? 'تم تسجيل الدفعة' : 'Payment Recorded',
+        `${s.customer || '#' + id}: ${isAr?'تم دفع':'paid'} ${UI.fmtCurrency(addVal)}. ${isAr?'المتبقي:':'Remaining:'} ${UI.fmtCurrency(rem)}`);
+      renderTable();
+    } finally {
+      UI.unlockBtn(btn);
+    }
   }
 
   async function markPaid(id) {

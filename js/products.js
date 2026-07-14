@@ -291,71 +291,67 @@ const Products = (() => {
 
   async function save() {
     const saveBtn = document.getElementById('productModal')?.querySelector('.btn-primary');
-    if (saveBtn) {
-      if (saveBtn.disabled) return;
-      saveBtn.disabled = true;
-      saveBtn.style.opacity = '0.65';
-    }
-
-    const code  = document.getElementById('fCode')?.value.trim();
-    const name  = document.getElementById('fName')?.value.trim();
-    const catId = document.getElementById('fCat')?.value;
-    const supplierName = document.getElementById('fSupp')?.value.trim();
-    const price = UI.fromInputMoney(document.getElementById('fPrice')?.value);
-    const qty   = parseNum(document.getElementById('fQty')?.value);
-    const currency = UI.getCurrency();
-    const rate  = 1;
-    const date  = document.getElementById('fDate')?.value;
-    const desc  = document.getElementById('fDesc')?.value.trim();
-
-    if (!name || !catId || isNaN(price) || isNaN(qty)) {
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
-      UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
-    }
-    if (qty < 0 || price < 0) {
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
-      UI.toast('error', 'Invalid values'); return;
-    }
-
-    const data = {
-      code, name, categoryId: parseInt(catId),
-      supplierId: null, supplierName,
-      purchasePrice: price, quantity: qty, currency, exchangeRate: rate,
-      purchaseDate: date, description: desc,
-      image: _imgData || (DB.getById('products', _editId)?.image || null),
-    };
-
-    let productId;
+    if (UI.lockBtn(saveBtn)) return;
     try {
-      if (_editId) {
-        await DB.update('products', _editId, data);
-        productId = _editId;
-        // Remove old expenses then re-add
-        const oldExps = DB.query('productExpenses', e => e.productId === _editId);
-        for (const e of oldExps) { await DB.remove('productExpenses', e.id); }
-      } else {
-        const prod = await DB.insert('products', data);
-        productId = prod?.id;
+      const code  = document.getElementById('fCode')?.value.trim();
+      const name  = document.getElementById('fName')?.value.trim();
+      const catId = document.getElementById('fCat')?.value;
+      const supplierName = document.getElementById('fSupp')?.value.trim();
+      const price = UI.fromInputMoney(document.getElementById('fPrice')?.value);
+      const qty   = parseNum(document.getElementById('fQty')?.value);
+      const currency = UI.getCurrency();
+      const rate  = 1;
+      const date  = document.getElementById('fDate')?.value;
+      const desc  = document.getElementById('fDesc')?.value.trim();
+
+      if (!name || !catId || isNaN(price) || isNaN(qty)) {
+        UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
+      }
+      if (qty < 0 || price < 0) {
+        UI.toast('error', 'Invalid values'); return;
       }
 
-      // Save expenses
-      const rows = document.querySelectorAll('.expense-row');
-      for (const row of rows) {
-        const type = row.querySelector('select')?.value;
-        const amount = parseNum(row.querySelector('.expense-amount')?.value) || 0;
-        if (amount > 0) {
-          await DB.insert('productExpenses', { productId, expenseType: type, amount, note: '', date: date || new Date().toISOString().split('T')[0] });
+      const data = {
+        code, name, categoryId: parseInt(catId),
+        supplierId: null, supplierName,
+        purchasePrice: price, quantity: qty, currency, exchangeRate: rate,
+        purchaseDate: date, description: desc,
+        image: _imgData || (DB.getById('products', _editId)?.image || null),
+      };
+
+      let productId;
+      try {
+        if (_editId) {
+          await DB.update('products', _editId, data);
+          productId = _editId;
+          // Remove old expenses then re-add
+          const oldExps = DB.query('productExpenses', e => e.productId === _editId);
+          for (const e of oldExps) { await DB.remove('productExpenses', e.id); }
+        } else {
+          const prod = await DB.insert('products', data);
+          productId = prod?.id;
         }
-      }
-    } catch (err) {
-      if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; }
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
-    }
 
-    UI.closeModal('productModal');
-    UI.toast('success', _editId ? 'Product Updated' : 'Product Added', `"${name}" has been saved.`);
-    UI.navigate('products');
+        // Save expenses
+        const rows = document.querySelectorAll('.expense-row');
+        for (const row of rows) {
+          const type = row.querySelector('select')?.value;
+          const amount = parseNum(row.querySelector('.expense-amount')?.value) || 0;
+          if (amount > 0) {
+            await DB.insert('productExpenses', { productId, expenseType: type, amount, note: '', date: date || new Date().toISOString().split('T')[0] });
+          }
+        }
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+
+      UI.closeModal('productModal');
+      UI.toast('success', _editId ? 'Product Updated' : 'Product Added', `"${name}" has been saved.`);
+      UI.navigate('products');
+    } finally {
+      UI.unlockBtn(saveBtn);
+    }
   }
 
   async function del(id) {

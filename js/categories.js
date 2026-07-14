@@ -84,25 +84,31 @@ const Categories = (() => {
 
   async function save(e) {
     if (e && e.preventDefault) e.preventDefault();
-    const name = document.getElementById('catName').value;
-    const desc = document.getElementById('catDesc').value;
-    if (!name.trim()) return;
-
+    const btn = document.querySelector('#catModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      if (_editId) {
-        await DB.update('categories', _editId, { name, description: desc });
-        UI.toast('success', 'Category Updated');
-      } else {
-        await DB.insert('categories', { name, description: desc });
-        UI.toast('success', 'Category Added');
-      }
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
-    }
+      const name = document.getElementById('catName').value;
+      const desc = document.getElementById('catDesc').value;
+      if (!name.trim()) return;
 
-    UI.closeModal('catModal');
-    render(document.getElementById('pageContent'));
+      try {
+        if (_editId) {
+          await DB.update('categories', _editId, { name, description: desc });
+          UI.toast('success', 'Category Updated');
+        } else {
+          await DB.insert('categories', { name, description: desc });
+          UI.toast('success', 'Category Added');
+        }
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+
+      UI.closeModal('catModal');
+      render(document.getElementById('pageContent'));
+    } finally {
+      UI.unlockBtn(btn);
+    }
   }
 
 

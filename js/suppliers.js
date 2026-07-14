@@ -127,26 +127,32 @@ const Suppliers = (() => {
   }
 
   async function save() {
-    const name = document.getElementById('suppName')?.value.trim();
-    if (!name) { UI.toast('error', 'Supplier name required'); return; }
-    const data = {
-      name,
-      phone: document.getElementById('suppPhone')?.value.trim(),
-      email: document.getElementById('suppEmail')?.value.trim(),
-      country: document.getElementById('suppCountry')?.value,
-      address: document.getElementById('suppAddr')?.value.trim(),
-      notes: document.getElementById('suppNotes')?.value.trim(),
-    };
+    const btn = document.querySelector('#suppModal .btn-primary');
+    if (UI.lockBtn(btn)) return;
     try {
-      if (_editId) await DB.update('suppliers', _editId, data);
-      else await DB.insert('suppliers', data);
-    } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
-      return;
+      const name = document.getElementById('suppName')?.value.trim();
+      if (!name) { UI.toast('error', 'Supplier name required'); return; }
+      const data = {
+        name,
+        phone: document.getElementById('suppPhone')?.value.trim(),
+        email: document.getElementById('suppEmail')?.value.trim(),
+        country: document.getElementById('suppCountry')?.value,
+        address: document.getElementById('suppAddr')?.value.trim(),
+        notes: document.getElementById('suppNotes')?.value.trim(),
+      };
+      try {
+        if (_editId) await DB.update('suppliers', _editId, data);
+        else await DB.insert('suppliers', data);
+      } catch (err) {
+        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        return;
+      }
+      UI.closeModal('suppModal');
+      UI.toast('success', _editId ? 'Supplier Updated' : 'Supplier Added');
+      UI.navigate('suppliers');
+    } finally {
+      UI.unlockBtn(btn);
     }
-    UI.closeModal('suppModal');
-    UI.toast('success', _editId ? 'Supplier Updated' : 'Supplier Added');
-    UI.navigate('suppliers');
   }
 
   async function del(id) {
