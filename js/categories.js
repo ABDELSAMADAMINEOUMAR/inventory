@@ -23,10 +23,24 @@ const Categories = (() => {
     </div>`;
   }
 
+  function getSmartIcon(c) {
+    if (c.icon && typeof c.icon === 'string' && c.icon.trim()) return c.icon.trim();
+    const name = (c.name || '').toLowerCase();
+    if (/electr|phone|mobile|comput|laptop|tech|إلكترون|هواتف|حاسوب|جوال|أجهزة|électr/.test(name)) return '💻';
+    if (/cloth|fashion|wear|dress|shirt|shoe|ملابس|أزياء|أحذية|vêtement|mode/.test(name)) return '👕';
+    if (/food|grocer|fruit|meat|drink|beverag|طعام|أغذية|فواكه|مشروب|بقالة|nourri/.test(name)) return '🍎';
+    if (/cosmet|beaut|makeup|perfum|تجميل|عطور|مكياج|beauté/.test(name)) return '💄';
+    if (/home|furnit|kitchen|house|أثاث|منزل|مطبخ|maison/.test(name)) return '🏠';
+    if (/tool|hardwar|auto|car|repair|أدوات|معدات|سيارات|قطع|outil/.test(name)) return '🔧';
+    if (/med|health|pharm|drug|أدوية|صحة|صيدل|santé/.test(name)) return '💊';
+    if (/book|paper|office|station|كتب|مكتب|قرطاس/.test(name)) return '📚';
+    if (/toy|game|kid|baby|ألعاب|أطفال|jouet/.test(name)) return '🧸';
+    return '📦';
+  }
+
   function renderCard(c) {
     const prodCount = DB.count('products', p => p.categoryId === c.id);
-    const icons = ['📱', '👗', '🍎', '💄', '🏠', '🪑', '📦', '🛒', '🔧', '💊'];
-    const icon = icons[c.id % icons.length] || '📦';
+    const icon = getSmartIcon(c);
     return `
     <div class="card" style="padding:20px;transition:var(--transition)" onmouseover="this.style.borderColor='rgba(124,58,237,0.3)'" onmouseout="this.style.borderColor='var(--border-light)'">
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
@@ -49,9 +63,13 @@ const Categories = (() => {
     <div class="form-grid">
       <div class="field">
         <label>${I18n.getLang() === 'ar' ? 'اسم الفئة' : 'Category Name'} <span class="req">*</span></label>
-        <input class="input" id="catName" value="${c.name || ''}" placeholder="e.g. Electronics" required>
+        <input class="input" id="catName" value="${c.name || ''}" placeholder="e.g. Electronics or ملابس" required>
       </div>
       <div class="field">
+        <label>${I18n.getLang() === 'ar' ? 'رمز / أيقونة الفئة (اختياري)' : 'Category Icon / Emoji (Optional)'}</label>
+        <input class="input" id="catIcon" value="${c.icon || ''}" placeholder="e.g. 💻 or 👕 or 📦" style="max-width:160px;font-size:1.2rem;text-align:center;">
+      </div>
+      <div class="field" style="grid-column:1/-1">
         <label>${t('lbl_desc')}</label>
         <textarea class="textarea" id="catDesc" placeholder="${I18n.getLang() === 'ar' ? 'وصف مختصر لهذه الفئة…' : 'Brief description of this category…'}">${c.description || ''}</textarea>
       </div>
@@ -89,14 +107,15 @@ const Categories = (() => {
     try {
       const name = document.getElementById('catName').value;
       const desc = document.getElementById('catDesc').value;
+      const icon = (document.getElementById('catIcon')?.value || '').trim();
       if (!name.trim()) return;
 
       try {
         if (_editId) {
-          await DB.update('categories', _editId, { name, description: desc });
+          await DB.update('categories', _editId, { name, description: desc, icon });
           UI.toast('success', 'Category Updated');
         } else {
-          await DB.insert('categories', { name, description: desc });
+          await DB.insert('categories', { name, description: desc, icon });
           UI.toast('success', 'Category Added');
         }
       } catch (err) {
