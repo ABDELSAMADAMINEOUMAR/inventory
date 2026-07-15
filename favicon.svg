@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#5B7FFF" />
+      <stop offset="100%" stop-color="#14C8B8" />
+    </linearGradient>
+    <linearGradient id="topFace" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#DCA876" />
+      <stop offset="100%" stop-color="#C68E5A" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded gradient background with border radius (transparent outside corners) -->
+  <rect width="200" height="200" rx="46" fill="url(#bgGrad)" />
+  
+  <!-- 3D Cardboard Delivery Box Group -->
+  <g transform="translate(100, 106)">
+    <!-- Left Face (Shadow/Darker Brown) -->
+    <path d="M 0 38 L -56 8 L -56 -46 L 0 -16 Z" fill="#96643C" />
+    <!-- Right Face (Medium Brown) -->
+    <path d="M 0 38 L 56 8 L 56 -46 L 0 -16 Z" fill="#B47E4D" />
+    <!-- Top Face (Lighter Brown Gradient) -->
+    <path d="M 0 -16 L -56 -46 L 0 -76 L 56 -46 Z" fill="url(#topFace)" />
+    
+    <!-- Packing Tape Cross Seam on Top -->
+    <path d="M -56 -46 L 0 -16 L 3.5 -18 L -52.5 -48 Z" fill="#E8CDA8" opacity="0.9" />
+    <path d="M 56 -46 L 0 -16 L -3.5 -18 L 52.5 -48 Z" fill="#E8CDA8" opacity="0.85" />
+    
+    <!-- Front Vertical Packing Tape -->
+    <path d="M -2.5 -16 L 2.5 -16 L 2.5 38 L -2.5 38 Z" fill="#D8B486" opacity="0.95" />
+  </g>
+</svg>
