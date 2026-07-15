@@ -162,6 +162,14 @@ const I18n = (() => {
       lbl_total_expenses: 'Total Expenses', lbl_units_sold: 'Units Sold',
       lbl_revenue_gen: 'Revenue Generated', lbl_profit_gen: 'Profit Generated',
       lbl_type: 'Type', lbl_amount: 'Amount',
+      signout: 'Logout', btn_logout: 'Logout',
+      showcase_revenue_title: 'Gross Revenue Overview',
+      day_mon: 'Mon', day_tue: 'Tue', day_wed: 'Wed', day_thu: 'Thu', day_fri: 'Fri', day_sat: 'Sat', day_sun: 'Sun',
+      showcase_sync_title: 'Multi-Warehouse Sync', showcase_sync_desc: 'Real-Time Stock Automated Tracking',
+      showcase_sync_status: 'Active', showcase_sync_item: 'Import Container #492 (Electronics)', showcase_sync_done: 'Synced ✓',
+      showcase_quote_text: '"SmartIMS automated our entire import supply chain and gave us instant clarity on FX conversion & net profit margins."',
+      showcase_quote_role: 'Managing Director, Global Imports',
+      session_expired_title: 'Session Expired', session_expired_desc: 'Your session expired after inactivity. Please sign in again.',
     },
 
     ar: {
@@ -317,6 +325,14 @@ const I18n = (() => {
       lbl_total_expenses: 'إجمالي المصاريف', lbl_units_sold: 'الكمية المباعة',
       lbl_revenue_gen: 'الإيرادات المحققة', lbl_profit_gen: 'الأرباح المحققة',
       lbl_type: 'النوع', lbl_amount: 'المبلغ',
+      signout: 'تسجيل الخروج', btn_logout: 'تسجيل الخروج',
+      showcase_revenue_title: 'نظرة عامة على الإيرادات الإجمالية',
+      day_mon: 'إثن', day_tue: 'ثلا', day_wed: 'أرب', day_thu: 'خمي', day_fri: 'جمعة', day_sat: 'سبت', day_sun: 'أحد',
+      showcase_sync_title: 'مزامنة المخازن المتعددة', showcase_sync_desc: 'تتبع آلي وفوري للمخزون',
+      showcase_sync_status: 'نشط', showcase_sync_item: 'حاوية استيراد #492 (إلكترونيات)', showcase_sync_done: 'تمت المزامنة ✓',
+      showcase_quote_text: '"نظام SmartIMS أتمت سلسلة توريد الاستيراد بأكملها ومنحنا وضوحاً فورياً حول تحويل العملات وهوامش الربح الصافي."',
+      showcase_quote_role: 'المدير العام، الاستيراد العالمي',
+      session_expired_title: 'انتهت الجلسة', session_expired_desc: 'انتهت صلاحية جلستك بسبب عدم النشاط. يرجى تسجيل الدخول مرة أخرى.',
     },
 
     fr: {
@@ -472,6 +488,14 @@ const I18n = (() => {
       lbl_total_expenses: 'Total des Dépenses', lbl_units_sold: 'Unités Vendues',
       lbl_revenue_gen: 'Revenu Généré', lbl_profit_gen: 'Profit Généré',
       lbl_type: 'Type', lbl_amount: 'Montant',
+      signout: 'Déconnexion', btn_logout: 'Déconnexion',
+      showcase_revenue_title: 'Aperçu des revenus bruts',
+      day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Jeu', day_fri: 'Ven', day_sat: 'Sam', day_sun: 'Dim',
+      showcase_sync_title: 'Synchronisation multi-entrepôts', showcase_sync_desc: 'Suivi automatisé du stock en temps réel',
+      showcase_sync_status: 'Actif', showcase_sync_item: 'Conteneur d\'import #492 (Électronique)', showcase_sync_done: 'Synchronisé ✓',
+      showcase_quote_text: '"SmartIMS a automatisé toute notre chaîne d\'approvisionnement et nous a donné une clarté instantanée sur la conversion FX et les marges nettes."',
+      showcase_quote_role: 'Directeur général, Importations mondiales',
+      session_expired_title: 'Session expirée', session_expired_desc: 'Votre session a expiré après une période d\'inactivité. Veuillez vous reconnecter.',
     }
   };
 
@@ -524,11 +548,12 @@ const I18n = (() => {
     document.body.classList.toggle('rtl', isAr);
 
     // Update language button label
+    // Update language button label
     const btn = document.getElementById('langToggleBtn');
     if (btn) {
       if (lang === 'en') btn.textContent = '🌐 عربي';
-      else if (lang === 'ar') btn.textContent = '🌐 FR';
-      else if (lang === 'fr') btn.textContent = '🌐 EN';
+      else if (lang === 'ar') btn.textContent = '🌐 Français';
+      else if (lang === 'fr') btn.textContent = '🌐 English';
       else btn.textContent = '🌐 عربي';
     }
 
@@ -548,6 +573,15 @@ const I18n = (() => {
       const trans = t(key);
       if (trans && trans !== key) el.placeholder = trans;
     });
+    // Translate title/aria-label with data-i18n-title
+    document.querySelectorAll('[data-i18n-title]').forEach(el => {
+      const key = el.getAttribute('data-i18n-title');
+      const trans = t(key);
+      if (trans && trans !== key) {
+        el.title = trans;
+        if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', trans);
+      }
+    });
   }
 
   /** Toggle between en ↔ ar ↔ fr, then re-render current page */
@@ -561,6 +595,8 @@ const I18n = (() => {
     // Re-render current page so all dynamic content updates
     if (typeof UI !== 'undefined' && typeof UI.navigate === 'function' && typeof UI.getCurrentPage === 'function') {
       UI.navigate(UI.getCurrentPage());
+    } else if (document.body.classList.contains('login-page')) {
+      _applyDir(newLang);
     } else {
       window.location.reload();
     }

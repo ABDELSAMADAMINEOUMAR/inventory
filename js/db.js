@@ -594,6 +594,7 @@ const DB = (() => {
     for (let i = months - 1; i >= 0; i--) {
       const d = new Date();
       d.setMonth(d.getMonth() - i);
+      const month = d.toISOString().slice(0, 7);
       const locale = (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('en', 'ar-EG', 'fr-FR') : 'en';
       const label = d.toLocaleString(locale, { month: 'short', year: '2-digit' });
 

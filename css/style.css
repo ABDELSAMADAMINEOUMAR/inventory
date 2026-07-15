@@ -292,9 +292,13 @@ textarea {
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .login-page {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
   }
   .saas-showcase-pane {
     display: none !important;
@@ -302,6 +306,11 @@ textarea {
   .login-form-pane {
     border-radius: 0 !important;
     box-shadow: none !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    max-height: none !important;
+    overflow-y: auto !important;
+    border-right: none !important;
   }
 }
 
@@ -2825,13 +2834,16 @@ input.input.filter-search {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px), (max-height: 700px) {
   .login-page, .login-form-pane {
     height: auto !important;
     min-height: 100vh !important;
     max-height: none !important;
     overflow-y: auto !important;
   }
+}
+
+@media (max-width: 768px) {
 
   .sidebar {
     position: fixed !important;

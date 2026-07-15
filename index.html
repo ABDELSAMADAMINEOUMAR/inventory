@@ -142,7 +142,7 @@
     <div class="saas-showcase-card">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
         <div>
-          <div style="font-size:0.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;">Gross Revenue Overview</div>
+          <div style="font-size:0.78rem; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:0.5px;" data-i18n="showcase_revenue_title">Gross Revenue Overview</div>
           <div style="font-size:1.8rem; font-weight:800; color:#fff; margin-top:4px;">$148,420.00</div>
         </div>
         <div class="saas-stat-badge">↗ +28.4%</div>
@@ -159,7 +159,7 @@
         <div style="flex:1; background:linear-gradient(180deg, #a855f7, #6366f1); border-radius:6px; height:100%; box-shadow: 0 0 15px rgba(168,85,247,0.5);"></div>
       </div>
       <div style="display:flex; justify-content:space-between; font-size:0.72rem; color:#64748b;">
-        <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
+        <span data-i18n="day_mon">Mon</span><span data-i18n="day_tue">Tue</span><span data-i18n="day_wed">Wed</span><span data-i18n="day_thu">Thu</span><span data-i18n="day_fri">Fri</span><span data-i18n="day_sat">Sat</span><span data-i18n="day_sun">Sun</span>
       </div>
     </div>
 
@@ -169,28 +169,28 @@
         <div style="display:flex; align-items:center; gap:10px;">
           <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center; font-weight:800;">⚡</div>
           <div>
-            <div style="font-size:0.9rem; font-weight:700; color:#fff;">Multi-Warehouse Sync</div>
-            <div style="font-size:0.76rem; color:#94a3b8;">Real-Time Stock Automated Tracking</div>
+            <div style="font-size:0.9rem; font-weight:700; color:#fff;" data-i18n="showcase_sync_title">Multi-Warehouse Sync</div>
+            <div style="font-size:0.76rem; color:#94a3b8;" data-i18n="showcase_sync_desc">Real-Time Stock Automated Tracking</div>
           </div>
         </div>
-        <span style="font-size:0.75rem; background:rgba(59,130,246,0.2); color:#60a5fa; padding:4px 10px; border-radius:99px; font-weight:600;">Active</span>
+        <span style="font-size:0.75rem; background:rgba(59,130,246,0.2); color:#60a5fa; padding:4px 10px; border-radius:99px; font-weight:600;" data-i18n="showcase_sync_status">Active</span>
       </div>
       <div style="display:flex; justify-content:space-between; font-size:0.82rem; padding:8px 12px; background:rgba(15,23,42,0.6); border-radius:10px; border:1px solid rgba(255,255,255,0.06);">
-        <span style="color:#cbd5e1;">Import Container #492 (Electronics)</span>
-        <span style="color:#34d399; font-weight:700;">Synced ✓</span>
+        <span style="color:#cbd5e1;" data-i18n="showcase_sync_item">Import Container #492 (Electronics)</span>
+        <span style="color:#34d399; font-weight:700;" data-i18n="showcase_sync_done">Synced ✓</span>
       </div>
     </div>
 
     <!-- Executive Quote Bottom -->
     <div class="saas-quote-card">
-      <div style="font-size:0.86rem; color:#e2e8f0; line-height:1.5; font-style:italic;">
+      <div style="font-size:0.86rem; color:#e2e8f0; line-height:1.5; font-style:italic;" data-i18n="showcase_quote_text">
         "SmartIMS automated our entire import supply chain and gave us instant clarity on FX conversion & net profit margins."
       </div>
       <div style="display:flex; align-items:center; gap:10px; margin-top:12px;">
         <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg, #a855f7, #3b82f6); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:0.8rem; color:#fff;">AR</div>
         <div>
           <div style="font-size:0.82rem; font-weight:700; color:#fff;">Ahmad R.</div>
-          <div style="font-size:0.72rem; color:#94a3b8;">Managing Director, Global Imports</div>
+          <div style="font-size:0.72rem; color:#94a3b8;" data-i18n="showcase_quote_role">Managing Director, Global Imports</div>
         </div>
       </div>
     </div>
@@ -253,7 +253,9 @@
         const err = document.getElementById('loginError');
         const errText = document.getElementById('loginErrorText');
         if (err && errText) {
-          errText.innerHTML = `⏳ <b>Session Expired</b><br><br>Your session expired after inactivity. Please sign in again.`;
+          const title = typeof I18n !== 'undefined' ? I18n.t('session_expired_title') : 'Session Expired';
+          const desc = typeof I18n !== 'undefined' ? I18n.t('session_expired_desc') : 'Your session expired after inactivity. Please sign in again.';
+          errText.innerHTML = `⏳ <b data-i18n="session_expired_title">${title}</b><br><br><span data-i18n="session_expired_desc">${desc}</span>`;
           err.classList.add('show');
         }
       }
