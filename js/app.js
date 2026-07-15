@@ -286,8 +286,8 @@ const UI = (() => {
       </div>`;
     });
 
-    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">✅ ${I18n.getLang() === 'ar' ? 'تم القراءة وإغلاق التنبيهات' : 'Mark as Read & Close'}</button>`;
-    createModal('notifModal', `🔔 ${I18n.getLang() === 'ar' ? 'التنبيهات' : 'Notifications'}`, body, footer, 'modal-sm');
+    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">✅ ${I18n.choose('Mark as Read & Close', 'تم القراءة وإغلاق التنبيهات', 'Marquer comme lu & fermer')}</button>`;
+    createModal('notifModal', `🔔 ${I18n.choose('Notifications', 'التنبيهات', 'Notifications')}`, body, footer, 'modal-sm');
 
     // Mark current alerts as read
     let readNotifs = {};
@@ -371,7 +371,7 @@ const UI = (() => {
     }
     return fmt(n, 0) + symbol;
   }
-  function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString((typeof I18n !== 'undefined' && I18n.getLang() === 'ar' ? 'ar-EG' : 'en-GB'), { day:'2-digit', month:'short', year:'numeric' }); } catch { return d; } }
+  function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString((typeof I18n !== 'undefined' && I18n.getLang() === 'ar' ? 'ar-EG' : (typeof I18n !== 'undefined' && I18n.getLang() === 'fr' ? 'fr-FR' : 'en-GB')), { day:'2-digit', month:'short', year:'numeric' }); } catch { return d; } }
   function fmtPct(n) { return fmt(n, 1) + '%'; }
 
   // ── Initialise ────────────────────────
@@ -471,7 +471,7 @@ const UI = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>${t('page_settings')}</h2><p>${I18n.getLang() === 'ar' ? 'إدارة ملفك الشخصي وتفضيلات النظام' : 'Manage your profile and system preferences'}</p></div>
+        <div class="page-title"><h2>${t('page_settings')}</h2><p>${I18n.choose('Manage your profile and system preferences', 'إدارة ملفك الشخصي وتفضيلات النظام', 'Gérer votre profil et vos préférences système')}</p></div>
       </div>
 
       <div class="settings-grid">
@@ -485,7 +485,7 @@ const UI = (() => {
           <div class="card-body">
             <form id="profileForm" class="form-grid">
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'الاسم الكامل' : 'Full Name'}</label>
+                <label>${I18n.choose('Full Name', 'الاسم الكامل', 'Nom complet')}</label>
                 <input class="input" id="profName" value="${user?.name || ''}" placeholder="Your name">
               </div>
               <div class="field">
@@ -493,15 +493,15 @@ const UI = (() => {
                 <input class="input" id="profEmail" type="email" value="${user?.email || ''}" placeholder="your@email.com">
               </div>
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'الهاتف' : 'Phone'}</label>
+                <label>${I18n.choose('Phone', 'الهاتف', 'Téléphone')}</label>
                 <input class="input" id="profPhone" value="${user?.phone || ''}" placeholder="+250...">
               </div>
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'اسم العمل التجاري' : 'Business Name'}</label>
+                <label>${I18n.choose('Business Name', 'اسم العمل التجاري', 'Nom de l\'entreprise')}</label>
                 <input class="input" id="profBusiness" value="${user?.business || ''}" placeholder="My Import Business">
               </div>
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'عملة الشركة' : 'Company Currency'}</label>
+                <label>${I18n.choose('Company Currency', 'عملة الشركة', 'Devise de l\'entreprise')}</label>
                 <select class="select" id="profCurrency">
                   <option value="USD" ${(getCurrency()==='USD')?'selected':''}>USD ($) - US Dollar</option>
                   <option value="RWF" ${(getCurrency()==='RWF')?'selected':''}>RWF (FRW) - Rwandan Franc</option>
@@ -511,7 +511,7 @@ const UI = (() => {
                 </select>
               </div>
               <div style="grid-column:1/-1">
-                <button type="submit" class="btn btn-primary">💾 ${I18n.getLang() === 'ar' ? 'حفظ الملف الشخصي' : 'Save Profile'}</button>
+                <button type="submit" class="btn btn-primary">💾 ${I18n.choose('Save Profile', 'حفظ الملف الشخصي', 'Enregistrer le profil')}</button>
               </div>
             </form>
           </div>
@@ -523,15 +523,15 @@ const UI = (() => {
           <div class="card-body">
             <form id="pwdForm" class="form-grid">
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'كلمة المرور الحالية' : 'Current Password'}</label>
+                <label>${I18n.choose('Current Password', 'كلمة المرور الحالية', 'Mot de passe actuel')}</label>
                 <input class="input" type="password" id="currentPwd" placeholder="Current password">
               </div>
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'كلمة المرور الجديدة' : 'New Password'}</label>
+                <label>${I18n.choose('New Password', 'كلمة المرور الجديدة', 'Nouveau mot de passe')}</label>
                 <input class="input" type="password" id="newPwd" placeholder="New password (min 6 chars)">
               </div>
               <div class="field">
-                <label>${I18n.getLang() === 'ar' ? 'تأكيد كلمة المرور الجديدة' : 'Confirm New Password'}</label>
+                <label>${I18n.choose('Confirm New Password', 'تأكيد كلمة المرور الجديدة', 'Confirmer le nouveau mot de passe')}</label>
                 <input class="input" type="password" id="confirmPwd" placeholder="Repeat new password">
               </div>
               <div>
@@ -551,7 +551,7 @@ const UI = (() => {
                 <span style="color:var(--text-secondary);font-weight:600">${t('kpi_products')}</span><strong style="font-size:1.05rem">${s.totalProducts}</strong>
               </div>
               <div style="display:flex;justify-content:space-between;padding:12px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
-                <span style="color:var(--text-secondary);font-weight:600">${I18n.getLang() === 'ar' ? 'إجمالي المبيعات' : 'Total Sales Records'}</span><strong style="font-size:1.05rem">${DB.count('sales')}</strong>
+                <span style="color:var(--text-secondary);font-weight:600">${I18n.choose('Total Sales Records', 'إجمالي المبيعات', 'Total des ventes enregistrées')}</span><strong style="font-size:1.05rem">${DB.count('sales')}</strong>
               </div>
               <div style="display:flex;justify-content:space-between;padding:12px 14px;background:var(--bg-elevated);border:1px solid var(--border);border-radius:10px;">
                 <span style="color:var(--text-secondary);font-weight:600">${t('th_revenue')}</span><strong class="text-accent" style="font-size:1.05rem">${UI.fmtCurrency(s.totalRevenue)}</strong>
@@ -1435,8 +1435,8 @@ const UI = (() => {
     btnElement.disabled = true;
     btnElement.dataset.locked = '1';
     btnElement.dataset.origHtml = btnElement.innerHTML;
-    const isAr = typeof I18n !== 'undefined' && I18n.getLang() === 'ar';
-    btnElement.innerHTML = loadingText || ('⏳ ' + (isAr ? 'جاري الحفظ...' : 'Saving...'));
+    const loadingTextFr = (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('Saving...', 'جاري الحفظ...', 'Enregistrement en cours...') : 'Saving...';
+    btnElement.innerHTML = loadingText || ('⏳ ' + loadingTextFr);
     btnElement.style.opacity = '0.65';
     btnElement.style.cursor = 'not-allowed';
     return false; // PROCEED WITH EXECUTION

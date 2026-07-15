@@ -27,7 +27,7 @@ const Dashboard = (() => {
     const unread = typeof UI !== 'undefined' && UI.getUnreadAlerts ? UI.getUnreadAlerts() : [];
 
     const profitMargin = (s.totalRevenue > 0) ? Math.round((s.totalProfit / s.totalRevenue) * 100) : 0;
-    const isAr = (typeof I18n !== 'undefined' && I18n.getLang() === 'ar');
+    const ch = (en, ar, fr) => (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose(en, ar, fr) : (I18n.getLang() === 'ar' ? ar : en);
 
     container.innerHTML = `
     <div class="fade-in" style="padding-bottom:32px;">
@@ -35,17 +35,17 @@ const Dashboard = (() => {
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;background:var(--surface);padding:20px 24px;border-radius:16px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
         <div>
           <div style="display:flex;align-items:center;gap:10px;">
-            <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text-main);">${isAr ? 'تحليلات المبيعات ولوحة الإيرادات' : 'Sales Analytics & Revenue Dashboard'}</h2>
-            <span class="badge" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">${isAr ? '● بث مباشر للإحصائيات' : '● LIVE TELEMETRY'}</span>
+            <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text-main);">${ch('Sales Analytics & Revenue Dashboard', 'تحليلات المبيعات ولوحة الإيرادات', 'Analyses des Ventes & Tableau de Bord')}</h2>
+            <span class="badge" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">${ch('● LIVE TELEMETRY', '● بث مباشر للإحصائيات', '● TÉLÉMÉTRIE EN DIRECT')}</span>
           </div>
-          <p style="margin:4px 0 0;font-size:13.5px;color:var(--text-muted);">${isAr ? 'نظرة لحظية على الإيرادات والأرباح وتقييم أصول المخزون وسرعة العمليات' : 'Real-time gross revenue, profit margins, inventory asset valuation, and transaction velocity'}</p>
+          <p style="margin:4px 0 0;font-size:13.5px;color:var(--text-muted);">${ch('Real-time gross revenue, profit margins, inventory asset valuation, and transaction velocity', 'نظرة لحظية على الإيرادات والأرباح وتقييم أصول المخزون وسرعة العمليات', 'Aperçu en temps réel des revenus, marges, valorisation du stock et vitesse des transactions')}</p>
         </div>
         <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
           <div style="display:flex;background:var(--bg-main);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px;">
-            <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:12px;padding:6px 14px;font-weight:600;">${isAr ? '٣٠ يوماً' : '30 Days'}</button>
-            <button class="btn btn-sm btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--text-muted);font-weight:600;" onclick="UI.navigate('sales')">${isAr ? 'كل الأوقات' : 'All Time'}</button>
+            <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:12px;padding:6px 14px;font-weight:600;">${ch('30 Days', '٣٠ يوماً', '30 Jours')}</button>
+            <button class="btn btn-sm btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--text-muted);font-weight:600;" onclick="UI.navigate('sales')">${ch('All Time', 'كل الأوقات', 'Tout le temps')}</button>
           </div>
-          <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.navigate('sales')">${isAr ? '+ تسجيل بيع' : '+ Record Sale'}</button>
+          <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.navigate('sales')">${ch('+ Record Sale', '+ تسجيل بيع', '+ Enregistrer une vente')}</button>
         </div>
       </div>
 
@@ -55,8 +55,8 @@ const Dashboard = (() => {
         <div style="display:flex;align-items:center;gap:12px">
           <span class="alert-icon" style="font-size:22px;">🚨</span>
           <div class="alert-content">
-            <div class="alert-title" style="font-weight:700;">${s.outOfStock} ${isAr ? 'منتج نفد مخزونه' : 'product(s) are OUT OF STOCK'}</div>
-            <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${isAr ? 'عرض المخزون ←' : 'View Inventory →'}</a></div>
+            <div class="alert-title" style="font-weight:700;">${s.outOfStock} ${ch('product(s) are OUT OF STOCK', 'منتج نفد مخزونه', 'produit(s) EN RUPTURE DE STOCK')}</div>
+            <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${ch('View Inventory →', 'عرض المخزون ←', 'Voir le stock →')}</a></div>
           </div>
         </div>
         <button onclick="Dashboard.dismissAlert('out_of_stock', ${s.outOfStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
@@ -66,8 +66,8 @@ const Dashboard = (() => {
         <div style="display:flex;align-items:center;gap:12px">
           <span class="alert-icon" style="font-size:22px;">⚠️</span>
           <div class="alert-content">
-            <div class="alert-title" style="font-weight:700;">${s.lowStock} ${isAr ? 'منتج منخفض المخزون' : 'product(s) are running LOW'}</div>
-            <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${isAr ? 'عرض المخزون ←' : 'View Inventory →'}</a></div>
+            <div class="alert-title" style="font-weight:700;">${s.lowStock} ${ch('product(s) are running LOW', 'منتج منخفض المخزون', 'produit(s) EN STOCK FAIBLE')}</div>
+            <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${ch('View Inventory →', 'عرض المخزون ←', 'Voir le stock →')}</a></div>
           </div>
         </div>
         <button onclick="Dashboard.dismissAlert('low_stock', ${s.lowStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
@@ -80,12 +80,12 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
-              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${isAr ? 'إجمالي الإيرادات' : 'Gross Revenue'}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Gross Revenue', 'إجمالي الإيرادات', 'Revenu Brut')}</div>
             </div>
             <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+18.4% ↗</span>
           </div>
           <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">${UI.fmtCurrency(s.totalRevenue)}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${isAr ? 'الإيرادات التراكمية المحصلة من جميع المبيعات' : 'Cumulative revenue collected across sales'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${ch('Cumulative revenue collected across sales', 'الإيرادات التراكمية المحصلة من جميع المبيعات', 'Revenus cumulés collectés sur l\'ensemble des ventes')}</div>
           <div style="margin-top:14px;width:100%;background:var(--bg-main);height:6px;border-radius:4px;overflow:hidden;">
             <div style="width:78%;background:#10b981;height:100%;border-radius:4px;"></div>
           </div>
@@ -96,12 +96,12 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">📈</div>
-              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${isAr ? 'صافي الربح' : 'Net Profit'}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Net Profit', 'صافي الربح', 'Profit Net')}</div>
             </div>
-            <span class="badge" style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${showProfit ? (isAr ? profitMargin + '% هامش' : profitMargin + '% Margin') : (isAr ? 'سري' : 'Confidential')}</span>
+            <span class="badge" style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${showProfit ? (profitMargin + ch('% Margin', '% هامش', '% Marge')) : ch('Confidential', 'سري', 'Confidentiel')}</span>
           </div>
           <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">${showProfit ? UI.fmtCurrency(s.totalProfit) : '••••••••'}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${isAr ? 'الأرباح بعد خصم تكاليف شراء المنتجات' : 'Earnings after product purchase investment'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${ch('Earnings after product purchase investment', 'الأرباح بعد خصم تكاليف شراء المنتجات', 'Bénéfices après déduction des coûts d\'achat')}</div>
           <div style="margin-top:14px;width:100%;background:var(--bg-main);height:6px;border-radius:4px;overflow:hidden;">
             <div style="width:${Math.max(10, Math.min(100, profitMargin * 2))}%;background:#6366f1;height:100%;border-radius:4px;"></div>
           </div>
@@ -112,12 +112,12 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">📅</div>
-              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${isAr ? 'المبيعات الشهرية' : 'Monthly Sales'}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Monthly Sales', 'المبيعات الشهرية', 'Ventes Mensuelles')}</div>
             </div>
-            <span class="badge" style="background:#0ea5e9;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${isAr ? 'اليوم: ' : 'Today: '}${UI.fmtCurrency(s.salesToday)}</span>
+            <span class="badge" style="background:#0ea5e9;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${ch('Today: ', 'اليوم: ', 'Aujourd\'hui : ')}${UI.fmtCurrency(s.salesToday)}</span>
           </div>
           <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">${UI.fmtCurrency(s.salesThisMonth)}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${isAr ? 'حجم مبيعات فترة الـ ٣٠ يوماً الحالية' : 'Current 30-day billing period sales volume'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${ch('Current 30-day billing period sales volume', 'حجم مبيعات فترة الـ ٣٠ يوماً الحالية', 'Volume des ventes sur 30 jours')}</div>
           <div style="margin-top:14px;width:100%;background:var(--bg-main);height:6px;border-radius:4px;overflow:hidden;">
             <div style="width:64%;background:#0ea5e9;height:100%;border-radius:4px;"></div>
           </div>
@@ -128,12 +128,12 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
               <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💳</div>
-              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${isAr ? 'مستحقات الآجل' : 'Credit Receivables'}</div>
+              <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Credit Receivables', 'مستحقات الآجل', 'Créances en Cours')}</div>
             </div>
-            <span class="badge" style="background:#f59e0b;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${creditSales.length} ${isAr ? 'غير مدفوع' : 'Unpaid'}</span>
+            <span class="badge" style="background:#f59e0b;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${creditSales.length} ${ch('Unpaid', 'غير مدفوع', 'Non payé')}</span>
           </div>
           <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">${UI.fmtCurrency(outstanding)}</div>
-          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${isAr ? 'فواتير العملاء المعلقة للتحصيل' : 'Customer invoices pending debt collection'}</div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${ch('Customer invoices pending debt collection', 'فواتير العملاء المعلقة للتحصيل', 'Factures clients en attente de recouvrement')}</div>
           <div style="margin-top:14px;width:100%;background:var(--bg-main);height:6px;border-radius:4px;overflow:hidden;">
             <div style="width:${Math.min(100, creditSales.length * 20)}%;background:#f59e0b;height:100%;border-radius:4px;"></div>
           </div>
@@ -145,7 +145,7 @@ const Dashboard = (() => {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🏪</div>
           <div>
-            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${isAr ? 'تقييم المخزون' : 'Inventory Valuation'}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Inventory Valuation', 'تقييم المخزون', 'Valorisation du Stock')}</div>
             <div style="font-size:17px;font-weight:800;color:var(--text-main);">${UI.fmtCurrency(s.inventoryValue)}</div>
           </div>
         </div>
@@ -153,7 +153,7 @@ const Dashboard = (() => {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">💸</div>
           <div>
-            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${isAr ? 'إجمالي المصاريف' : 'Total Expenses'}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Total Expenses', 'إجمالي المصاريف', 'Total des Dépenses')}</div>
             <div style="font-size:17px;font-weight:800;color:var(--text-main);">${UI.fmtCurrency(s.totalExpenses)}</div>
           </div>
         </div>
@@ -161,16 +161,16 @@ const Dashboard = (() => {
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📦</div>
           <div>
-            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${isAr ? 'أصناف الكتالوج' : 'Catalog Skus'}</div>
-            <div style="font-size:17px;font-weight:800;color:var(--text-main);">${s.totalProducts} <span style="font-size:12px;color:var(--text-muted);font-weight:500;">(${s.totalCategories} ${isAr ? 'فئات' : 'Categories'})</span></div>
+            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Catalog Skus', 'أصناف الكتالوج', 'Références Catalogue')}</div>
+            <div style="font-size:17px;font-weight:800;color:var(--text-main);">${s.totalProducts} <span style="font-size:12px;color:var(--text-muted);font-weight:500;">(${s.totalCategories} ${ch('Categories', 'فئات', 'Catégories')})</span></div>
           </div>
         </div>
 
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
           <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">⚠️</div>
           <div>
-            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${isAr ? 'تنبيه صحة المخزون' : 'Stock Health Alert'}</div>
-            <div style="font-size:17px;font-weight:800;color:${s.outOfStock > 0 ? '#ef4444' : s.lowStock > 0 ? '#f59e0b' : '#10b981'};">${s.lowStock} ${isAr ? 'منخفض' : 'Low'} · ${s.outOfStock} ${isAr ? 'نافد' : 'Out'}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Stock Health Alert', 'تنبيه صحة المخزون', 'Alerte Santé du Stock')}</div>
+            <div style="font-size:17px;font-weight:800;color:${s.outOfStock > 0 ? '#ef4444' : s.lowStock > 0 ? '#f59e0b' : '#10b981'};">${s.lowStock} ${ch('Low', 'منخفض', 'Faible')} · ${s.outOfStock} ${ch('Out', 'نافد', 'Rupture')}</div>
           </div>
         </div>
       </div>
@@ -181,12 +181,12 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:12px;">
             <div>
-              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${isAr ? 'تحليلات الإيرادات وصافي الربح الشهري' : 'Monthly Revenue & Net Profit Analytics'}</h3>
-              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'مقارنة الأداء الشهري عبر دورات العمليات النشطة' : 'Comparative monthly performance across active billing cycles'}</p>
+              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${ch('Monthly Revenue & Net Profit Analytics', 'تحليلات الإيرادات وصافي الربح الشهري', 'Analyses Mensuelles des Revenus & Profits Nets')}</h3>
+              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Comparative monthly performance across active billing cycles', 'مقارنة الأداء الشهري عبر دورات العمليات النشطة', 'Comparaison des performances mensuelles sur les cycles actifs')}</p>
             </div>
             <div style="display:flex;align-items:center;gap:14px;font-size:12px;font-weight:600;">
-              <span style="display:flex;align-items:center;gap:6px;color:#10b981;"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block;"></span> ${isAr ? 'إجمالي الإيرادات' : 'Gross Revenue'}</span>
-              ${showProfit ? `<span style="display:flex;align-items:center;gap:6px;color:#6366f1;"><span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block;"></span> ${isAr ? 'صافي الربح' : 'Net Profit'}</span>` : ''}
+              <span style="display:flex;align-items:center;gap:6px;color:#10b981;"><span style="width:10px;height:10px;border-radius:50%;background:#10b981;display:inline-block;"></span> ${ch('Gross Revenue', 'إجمالي الإيرادات', 'Revenu Brut')}</span>
+              ${showProfit ? `<span style="display:flex;align-items:center;gap:6px;color:#6366f1;"><span style="width:10px;height:10px;border-radius:50%;background:#6366f1;display:inline-block;"></span> ${ch('Net Profit', 'صافي الربح', 'Profit Net')}</span>` : ''}
             </div>
           </div>
           <div style="height:310px;position:relative;"><canvas id="revenueChart"></canvas></div>
@@ -195,8 +195,8 @@ const Dashboard = (() => {
         <!-- Right: Sales Share by Top Selling Products -->
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);display:flex;flex-direction:column;">
           <div style="margin-bottom:18px;">
-            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${isAr ? 'توزيع المبيعات وأفضل الأصناف' : 'Sales Distribution & Top SKUs'}</h3>
-            <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'حصة المبيعات حسب الأصناف الأكثر مبيعاً' : 'Volume share by top selling product inventory'}</p>
+            <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${ch('Sales Distribution & Top SKUs', 'توزيع المبيعات وأفضل الأصناف', 'Distribution des Ventes & Meilleurs Produits')}</h3>
+            <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Volume share by top selling product inventory', 'حصة المبيعات حسب الأصناف الأكثر مبيعاً', 'Part du volume par produits les plus vendus')}</p>
           </div>
           <div style="height:230px;position:relative;margin-bottom:14px;"><canvas id="topProductsChart"></canvas></div>
         </div>
@@ -207,8 +207,8 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
-              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${isAr ? 'اتجاه الإيرادات مقابل المصاريف' : 'Revenue vs. Expense Trend'}</h3>
-              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'صافي التدفقات النقدية مقابل المصاريف التشغيلية' : 'Net cash inflow vs operational business expenditure'}</p>
+              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${ch('Revenue vs. Expense Trend', 'اتجاه الإيرادات مقابل المصاريف', 'Tendance Revenus vs Dépenses')}</h3>
+              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Net cash inflow vs operational business expenditure', 'صافي التدفقات النقدية مقابل المصاريف التشغيلية', 'Entrées de trésorerie nettes vs dépenses opérationnelles')}</p>
             </div>
           </div>
           <div style="height:260px;position:relative;"><canvas id="revExpChart"></canvas></div>
@@ -217,8 +217,8 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
-              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${isAr ? 'المصاريف التشغيلية الشهرية' : 'Monthly Operating Expenses'}</h3>
-              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'المصاريف العامة وتكاليف الاستيراد المسجلة' : 'Recorded overhead and import expenses'}</p>
+              <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${ch('Monthly Operating Expenses', 'المصاريف التشغيلية الشهرية', 'Dépenses Opérationnelles Mensuelles')}</h3>
+              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Recorded overhead and import expenses', 'المصاريف العامة وتكاليف الاستيراد المسجلة', 'Frais généraux et dépenses d\'importation enregistrés')}</p>
             </div>
           </div>
           <div style="height:260px;position:relative;"><canvas id="expenseChart"></canvas></div>
@@ -232,7 +232,7 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
               <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${t('recent_sales')}</h3>
-              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'أحدث المعاملات المكتملة مع العملاء' : 'Latest completed customer transactions'}</p>
+              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Latest completed customer transactions', 'أحدث المعاملات المكتملة مع العملاء', 'Dernières transactions clients terminées')}</p>
             </div>
             <button class="btn btn-sm btn-outline" style="border-radius:8px;font-weight:600;" onclick="UI.navigate('sales')">${t('btn_view_all')} →</button>
           </div>
@@ -240,11 +240,11 @@ const Dashboard = (() => {
             <table class="table" style="width:100%;border-collapse:collapse;">
               <thead>
                 <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
-                  <th style="padding:12px 10px;">${isAr ? 'الصنف' : 'Product Item'}</th>
-                  <th style="padding:12px 10px;">${isAr ? 'الكمية' : 'Qty'}</th>
-                  <th style="padding:12px 10px;">${isAr ? 'الإيرادات' : 'Revenue'}</th>
-                  ${showProfit ? `<th style="padding:12px 10px;">${isAr ? 'الربح' : 'Profit'}</th>` : ''}
-                  <th style="padding:12px 10px;">${isAr ? 'التاريخ' : 'Date'}</th>
+                  <th style="padding:12px 10px;">${ch('Product Item', 'الصنف', 'Produit')}</th>
+                  <th style="padding:12px 10px;">${ch('Qty', 'الكمية', 'Qté')}</th>
+                  <th style="padding:12px 10px;">${ch('Revenue', 'الإيرادات', 'Revenu')}</th>
+                  ${showProfit ? `<th style="padding:12px 10px;">${ch('Profit', 'الربح', 'Profit')}</th>` : ''}
+                  <th style="padding:12px 10px;">${ch('Date', 'التاريخ', 'Date')}</th>
                 </tr>
               </thead>
               <tbody id="recentSalesTbody"></tbody>
@@ -257,7 +257,7 @@ const Dashboard = (() => {
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;">
             <div>
               <h3 style="margin:0;font-size:17px;font-weight:800;color:var(--text-main);">${t('recent_products')}</h3>
-              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${isAr ? 'حالة المخزون للأصناف المضافة حديثاً' : 'Stock status across newly updated inventory'}</p>
+              <p style="margin:3px 0 0;font-size:12.5px;color:var(--text-muted);">${ch('Stock status across newly updated inventory', 'حالة المخزون للأصناف المضافة حديثاً', 'État des stocks pour l\'inventaire récemment mis à jour')}</p>
             </div>
             <button class="btn btn-sm btn-outline" style="border-radius:8px;font-weight:600;" onclick="UI.navigate('products')">${t('btn_view_all')} →</button>
           </div>
@@ -265,10 +265,10 @@ const Dashboard = (() => {
             <table class="table" style="width:100%;border-collapse:collapse;">
               <thead>
                 <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
-                  <th style="padding:12px 10px;">${isAr ? 'الكود' : 'Code'}</th>
-                  <th style="padding:12px 10px;">${isAr ? 'اسم المنتج' : 'Product Name'}</th>
-                  <th style="padding:12px 10px;">${isAr ? 'المخزون' : 'Stock'}</th>
-                  <th style="padding:12px 10px;">${isAr ? 'الحالة' : 'Status'}</th>
+                  <th style="padding:12px 10px;">${ch('Code', 'الكود', 'Code')}</th>
+                  <th style="padding:12px 10px;">${ch('Product Name', 'اسم المنتج', 'Nom du Produit')}</th>
+                  <th style="padding:12px 10px;">${ch('Stock', 'المخزون', 'Stock')}</th>
+                  <th style="padding:12px 10px;">${ch('Status', 'الحالة', 'Statut')}</th>
                 </tr>
               </thead>
               <tbody id="recentProductsTbody"></tbody>
@@ -365,7 +365,7 @@ const Dashboard = (() => {
           data: {
             labels: monthly.map(m => m.label),
             datasets: [{
-              label: I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Business Expenses',
+              label: (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses d\'entreprise') : 'Business Expenses',
               data: monthly.map(m => m.expenses),
               borderColor: '#F43F5E',
               backgroundColor: 'rgba(244, 63, 94, 0.16)',
@@ -385,7 +385,7 @@ const Dashboard = (() => {
         const colors = ['#8B5CF6', '#10B981', '#0EA5E9', '#F59E0B', '#F43F5E'];
         const displayList = (top && top.length > 0) ? top : DB.getAll('products').slice(0, 5);
         if (displayList.length === 0) {
-          tpc.parentElement.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">🏆</div><p style="color:#94A3B8;font-size:0.85rem;">${I18n.getLang() === 'ar' ? 'لا توجد منتجات بعد' : 'No products yet'}</p></div>`;
+          tpc.parentElement.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">🏆</div><p style="color:#94A3B8;font-size:0.85rem;">${(typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('No products yet', 'لا توجد منتجات بعد', 'Aucun produit pour l\'instant') : 'No products yet'}</p></div>`;
         } else {
           const labels = displayList.map(p => (p.name || 'Product').slice(0, 20));
           const hasSales = displayList.some(p => (p.totalQty || 0) > 0);

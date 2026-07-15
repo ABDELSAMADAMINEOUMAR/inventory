@@ -317,6 +317,161 @@ const I18n = (() => {
       lbl_total_expenses: 'إجمالي المصاريف', lbl_units_sold: 'الكمية المباعة',
       lbl_revenue_gen: 'الإيرادات المحققة', lbl_profit_gen: 'الأرباح المحققة',
       lbl_type: 'النوع', lbl_amount: 'المبلغ',
+    },
+
+    fr: {
+      /* Navigation */
+      nav_main: 'Principal', nav_catalogue: 'Catalogue', nav_operations: 'Opérations',
+      nav_analytics: 'Analyses', nav_account: 'Compte',
+      nav_dashboard: 'Tableau de bord', nav_products: 'Produits',
+      nav_categories: 'Catégories', nav_expenses: 'Dépenses',
+      nav_sales: 'Ventes', nav_inventory: 'Inventaire',
+      nav_reports: 'Rapports', nav_settings: 'Paramètres',
+
+      /* Login Page */
+      app_subtitle: 'Système d\'Importation et de Ventes',
+      login_welcome: 'Bon retour 👋', login_subtitle: 'Connectez-vous pour gérer votre activité',
+      login_email: 'Nom d\'utilisateur ou E-mail', login_password: 'Mot de passe',
+      login_btn: 'Se connecter au tableau de bord', login_signing_in: 'Connexion en cours...',
+      login_invalid: 'Identifiants invalides', login_hint: 'Par défaut',
+      login_feat_1: 'Produits et Inventaire', login_feat_2: 'Suivi des Ventes',
+      login_feat_3: 'Calculateur de Profit Auto', login_feat_4: 'Rapports et Export',
+      forgot_pwd_link: 'Mot de passe oublié ?',
+      forgot_modal_title: 'Réinitialiser votre mot de passe',
+      forgot_modal_desc: 'Entrez votre adresse e-mail enregistrée et nous vous enverrons les instructions pour réinitialiser votre mot de passe.',
+      forgot_email_lbl: 'Adresse e-mail',
+      forgot_send_btn: 'Envoyer le lien',
+      nav_platform: 'Plateforme SaaS',
+      nav_suppliers: 'Fournisseurs',
+      activate_title: 'Activer le compte',
+      activate_sub: 'Le compte de votre entreprise a été créé. Vérifiez votre e-mail et choisissez votre mot de passe permanent.',
+      activate_email: 'E-mail du compte',
+      activate_create_pwd: 'Créer un mot de passe permanent',
+      activate_confirm_pwd: 'Confirmer le mot de passe',
+      activate_btn: 'Vérifier l\'e-mail et activer le compte →',
+
+      /* Page Titles */
+      page_dashboard: 'Tableau de bord', page_products: 'Produits',
+      page_categories: 'Catégories', page_expenses: 'Dépenses',
+      page_sales: 'Ventes', page_inventory: 'Inventaire',
+      page_reports: 'Rapports', page_settings: 'Paramètres', page_users: 'Utilisateurs (Admin)', page_platform: 'Gestion Plateforme SaaS', page_suppliers: 'Fournisseurs',
+      page_dashboard_sub: 'Aperçu des activités et analyses',
+      page_products_sub: 'Gérer vos produits importés',
+      page_categories_sub: 'Organiser les catégories de produits',
+      page_suppliers_sub: 'Gérer vos fournisseurs de produits',
+      page_expenses_sub: 'Dépenses d\'importation et commerciales',
+      page_sales_sub: 'Enregistrer et suivre vos ventes',
+      page_inventory_sub: 'Niveaux de stock et alertes',
+      page_reports_sub: 'Rapports financiers et exportations',
+      page_settings_sub: 'Profil et paramètres du système',
+      page_users_sub: 'Gérer les comptes et rôles des employés',
+      page_platform_sub: 'Gérer les entreprises, abonnements et statistiques',
+      nav_users: 'Utilisateurs (Admin)',
+
+      /* Dashboard Extra */
+      chart_monthly_rev: '📊 Revenus et Profits Mensuels',
+      chart_monthly_exp: '💸 Dépenses Mensuelles',
+      chart_top_selling: '🏆 Produits les plus vendus',
+      chart_rev_vs_exp: '📈 Revenus vs Dépenses',
+      recent_sales: '🛒 Ventes Récentes',
+      recent_products: '📦 Produits Récents',
+      no_recent_sales: 'Aucune vente récente',
+      no_recent_products: 'Aucun produit récent',
+
+      /* Dashboard KPI */
+      kpi_products: 'Total Produits', kpi_categories: 'Catégories',
+      kpi_revenue: 'Revenu Total', kpi_profit: 'Profit Total',
+      kpi_investment: 'Investissement Total', kpi_inv_value: 'Valeur du Stock',
+      kpi_expenses: 'Total Dépenses', kpi_low_stock: 'Stock Faible',
+      kpi_out_stock: 'Rupture de Stock', kpi_sales_today: 'Ventes du Jour',
+      kpi_sales_month: 'Ventes du Mois', kpi_credit: 'Crédits en Cours',
+
+      /* Common Buttons */
+      btn_add: 'Ajouter', btn_save: 'Enregistrer', btn_update: 'Mettre à jour',
+      btn_cancel: 'Annuler', btn_delete: 'Supprimer', btn_edit: 'Modifier',
+      btn_view: 'Voir', btn_close: 'Fermer', btn_print: 'Imprimer',
+      btn_export_pdf: 'Exporter PDF', btn_export_excel: 'Exporter Excel',
+      btn_restock: 'Réapprovisionner', btn_mark_paid: 'Marquer Payé',
+      btn_add_product: 'Ajouter Produit', btn_add_category: 'Ajouter Catégorie',
+      btn_add_expense: 'Ajouter Dépense', btn_record_sale: 'Enregistrer Vente',
+      btn_view_all: 'Voir Tout',
+
+      /* Status */
+      status_available: '✓ En Stock', status_low: '⚠ Stock Faible',
+      status_out: '✕ Rupture de Stock', status_paid: '✓ Payé',
+      status_credit: '💳 Crédit', status_overdue: '⚠ En Retard',
+
+      /* Product Form */
+      lbl_code: 'Code Produit', lbl_name: 'Nom du Produit',
+      lbl_category: 'Catégorie', lbl_supplier: 'Nom du Fournisseur',
+      lbl_price: 'Prix d\'Achat', lbl_qty: 'Quantité Achetée',
+      lbl_currency: 'Devise', lbl_rate: 'Taux de Change',
+      lbl_date: 'Date d\'Achat', lbl_desc: 'Description',
+      lbl_image: 'Image du Produit', lbl_import_exp: 'Dépenses d\'Importation',
+      lbl_cpu_preview: 'Coût Unitaire Estimé',
+      ph_code: 'Généré automatiquement', ph_name: 'ex: Téléviseur Samsung 43"',
+      ph_supplier: 'ex: Cairo Electronics Co.',
+
+      /* Sale Form */
+      lbl_product: 'Produit', lbl_qty_sold: 'Quantité Vendue',
+      lbl_sell_price: 'Prix de Vente (unitaire)', lbl_sale_date: 'Date de Vente',
+      lbl_customer: 'Nom du Client', lbl_phone: 'Téléphone du Client',
+      lbl_payment: 'Statut du Paiement', lbl_due_date: 'Date d\'Échéance',
+      lbl_amount_paid: 'Montant Déjà Payé',
+      lbl_note: 'Note', pay_now: '✓ Payé Immédiatement', pay_later: '💳 Crédit (Payer plus tard)',
+      pay_now_sub: 'Le client a payé immédiatement', pay_later_sub: 'Le client paiera plus tard',
+
+      /* Table Headers */
+      th_image: 'Image', th_code: 'Code', th_product: 'Produit',
+      th_category: 'Catégorie', th_supplier: 'Fournisseur',
+      th_bought: 'Qté Achetée', th_stock: 'Stock', th_cpu: 'Coût/Unité',
+      th_status: 'Statut', th_actions: 'Actions', th_qty: 'Qté',
+      th_unit_price: 'Prix Unitaire', th_revenue: 'Revenu',
+      th_cost: 'Coût', th_profit: 'Profit', th_margin: 'Marge',
+      th_customer: 'Client', th_date: 'Date',
+      th_payment: 'Paiement', th_due_date: 'Échéance',
+      th_sold: 'Vendu', th_in_stock: 'En Stock', th_stock_level: 'Niveau de Stock',
+      th_stock_value: 'Valeur du Stock',
+
+      /* Reports */
+      rep_daily: '📅 Quotidien', rep_weekly: '📆 Hebdomadaire',
+      rep_monthly: '📊 Mensuel', rep_annual: '📈 Annuel',
+
+      /* Settings */
+      set_profile: '👤 Informations du Profil', set_password: '🔒 Changer le Mot de Passe',
+      set_system: '📊 Résumé du Système', set_danger: 'Zone de Danger',
+      set_reset: 'Réinitialiser Toutes les Données',
+
+      /* Misc */
+      administrator: 'Administrateur',
+      low_threshold: '5',
+      search_ph: 'Rechercher produits, fournisseurs…',
+      no_data: 'Aucune donnée trouvée',
+      confirm_delete: 'Êtes-vous sûr ?', cannot_undo: 'Cette action ne peut pas être annulée.',
+      profit_calc: '📊 Calculateur de Profit (Aperçu en direct)',
+      available_stock: 'Stock disponible',
+      import_expenses: '💸 Dépenses d\'Importation',
+
+      /* Added Keys */
+      brand_sub: 'Importation et Ventes',
+      nav_suppliers: 'Fournisseurs',
+      page_suppliers: 'Fournisseurs', page_suppliers_sub: 'Gérer vos fournisseurs de produits',
+      login_pwd_ph: 'Entrez votre mot de passe', login_email_ph: 'admin@business.com',
+      supp_registered: 'fournisseurs enregistrés', btn_add_supp: 'Ajouter Fournisseur',
+      th_supp: 'Fournisseur', th_country: 'Pays', th_phone: 'Téléphone', th_email: 'E-mail', th_notes: 'Notes',
+      ph_supp_search: 'Rechercher des fournisseurs…', no_supp: 'Aucun fournisseur trouvé', add_first_supp: 'Ajoutez votre premier fournisseur.',
+      lbl_supp_name: 'Nom du Fournisseur', lbl_address: 'Adresse', ph_supp_addr: 'Rue, Ville', ph_supp_notes: 'Notes supplémentaires sur ce fournisseur…',
+      sel_country: 'Sélectionner le pays', edit_supp: 'Modifier le Fournisseur', del_supp_title: 'Supprimer le Fournisseur ?', supp_del_msg: 'sera définitivement supprimé.',
+      products_count: 'produits', product_count: 'produit',
+      ph_date_from: 'Date de début', ph_date_to: 'Date de fin',
+      th_revenue: 'Revenu', th_profit: 'Profit', th_expenses: 'Dépenses',
+      exp_Purchase_Cost: 'Coût d\'Achat', exp_Shipping: 'Expédition', exp_Customs_Duty: 'Frais de Douane',
+      exp_Transportation: 'Transport', exp_Packaging: 'Emballage', exp_Insurance: 'Assurance',
+      exp_Warehouse: 'Entrepôt / Stockage', exp_Taxes: 'Taxes', exp_Other: 'Autre',
+      lbl_total_import_cost: 'Coût Total d\'Importation', lbl_cost_per_unit: 'Coût par Unité',
+      lbl_total_expenses: 'Total des Dépenses', lbl_units_sold: 'Unités Vendues',
+      lbl_revenue_gen: 'Revenu Généré', lbl_profit_gen: 'Profit Généré',
+      lbl_type: 'Type', lbl_amount: 'Montant',
     }
   };
 
@@ -347,6 +502,14 @@ const I18n = (() => {
     _applyDir(lang);
   }
 
+  /** Choose translation based on current lang */
+  function choose(en, ar, fr) {
+    const lang = getLang();
+    if (lang === 'ar') return ar;
+    if (lang === 'fr') return fr !== undefined ? fr : en;
+    return en;
+  }
+
   /** Translate a key */
   function t(key) {
     const lang = getLang();
@@ -362,7 +525,12 @@ const I18n = (() => {
 
     // Update language button label
     const btn = document.getElementById('langToggleBtn');
-    if (btn) btn.textContent = isAr ? '🌐 EN' : '🌐 عربي';
+    if (btn) {
+      if (lang === 'en') btn.textContent = '🌐 عربي';
+      else if (lang === 'ar') btn.textContent = '🌐 FR';
+      else if (lang === 'fr') btn.textContent = '🌐 EN';
+      else btn.textContent = '🌐 عربي';
+    }
 
     // Update placeholder in header search
     const searchInput = document.getElementById('globalSearch');
@@ -382,9 +550,13 @@ const I18n = (() => {
     });
   }
 
-  /** Toggle between en ↔ ar, then re-render current page */
+  /** Toggle between en ↔ ar ↔ fr, then re-render current page */
   function toggle() {
-    const newLang = getLang() === 'en' ? 'ar' : 'en';
+    const current = getLang();
+    let newLang = 'en';
+    if (current === 'en') newLang = 'ar';
+    else if (current === 'ar') newLang = 'fr';
+    else if (current === 'fr') newLang = 'en';
     setLang(newLang);
     // Re-render current page so all dynamic content updates
     if (typeof UI !== 'undefined' && typeof UI.navigate === 'function' && typeof UI.getCurrentPage === 'function') {
@@ -399,10 +571,11 @@ const I18n = (() => {
     _applyDir(getLang());
   }
 
-  return { getLang, setLang, t, toggle, init, toWesternDigits, parseNum };
+  return { getLang, setLang, t, toggle, init, toWesternDigits, parseNum, choose };
 })();
 
-// Global shorthand — all modules can call  t('key')
+// Global shorthand — all modules can call t('key') or choose(...)
 window.t = I18n.t;
 window.parseNum = I18n.parseNum;
 window.toWesternDigits = I18n.toWesternDigits;
+window.choose = I18n.choose;

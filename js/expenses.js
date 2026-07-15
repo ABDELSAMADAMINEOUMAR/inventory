@@ -11,7 +11,7 @@ const Expenses = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>💸 ${t('page_expenses')}</h2><p>${I18n.getLang() === 'ar' ? 'تتبع مصاريف العمل والاستيراد' : 'Track all business and import expenses'}</p></div>
+        <div class="page-title"><h2>💸 ${t('page_expenses')}</h2><p>${I18n.choose('Track all business and import expenses', 'تتبع مصاريف العمل والاستيراد', 'Suivre toutes les dépenses professionnelles et d\'importation')}</p></div>
         <div class="page-actions">
           <button class="btn btn-primary" id="addExpBtn" onclick="Expenses.openAdd()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -23,15 +23,15 @@ const Expenses = (() => {
       <!-- Summary Cards -->
       <div class="kpi-grid stagger-children">
         ${summaryCard(t('lbl_import_exp'), DB.sum('productExpenses','amount'), 'orange', '📦')}
-        ${summaryCard(I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Business Expenses', DB.sum('businessExpenses','amount'), 'red', '🏢')}
+        ${summaryCard(I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles'), DB.sum('businessExpenses','amount'), 'red', '🏢')}
         ${summaryCard(t('kpi_expenses'), DB.sum('productExpenses','amount') + DB.sum('businessExpenses','amount'), 'purple', '💰')}
-        ${summaryCard(I18n.getLang() === 'ar' ? 'الشهر الحالي' : 'This Month', monthlyExpenses(), 'blue', '📅')}
+        ${summaryCard(I18n.choose('This Month', 'الشهر الحالي', 'Ce mois-ci'), monthlyExpenses(), 'blue', '📅')}
       </div>
 
       <!-- Tabs -->
       <div class="report-tabs">
         <button class="report-tab ${_tab==='import'?'active':''}" onclick="Expenses.switchTab('import')">📦 ${t('lbl_import_exp')}</button>
-        <button class="report-tab ${_tab==='business'?'active':''}" onclick="Expenses.switchTab('business')">🏢 ${I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Business Expenses'}</button>
+        <button class="report-tab ${_tab==='business'?'active':''}" onclick="Expenses.switchTab('business')">🏢 ${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')}</button>
       </div>
 
       <div id="expTabContent"></div>
@@ -59,7 +59,7 @@ const Expenses = (() => {
   function switchTab(tab) {
     _tab = tab;
     document.querySelectorAll('.report-tab').forEach((el, i) => el.classList.toggle('active', (i===0&&tab==='import')||(i===1&&tab==='business')));
-    document.getElementById('addExpBtn').textContent = tab === 'import' ? '+' + t('lbl_import_exp') : '+' + (I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Business Expenses');
+    document.getElementById('addExpBtn').textContent = tab === 'import' ? '+' + t('lbl_import_exp') : '+' + I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles');
     renderTab();
   }
 
@@ -81,7 +81,7 @@ const Expenses = (() => {
     }).filter(Boolean).sort((a,b) => b.total - a.total);
 
     if (!rows.length) {
-      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.getLang() === 'ar' ? 'لا توجد مصاريف استيراد بعد' : 'No import expenses yet'}</h3><p>${I18n.getLang() === 'ar' ? 'تتم إضافة مصاريف الاستيراد عند إنشاء المنتجات.' : 'Import expenses are added when creating products.'}</p><button class="btn btn-primary" onclick="UI.navigate('products')">${I18n.getLang() === 'ar' ? 'اذهب للمنتجات' : 'Go to Products'}</button></div></div>`;
+      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.choose('No import expenses yet', 'لا توجد مصاريف استيراد بعد', 'Aucune dépense d\'importation')}</h3><p>${I18n.choose('Import expenses are added when creating products.', 'تتم إضافة مصاريف الاستيراد عند إنشاء المنتجات.', 'Les dépenses d\'importation sont ajoutées lors de la création de produits.')}</p><button class="btn btn-primary" onclick="UI.navigate('products')">${I18n.choose('Go to Products', 'اذهب للمنتجات', 'Aller aux produits')}</button></div></div>`;
       return;
     }
 
@@ -90,13 +90,13 @@ const Expenses = (() => {
       <div class="card-header">
         <div>
           <div style="font-weight:600">${r.product.name} <span class="badge badge-purple" style="font-family:monospace;margin-left:6px">${r.product.code}</span></div>
-          <div style="font-size:0.8rem;color:var(--text-muted)">${I18n.getLang() === 'ar' ? 'الإجمالي:' : 'Total:'} ${UI.fmtCurrency(r.total)} | ${r.product.quantity} ${I18n.getLang() === 'ar' ? 'وحدات' : 'units'} | ${I18n.getLang() === 'ar' ? 'التكلفة للوحدة:' : 'CPUnit:'} ${UI.fmtCurrency(r.total/r.product.quantity)}</div>
+          <div style="font-size:0.8rem;color:var(--text-muted)">${I18n.choose('Total:', 'الإجمالي:', 'Total :')} ${UI.fmtCurrency(r.total)} | ${r.product.quantity} ${I18n.choose('units', 'وحدات', 'unités')} | ${I18n.choose('CPUnit:', 'التكلفة للوحدة:', 'Coût/Unité :')} ${UI.fmtCurrency(r.total/r.product.quantity)}</div>
         </div>
         <span class="badge badge-warning">${UI.fmtCurrency(r.total)}</span>
       </div>
       <div class="table-wrap">
         <table>
-          <thead><tr><th>${I18n.getLang() === 'ar' ? 'نوع المصروف' : 'Expense Type'}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
+          <thead><tr><th>${I18n.choose('Expense Type', 'نوع المصروف', 'Type de dépense')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
           <tbody>
             ${r.exps.map(e => `
             <tr>
@@ -118,12 +118,12 @@ const Expenses = (() => {
   function renderBusiness(c) {
     const exps = DB.getAll('businessExpenses').sort((a,b) => new Date(b.expenseDate) - new Date(a.expenseDate));
     if (!exps.length) {
-      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">🏢</div><h3>${I18n.getLang() === 'ar' ? 'لا توجد مصاريف عمل بعد' : 'No business expenses yet'}</h3><p>${I18n.getLang() === 'ar' ? 'تتبع الإيجار، الرواتب، الخدمات، وغيرها.' : 'Track rent, salaries, utilities and more.'}</p><button class="btn btn-primary" onclick="Expenses.openAdd()">${t('btn_add_expense')}</button></div></div>`;
+      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">🏢</div><h3>${I18n.choose('No business expenses yet', 'لا توجد مصاريف عمل بعد', 'Aucune dépense professionnelle')}</h3><p>${I18n.choose('Track rent, salaries, utilities and more.', 'تتبع الإيجار، الرواتب، الخدمات، وغيرها.', 'Suivez le loyer, les salaires, les services et plus.')}</p><button class="btn btn-primary" onclick="Expenses.openAdd()">${t('btn_add_expense')}</button></div></div>`;
       return;
     }
     c.innerHTML = `
     <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>${I18n.getLang() === 'ar' ? 'العنوان' : 'Title'}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
+      <thead><tr><th>${I18n.choose('Title', 'العنوان', 'Titre')}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
       <tbody>
         ${exps.map(e => `
         <tr>
@@ -154,37 +154,37 @@ const Expenses = (() => {
     return `
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
-        <label>Product <span class="req">*</span></label>
+        <label>${I18n.choose('Product', 'المنتج', 'Produit')} <span class="req">*</span></label>
         <select class="select" id="ieProduct" required>
-          <option value="">Select product</option>
+          <option value="">${I18n.choose('Select product', 'اختر منتجاً', 'Sélectionner un produit')}</option>
           ${products.map(p => `<option value="${p.id}" ${(e.productId==p.id||productId==p.id)?'selected':''}>${p.name} (${p.code})</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label>Expense Type <span class="req">*</span></label>
+        <label>${I18n.choose('Expense Type', 'نوع المصروف', 'Type de dépense')} <span class="req">*</span></label>
         <select class="select" id="ieType">
           ${expTypes.map(t => `<option ${e.expenseType===t?'selected':''}>${t}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label>Amount (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <label>${I18n.choose('Amount', 'المبلغ', 'Montant')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
         <input class="input" type="text" id="ieAmount" value="${UI.toInputMoney(e.amount)}" placeholder="0" required>
       </div>
       <div class="field">
-        <label>Date</label>
+        <label>${t('th_date')}</label>
         <input class="input" type="date" id="ieDate" value="${e.date||new Date().toISOString().split('T')[0]}">
       </div>
       <div class="field">
-        <label>Note</label>
-        <input class="input" id="ieNote" value="${e.note||''}" placeholder="Optional note">
+        <label>${t('lbl_note')}</label>
+        <input class="input" id="ieNote" value="${e.note||''}" placeholder="${I18n.choose('Optional note', 'ملاحظة اختيارية', 'Note optionnelle')}">
       </div>
     </div>`;
   }
 
   function openAddImport() {
-    UI.createModal('ieModal', '📦 Add Import Expense', importForm(),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 Save Expense</button>`
+    UI.createModal('ieModal', `📦 ${I18n.choose('Add Import Expense', 'إضافة مصروف استيراد', 'Ajouter une dépense d\'importation')}`, importForm(),
+      `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">${t('btn_cancel')}</button>
+       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
     );
   }
 
@@ -192,9 +192,9 @@ const Expenses = (() => {
     _editId = id;
     const e = DB.getById('productExpenses', id);
     if (!e) return;
-    UI.createModal('ieModal', '✏️ Edit Import Expense', importForm(e),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 Update</button>`
+    UI.createModal('ieModal', `✏️ ${I18n.choose('Edit Import Expense', 'تعديل مصروف استيراد', 'Modifier la dépense d\'importation')}`, importForm(e),
+      `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">${t('btn_cancel')}</button>
+       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 ${t('btn_update')}</button>`
     );
   }
 
@@ -207,16 +207,16 @@ const Expenses = (() => {
       const amount = UI.fromInputMoney(document.getElementById('ieAmount')?.value);
       const date   = document.getElementById('ieDate')?.value;
       const note   = document.getElementById('ieNote')?.value.trim();
-      if (!productId || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+      if (!productId || isNaN(amount) || amount <= 0) { UI.toast('error', I18n.choose('Fill required fields', 'املأ الحقول المطلوبة', 'Remplir les champs requis')); return; }
       try {
         if (_editId) await DB.update('productExpenses', _editId, { productId, expenseType: type, amount, date, note });
         else await DB.insert('productExpenses', { productId, expenseType: type, amount, date, note });
       } catch (err) {
-        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
         return;
       }
       UI.closeModal('ieModal');
-      UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
+      UI.toast('success', _editId ? I18n.choose('Expense Updated', 'تم تحديث المصروف', 'Dépense mise à jour') : I18n.choose('Expense Added', 'تمت إضافة المصروف', 'Dépense ajoutée'));
       _tab = 'import'; _editId = null;
       UI.navigate('expenses');
     } finally {
@@ -225,15 +225,15 @@ const Expenses = (() => {
   }
 
   async function deleteImport(id) {
-    const ok = await UI.confirm('Delete Expense?', 'This import expense will be removed.');
+    const ok = await UI.confirm(I18n.choose('Delete Expense?', 'حذف المصروف؟', 'Supprimer la dépense ?'), I18n.choose('This import expense will be removed.', 'سيتم إزالة مصروف الاستيراد هذا.', 'Cette dépense d\'importation sera supprimée.'));
     if (!ok) return;
     try {
       await DB.remove('productExpenses', id);
     } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
       return;
     }
-    UI.toast('success', 'Expense Deleted');
+    UI.toast('success', I18n.choose('Expense Deleted', 'تم حذف المصروف', 'Dépense supprimée'));
     renderTab();
   }
 
@@ -243,35 +243,35 @@ const Expenses = (() => {
     return `
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
-        <label>Title <span class="req">*</span></label>
+        <label>${I18n.choose('Title', 'العنوان', 'Titre')} <span class="req">*</span></label>
         <input class="input" id="beTitle" value="${e.title||''}" placeholder="e.g. Office Rent - July" required>
       </div>
       <div class="field">
-        <label>Category</label>
+        <label>${t('th_category')}</label>
         <select class="select" id="beCat">
-          <option value="">Select category</option>
+          <option value="">${I18n.choose('Select category', 'اختر فئة', 'Sélectionner une catégorie')}</option>
           ${cats.map(c => `<option ${e.category===c?'selected':''}>${c}</option>`).join('')}
         </select>
       </div>
       <div class="field">
-        <label>Amount (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <label>${I18n.choose('Amount', 'المبلغ', 'Montant')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
         <input class="input" type="text" id="beAmount" value="${UI.toInputMoney(e.amount)}" placeholder="0" required>
       </div>
       <div class="field">
-        <label>Date</label>
+        <label>${t('th_date')}</label>
         <input class="input" type="date" id="beDate" value="${e.expenseDate||new Date().toISOString().split('T')[0]}">
       </div>
       <div class="field">
-        <label>Note</label>
-        <textarea class="textarea" id="beNote" placeholder="Optional note…">${e.note||''}</textarea>
+        <label>${t('lbl_note')}</label>
+        <textarea class="textarea" id="beNote" placeholder="${I18n.choose('Optional note…', 'ملاحظة اختيارية…', 'Note optionnelle…')}">${e.note||''}</textarea>
       </div>
     </div>`;
   }
 
   function openAddBusiness() {
-    UI.createModal('beModal', '💸 Add Business Expense', bizForm(),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 Save Expense</button>`
+    UI.createModal('beModal', `💸 ${I18n.choose('Add Business Expense', 'إضافة مصروف عمل', 'Ajouter une dépense professionnelle')}`, bizForm(),
+      `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">${t('btn_cancel')}</button>
+       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
     );
   }
 
@@ -279,9 +279,9 @@ const Expenses = (() => {
     _editId = id;
     const e = DB.getById('businessExpenses', id);
     if (!e) return;
-    UI.createModal('beModal', '✏️ Edit Business Expense', bizForm(e),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 Update</button>`
+    UI.createModal('beModal', `✏️ ${I18n.choose('Edit Business Expense', 'تعديل مصروف عمل', 'Modifier la dépense professionnelle')}`, bizForm(e),
+      `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">${t('btn_cancel')}</button>
+       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 ${t('btn_update')}</button>`
     );
   }
 
@@ -294,16 +294,16 @@ const Expenses = (() => {
       const cat    = document.getElementById('beCat')?.value;
       const date   = document.getElementById('beDate')?.value;
       const note   = document.getElementById('beNote')?.value.trim();
-      if (!title || isNaN(amount) || amount <= 0) { UI.toast('error', 'Fill required fields'); return; }
+      if (!title || isNaN(amount) || amount <= 0) { UI.toast('error', I18n.choose('Fill required fields', 'املأ الحقول المطلوبة', 'Remplir les champs requis')); return; }
       try {
         if (_editId) await DB.update('businessExpenses', _editId, { title, amount, category: cat, expenseDate: date, note });
         else await DB.insert('businessExpenses', { title, amount, category: cat, expenseDate: date, note });
       } catch (err) {
-        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
         return;
       }
       UI.closeModal('beModal');
-      UI.toast('success', _editId ? 'Expense Updated' : 'Expense Added');
+      UI.toast('success', _editId ? I18n.choose('Expense Updated', 'تم تحديث المصروف', 'Dépense mise à jour') : I18n.choose('Expense Added', 'تمت إضافة المصروف', 'Dépense ajoutée'));
       _tab = 'business'; _editId = null;
       UI.navigate('expenses');
     } finally {
@@ -312,15 +312,15 @@ const Expenses = (() => {
   }
 
   async function deleteBusiness(id) {
-    const ok = await UI.confirm('Delete Expense?', 'This business expense will be permanently removed.');
+    const ok = await UI.confirm(I18n.choose('Delete Expense?', 'حذف المصروف؟', 'Supprimer la dépense ?'), I18n.choose('This business expense will be permanently removed.', 'سيتم إزالة مصروف العمل هذا نهائياً.', 'Cette dépense professionnelle sera définitivement supprimée.'));
     if (!ok) return;
     try {
       await DB.remove('businessExpenses', id);
     } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
       return;
     }
-    UI.toast('success', 'Expense Deleted');
+    UI.toast('success', I18n.choose('Expense Deleted', 'تم حذف المصروف', 'Dépense supprimée'));
     renderTab();
   }
 

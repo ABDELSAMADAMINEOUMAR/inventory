@@ -17,7 +17,7 @@ const Inventory = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>🏪 ${t('page_inventory')}</h2><p>${I18n.getLang() === 'ar' ? 'مستويات المخزون والتنبيهات الحية' : 'Real-time stock levels and alerts'}</p></div>
+        <div class="page-title"><h2>🏪 ${t('page_inventory')}</h2><p>${I18n.choose('Real-time stock levels and alerts', 'مستويات المخزون والتنبيهات الحية', 'Niveaux de stock en temps réel et alertes')}</p></div>
         <div class="page-actions">
           ${UI.canEditProducts() ? `<button class="btn btn-ghost" onclick="UI.navigate('products')">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -56,27 +56,27 @@ const Inventory = (() => {
         <div style="display:flex;align-items:center;gap:12px">
           <span class="alert-icon">🚨</span>
           <div class="alert-content">
-            <div class="alert-title">${I18n.getLang() === 'ar' ? 'نفد من المخزون — ' + out.length + ' منتج(ات)' : 'Out of Stock — ' + out.length + ' product(s)'}</div>
+            <div class="alert-title">${I18n.choose('Out of Stock — ' + out.length + ' product(s)', 'نفد من المخزون — ' + out.length + ' منتج(ات)', 'Rupture de stock — ' + out.length + ' produit(s)')}</div>
             <div class="alert-body">${out.map(p => p.name).join(', ')}</div>
           </div>
         </div>
-        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
+        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">✕</button>
       </div>` : ''}
       ${low.length && unread.some(p => p.stockStatus === 'low') ? `
       <div class="alert alert-warning alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:12px">
           <span class="alert-icon">⚠️</span>
           <div class="alert-content">
-            <div class="alert-title">${I18n.getLang() === 'ar' ? 'مخزون منخفض — ' + low.length + ' منتج(ات)' : 'Low Stock — ' + low.length + ' product(s)'}</div>
-            <div class="alert-body">${low.map(p => `${p.name} (${p.currentStock} ${I18n.getLang() === 'ar' ? 'متبقي' : 'left'})`).join(', ')}</div>
+            <div class="alert-title">${I18n.choose('Low Stock — ' + low.length + ' product(s)', 'مخزون منخفض — ' + low.length + ' منتج(ات)', 'Stock faible — ' + low.length + ' produit(s)')}</div>
+            <div class="alert-body">${low.map(p => `${p.name} (${p.currentStock} ${I18n.choose('left', 'متبقي', 'restant(s)')})`).join(', ')}</div>
           </div>
         </div>
-        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
+        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">✕</button>
       </div>` : ''}
 
       <!-- Filter Tabs -->
       <div class="report-tabs">
-        <button class="report-tab ${_filter === 'all' ? 'active' : ''}" onclick="Inventory.setFilter('all')">${I18n.getLang() === 'ar' ? 'جميع المنتجات' : 'All Products'} (${products.length})</button>
+        <button class="report-tab ${_filter === 'all' ? 'active' : ''}" onclick="Inventory.setFilter('all')">${I18n.choose('All Products', 'جميع المنتجات', 'Tous les produits')} (${products.length})</button>
         <button class="report-tab ${_filter === 'available' ? 'active' : ''}" onclick="Inventory.setFilter('available')">${t('status_available')} (${available.length})</button>
         <button class="report-tab ${_filter === 'low' ? 'active' : ''}" onclick="Inventory.setFilter('low')">${t('status_low')} (${low.length})</button>
         <button class="report-tab ${_filter === 'out' ? 'active' : ''}" onclick="Inventory.setFilter('out')">${t('status_out')} (${out.length})</button>
@@ -126,7 +126,7 @@ const Inventory = (() => {
     if (_filter !== 'all') products = products.filter(p => p.stockStatus === _filter);
 
     if (!products.length) {
-      body.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🏪</div><h3>No products in this filter</h3></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🏪</div><h3>${I18n.choose('No products in this filter', 'لا توجد منتجات في هذا الفلتر', 'Aucun produit dans ce filtre')}</h3></div></td></tr>`;
       return;
     }
 
@@ -162,7 +162,7 @@ const Inventory = (() => {
         <td class="fw-600" style="white-space:nowrap;font-size:0.80rem">${UI.fmtCurrency(stockValue)}</td>
         <td style="white-space:nowrap">${stockBadge(p.stockStatus)}</td>
         <td style="white-space:nowrap">
-          ${UI.canEditProducts() ? `<button class="btn btn-sm btn-outline-primary" style="padding:4px 10px;font-size:0.75rem;white-space:nowrap" onclick="Products.openEdit(${p.id})">${t('btn_restock')}</button>` : '<span class="td-muted" style="font-size:0.75rem">Read Only</span>'}
+          ${UI.canEditProducts() ? `<button class="btn btn-sm btn-outline-primary" style="padding:4px 10px;font-size:0.75rem;white-space:nowrap" onclick="Products.openEdit(${p.id})">${t('btn_restock')}</button>` : `<span class="td-muted" style="font-size:0.75rem">${I18n.choose('Read Only', 'للعرض فقط', 'Lecture seule')}</span>`}
         </td>
       </tr>`;
     }).join('');

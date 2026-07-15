@@ -105,7 +105,7 @@ const Suppliers = (() => {
   }
 
   function openAdd() {
-    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to add suppliers.'); return; }
+    if (!UI.canEditProducts()) { UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), I18n.choose('You do not have permission to add suppliers.', 'ليس لديك صلاحية لإضافة موردين.', 'Vous n\'avez pas la permission d\'ajouter des fournisseurs.')); return; }
     _editId = null;
     UI.createModal('suppModal', `🏭 ${t('btn_add_supp')}`,
       formBody(),
@@ -115,7 +115,7 @@ const Suppliers = (() => {
   }
 
   function openEdit(id) {
-    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to edit suppliers.'); return; }
+    if (!UI.canEditProducts()) { UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), I18n.choose('You do not have permission to edit suppliers.', 'ليس لديك صلاحية لتعديل الموردين.', 'Vous n\'avez pas la permission de modifier des fournisseurs.')); return; }
     _editId = id;
     const s = DB.getById('suppliers', id);
     if (!s) return;
@@ -131,7 +131,7 @@ const Suppliers = (() => {
     if (UI.lockBtn(btn)) return;
     try {
       const name = document.getElementById('suppName')?.value.trim();
-      if (!name) { UI.toast('error', 'Supplier name required'); return; }
+      if (!name) { UI.toast('error', I18n.choose('Supplier name required', 'اسم المورد مطلوب', 'Nom du fournisseur requis')); return; }
       const data = {
         name,
         phone: document.getElementById('suppPhone')?.value.trim(),
@@ -144,11 +144,11 @@ const Suppliers = (() => {
         if (_editId) await DB.update('suppliers', _editId, data);
         else await DB.insert('suppliers', data);
       } catch (err) {
-        UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+        UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
         return;
       }
       UI.closeModal('suppModal');
-      UI.toast('success', _editId ? 'Supplier Updated' : 'Supplier Added');
+      UI.toast('success', _editId ? I18n.choose('Supplier Updated', 'تم تحديث المورد', 'Fournisseur mis à jour') : I18n.choose('Supplier Added', 'تمت إضافة المورد', 'Fournisseur ajouté'));
       UI.navigate('suppliers');
     } finally {
       UI.unlockBtn(btn);
@@ -156,19 +156,19 @@ const Suppliers = (() => {
   }
 
   async function del(id) {
-    if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to delete suppliers.'); return; }
+    if (!UI.canEditProducts()) { UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), I18n.choose('You do not have permission to delete suppliers.', 'ليس لديك صلاحية لحذف الموردين.', 'Vous n\'avez pas la permission de supprimer des fournisseurs.')); return; }
     const s = DB.getById('suppliers', id);
     const c = DB.count('products', p => p.supplierId === id);
-    if (c > 0) { UI.toast('error', 'Cannot Delete', `This supplier has ${c} product(s). Remove them first.`); return; }
+    if (c > 0) { UI.toast('error', I18n.choose('Cannot Delete', 'لا يمكن الحذف', 'Suppression impossible'), I18n.choose(`This supplier has ${c} product(s). Remove them first.`, `يحتوي هذا المورد على ${c} منتج. احذفها أولاً.`, `Ce fournisseur contient ${c} produit(s). Supprimez-les d'abord.`)); return; }
     const ok = await UI.confirm(t('del_supp_title'), `"${s.name}" ${t('supp_del_msg')}`);
     if (!ok) return;
     try {
       await DB.remove('suppliers', id);
     } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
       return;
     }
-    UI.toast('success', 'Supplier Deleted');
+    UI.toast('success', I18n.choose('Supplier Deleted', 'تم حذف المورد', 'Fournisseur supprimé'));
     UI.navigate('suppliers');
   }
 

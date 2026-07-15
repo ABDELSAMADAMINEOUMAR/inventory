@@ -10,7 +10,7 @@ const Reports = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>📊 ${t('page_reports')}</h2><p>${I18n.getLang() === 'ar' ? 'التقارير المالية والتحليلات التجارية' : 'Financial reports and business analytics'}</p></div>
+        <div class="page-title"><h2>📊 ${t('page_reports')}</h2><p>${I18n.choose('Financial reports and business analytics', 'التقارير المالية والتحليلات التجارية', 'Rapports financiers et analyses commerciales')}</p></div>
         <div class="page-actions">
           <button class="btn btn-ghost" onclick="Reports.exportExcel()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -30,7 +30,7 @@ const Reports = (() => {
         <button class="report-tab ${_period === 'weekly' ? 'active' : ''}"  onclick="Reports.setPeriod('weekly')">${t('rep_weekly')}</button>
         <button class="report-tab ${_period === 'monthly' ? 'active' : ''}" onclick="Reports.setPeriod('monthly')">${t('rep_monthly')}</button>
         <button class="report-tab ${_period === 'annual' ? 'active' : ''}"  onclick="Reports.setPeriod('annual')">${t('rep_annual')}</button>
-        <button class="report-tab ${_period === 'all' ? 'active' : ''}"     onclick="Reports.setPeriod('all')">${I18n.getLang() === 'ar' ? 'كل الأوقات' : 'All Time'}</button>
+        <button class="report-tab ${_period === 'all' ? 'active' : ''}"     onclick="Reports.setPeriod('all')">${I18n.choose('All Time', 'كل الأوقات', 'De tous les temps')}</button>
       </div>
 
       <div id="reportContent"></div>
@@ -106,15 +106,14 @@ const Reports = (() => {
   }
 
   function getPeriodLabel() {
-    const isAr = typeof I18n !== 'undefined' && I18n.getLang() === 'ar';
     const labels = {
-      daily: isAr ? 'تقرير اليوم' : "Today's Report",
-      weekly: isAr ? 'تقرير هذا الأسبوع' : "This Week's Report",
-      monthly: isAr ? 'تقرير هذا الشهر' : "This Month's Report",
-      annual: isAr ? 'التقرير السنوي' : "Annual Report",
-      all: isAr ? 'تقرير كل الأوقات (شامل)' : "All Time Report (Complete History)"
+      daily: I18n.choose("Today's Report", 'تقرير اليوم', "Rapport d'aujourd'hui"),
+      weekly: I18n.choose("This Week's Report", 'تقرير هذا الأسبوع', "Rapport de cette semaine"),
+      monthly: I18n.choose("This Month's Report", 'تقرير هذا الشهر', "Rapport de ce mois"),
+      annual: I18n.choose("Annual Report", 'التقرير السنوي', "Rapport annuel"),
+      all: I18n.choose("All Time Report (Complete History)", 'تقرير كل الأوقات (شامل)', "Rapport global (Historique complet)")
     };
-    return labels[_period] || (isAr ? 'تقرير' : 'Report');
+    return labels[_period] || I18n.choose('Report', 'تقرير', 'Rapport');
   }
 
   function renderReport() {
@@ -131,18 +130,18 @@ const Reports = (() => {
         <div class="report-section-icon" style="background:rgba(6,214,160,0.1);color:var(--accent)">📊</div>
         <div>
           <div style="font-weight:600">${getPeriodLabel()}</div>
-          <div style="font-size:0.78rem;color:var(--text-muted)">${I18n.getLang() === 'ar' ? 'تم التوليد في:' : 'Generated:'} ${new Date().toLocaleString()}</div>
+          <div style="font-size:0.78rem;color:var(--text-muted)">${I18n.choose('Generated:', 'تم التوليد في:', 'Généré :')} ${new Date().toLocaleString()}</div>
         </div>
       </div>
       <div class="kpi-grid" style="padding:20px;margin-bottom:0">
         ${metricBox('💰', t('th_revenue'), UI.fmtCurrency(d.revenue), 'green')}
         ${metricBox('📈', t('kpi_profit'), UI.fmtCurrency(d.profit), 'purple')}
-        ${metricBox('🔄', I18n.getLang() === 'ar' ? 'صافي الربح' : 'Net Profit', UI.fmtCurrency(d.netProfit), d.netProfit >= 0 ? 'green' : 'red')}
-        ${metricBox('💸', I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Biz Expenses', UI.fmtCurrency(d.bizExpTotal), 'orange')}
-        ${metricBox('📦', I18n.getLang() === 'ar' ? 'تكاليف الاستيراد' : 'Import Costs', UI.fmtCurrency(d.impExpTotal), 'orange')}
+        ${metricBox('🔄', I18n.choose('Net Profit', 'صافي الربح', 'Bénéfice net'), UI.fmtCurrency(d.netProfit), d.netProfit >= 0 ? 'green' : 'red')}
+        ${metricBox('💸', I18n.choose('Biz Expenses', 'مصاريف العمل', 'Dépenses prof.'), UI.fmtCurrency(d.bizExpTotal), 'orange')}
+        ${metricBox('📦', I18n.choose('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation'), UI.fmtCurrency(d.impExpTotal), 'orange')}
         ${metricBox('📊', t('th_margin'), UI.fmtPct(d.margin), 'blue')}
-        ${metricBox('🛒', I18n.getLang() === 'ar' ? 'عمليات البيع' : 'Sales Made', d.sales.length, 'teal')}
-        ${metricBox('📦', I18n.getLang() === 'ar' ? 'الوحدات المباعة' : 'Units Sold', d.unitsSold, 'indigo')}
+        ${metricBox('🛒', I18n.choose('Sales Made', 'عمليات البيع', 'Ventes réalisées'), d.sales.length, 'teal')}
+        ${metricBox('📦', I18n.choose('Units Sold', 'الوحدات المباعة', 'Unités vendues'), d.unitsSold, 'indigo')}
       </div>
     </div>
 
@@ -150,7 +149,7 @@ const Reports = (() => {
     <div class="report-section">
       <div class="report-section-header">
         <div class="report-section-icon" style="background:rgba(124,58,237,0.1);color:var(--primary-light)">🛒</div>
-        <div style="font-weight:600">${I18n.getLang() === 'ar' ? 'تفاصيل المبيعات' : 'Sales Breakdown'}</div>
+        <div style="font-weight:600">${I18n.choose('Sales Breakdown', 'تفاصيل المبيعات', 'Détails des ventes')}</div>
       </div>
       ${d.sales.length ? `
       <div style="overflow-x:auto"><table>
@@ -171,14 +170,14 @@ const Reports = (() => {
         </tbody>
         <tfoot>
           <tr style="background:var(--bg-elevated)">
-            <td colspan="3" style="font-weight:700;padding:12px 14px">${I18n.getLang() === 'ar' ? 'الإجمالي' : 'TOTAL'}</td>
+            <td colspan="3" style="font-weight:700;padding:12px 14px">${I18n.choose('TOTAL', 'الإجمالي', 'TOTAL')}</td>
             <td class="text-accent fw-600" style="padding:12px 14px">${UI.fmtCurrency(d.revenue)}</td>
             <td class="td-muted" style="padding:12px 14px">${UI.fmtCurrency(d.costOfGoods)}</td>
             <td class="${d.profit >= 0 ? 'text-success' : 'text-danger'} fw-600" style="padding:12px 14px">${UI.fmtCurrency(d.profit)}</td>
             <td colspan="3"></td>
           </tr>
         </tfoot>
-      </table></div>` : `<div class="empty-state" style="padding:40px"><div class="empty-icon">🛒</div><h3>${I18n.getLang() === 'ar' ? 'لا توجد مبيعات في هذه الفترة' : 'No sales in this period'}</h3></div>`}
+      </table></div>` : `<div class="empty-state" style="padding:40px"><div class="empty-icon">🛒</div><h3>${I18n.choose('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</h3></div>`}
     </div>
 
     <!-- Best Selling Products -->
@@ -194,11 +193,11 @@ const Reports = (() => {
           <div style="width:28px;height:28px;border-radius:50%;background:${i === 0 ? 'rgba(245,158,11,0.2)' : i === 1 ? 'rgba(148,163,184,0.1)' : i === 2 ? 'rgba(180,120,60,0.1)' : 'rgba(124,58,237,0.08)'};display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:${i === 0 ? 'var(--warning)' : i === 1 ? '#94A3B8' : 'var(--text-muted)'}">${i + 1}</div>
           <div style="flex:1">
             <div style="font-weight:600">${p.name}</div>
-            <div style="font-size:0.78rem;color:var(--text-muted)">${p.qty} ${I18n.getLang() === 'ar' ? 'وحدات مباعة' : 'units sold'}</div>
+            <div style="font-size:0.78rem;color:var(--text-muted)">${p.qty} ${I18n.choose('units sold', 'وحدات مباعة', 'unités vendues')}</div>
           </div>
           <div style="text-align:right">
             <div class="text-accent fw-600">${UI.fmtCurrency(p.revenue)}</div>
-            <div style="font-size:0.78rem;color:var(--success)">${UI.fmtCurrency(p.profit)} ${I18n.getLang() === 'ar' ? 'أرباح' : 'profit'}</div>
+            <div style="font-size:0.78rem;color:var(--success)">${UI.fmtCurrency(p.profit)} ${I18n.choose('profit', 'أرباح', 'bénéfice')}</div>
           </div>
         </div>`).join('')}
       </div>
@@ -209,10 +208,10 @@ const Reports = (() => {
     <div class="report-section">
       <div class="report-section-header">
         <div class="report-section-icon" style="background:rgba(239,68,68,0.1);color:var(--danger)">🏢</div>
-        <div style="font-weight:600">${I18n.getLang() === 'ar' ? 'مصاريف العمل' : 'Business Expenses'} — ${UI.fmtCurrency(d.bizExpTotal)}</div>
+        <div style="font-weight:600">${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')} — ${UI.fmtCurrency(d.bizExpTotal)}</div>
       </div>
       <div style="overflow-x:auto"><table>
-        <thead><tr><th>${I18n.getLang() === 'ar' ? 'العنوان' : 'Title'}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th></tr></thead>
+        <thead><tr><th>${I18n.choose('Title', 'العنوان', 'Titre')}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th></tr></thead>
         <tbody>
           ${d.bizExp.map(e => `
           <tr>
@@ -230,7 +229,7 @@ const Reports = (() => {
     <div class="report-section">
       <div class="report-section-header">
         <div class="report-section-icon" style="background:rgba(59,130,246,0.1);color:#60A5FA">🏪</div>
-        <div style="font-weight:600">${I18n.getLang() === 'ar' ? 'لقطة للمخزون الحالي — القيمة:' : 'Current Inventory Snapshot — Value:'} ${UI.fmtCurrency(inventoryValue)}</div>
+        <div style="font-weight:600">${I18n.choose('Current Inventory Snapshot — Value:', 'لقطة للمخزون الحالي — القيمة:', 'Aperçu actuel du stock — Valeur :')} ${UI.fmtCurrency(inventoryValue)}</div>
       </div>
       <div style="overflow-x:auto"><table>
         <thead><tr><th>${t('th_product')}</th><th>${t('th_code')}</th><th>${t('th_in_stock')}</th><th>${t('th_cpu')}</th><th>${t('th_stock_value')}</th><th>${t('th_status')}</th></tr></thead>
@@ -334,7 +333,7 @@ const Reports = (() => {
     }
 
     doc.save(`SmartIMS-${_period}-report-${now.replace(/\//g, '-')}.pdf`);
-    UI.toast('success', 'PDF Exported', 'Report downloaded successfully.');
+    UI.toast('success', I18n.choose('PDF Exported', 'تم تصدير PDF', 'PDF exporté'), I18n.choose('Report downloaded successfully.', 'تم تنزيل التقرير بنجاح.', 'Rapport téléchargé avec succès.'));
   }
 
   // ── Excel Export ──────────────────────────
@@ -393,7 +392,7 @@ const Reports = (() => {
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary');
 
         XLSX.writeFile(wb, `${filename}.xlsx`);
-        UI.toast('success', t('btn_export_excel') || 'Excel Exported', 'Spreadsheet downloaded successfully.');
+        UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', 'تم تصدير الإكسل', 'Excel exporté'), I18n.choose('Spreadsheet downloaded successfully.', 'تم تنزيل جدول البيانات بنجاح.', 'Tableau téléchargé avec succès.'));
         return;
       } catch (err) {
         console.warn('XLSX export failed, falling back to CSV:', err);
@@ -412,7 +411,7 @@ const Reports = (() => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    UI.toast('success', t('btn_export_excel') || 'Excel Exported', 'Spreadsheet downloaded successfully.');
+    UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', 'تم تصدير الإكسل', 'Excel exporté'), I18n.choose('Spreadsheet downloaded successfully.', 'تم تنزيل جدول البيانات بنجاح.', 'Tableau téléchargé avec succès.'));
   }
 
   return { render, setPeriod, exportPDF, exportExcel };

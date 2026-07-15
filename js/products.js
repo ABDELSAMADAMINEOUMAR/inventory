@@ -17,7 +17,7 @@ const Products = (() => {
       <div class="page-header">
         <div class="page-title">
           <h2>📦 ${t('page_products')}</h2>
-          <p>${products.length} ${I18n.getLang() === 'ar' ? 'منتجات في الكتالوج' : 'products in catalogue'}</p>
+          <p>${products.length} ${I18n.choose('products in catalogue', 'منتجات في الكتالوج', 'produits dans le catalogue')}</p>
         </div>
         <div class="page-actions">
           ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Products.openAdd()">
@@ -30,14 +30,14 @@ const Products = (() => {
       <div class="filter-bar">
         <div class="filter-search">
           <svg class="filter-search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="input filter-search" id="prodSearch" placeholder="${I18n.getLang() === 'ar' ? 'ابحث عن اسم أو رمز…' : 'Search by name or code…'}" oninput="Products.setFilter('search', this.value)">
+          <input class="input filter-search" id="prodSearch" placeholder="${I18n.choose('Search by name or code…', 'ابحث عن اسم أو رمز…', 'Rechercher par nom ou code…')}" oninput="Products.setFilter('search', this.value)">
         </div>
         <select class="select" id="catFilter" onchange="Products.setFilter('cat', this.value)">
-          <option value="">${I18n.getLang() === 'ar' ? 'جميع الفئات' : 'All Categories'}</option>
+          <option value="">${I18n.choose('All Categories', 'جميع الفئات', 'Toutes les catégories')}</option>
           ${DB.getAll('categories').map(c => `<option value="${c.id}">${c.name}</option>`).join('')}
         </select>
         <select class="select" id="statusFilter" onchange="Products.setFilter('status', this.value)">
-          <option value="">${I18n.getLang() === 'ar' ? 'جميع الحالات' : 'All Status'}</option>
+          <option value="">${I18n.choose('All Status', 'جميع الحالات', 'Tous les statuts')}</option>
           <option value="available">${t('status_available')}</option>
           <option value="low">${t('status_low')}</option>
           <option value="out">${t('status_out')}</option>
@@ -95,7 +95,7 @@ const Products = (() => {
     const data = filtered();
 
     if (!data.length) {
-      body.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.getLang() === 'ar' ? 'لم يتم العثور على منتجات' : 'No products found'}</h3><p>${I18n.getLang() === 'ar' ? 'أضف منتجك الأول أو اضبط الفلاتر.' : 'Add your first product or adjust the filters.'}</p><button class="btn btn-primary" onclick="Products.openAdd()">${t('btn_add_product')}</button></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.choose('No products found', 'لم يتم العثور على منتجات', 'Aucun produit trouvé')}</h3><p>${I18n.choose('Add your first product or adjust the filters.', 'أضف منتجك الأول أو اضبط الفلاتر.', 'Ajoutez votre premier produit ou ajustez les filtres.')}</p><button class="btn btn-primary" onclick="Products.openAdd()">${t('btn_add_product')}</button></div></td></tr>`;
       return;
     }
 
@@ -149,7 +149,7 @@ const Products = (() => {
         <div class="img-upload" id="imgUpload" onclick="document.getElementById('imgInput').click()">
           <input type="file" id="imgInput" accept="image/*" onchange="Products.handleImage(event)">
           <div id="imgPreviewWrap">
-            ${p.image ? `<img src="${p.image}" class="img-preview" id="imgPreview">` : `<div class="img-upload-icon">📷</div><p>${I18n.getLang() === 'ar' ? 'انقر لرفع صورة المنتج' : 'Click to upload product image'}</p><small>${I18n.getLang() === 'ar' ? 'JPG، PNG، WebP — بحد أقصى 2 ميجابايت' : 'JPG, PNG, WebP — max 2MB'}</small>`}
+            ${p.image ? `<img src="${p.image}" class="img-preview" id="imgPreview">` : `<div class="img-upload-icon">📷</div><p>${I18n.choose('Click to upload product image', 'انقر لرفع صورة المنتج', 'Cliquez pour télécharger l\'image du produit')}</p><small>${I18n.choose('JPG, PNG, WebP — max 2MB', 'JPG، PNG، WebP — بحد أقصى 2 ميجابايت', 'JPG, PNG, WebP — max 2 Mo')}</small>`}
           </div>
         </div>
       </div>
@@ -165,7 +165,7 @@ const Products = (() => {
         <label>${t('lbl_category')} <span class="req">*</span></label>
         <input class="input" type="text" id="fCatSearch" placeholder="🔍 Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
         <select class="select" id="fCat" required>
-          <option value="">${I18n.getLang() === 'ar' ? 'اختر فئة' : 'Select category'}</option>
+          <option value="">${I18n.choose('Select category', 'اختر فئة', 'Sélectionner une catégorie')}</option>
           ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>${c.name}</option>`).join('')}
         </select>
       </div>
@@ -188,7 +188,7 @@ const Products = (() => {
       </div>
       <div class="field col-span-2">
         <label>${t('lbl_desc')}</label>
-        <textarea class="textarea" id="fDesc" placeholder="${I18n.getLang() === 'ar' ? 'وصف المنتج…' : 'Product description…'}">${p.description||''}</textarea>
+        <textarea class="textarea" id="fDesc" placeholder="${I18n.choose('Product description…', 'وصف المنتج…', 'Description du produit…')}">${p.description||''}</textarea>
       </div>
     </div>
 
@@ -223,7 +223,7 @@ const Products = (() => {
         ${types.map(typ => `<option value="${typ}" ${e.expenseType===typ?'selected':''}>${t('exp_' + typ.replace(/\s+/g, '_')) || typ}</option>`).join('')}
       </select>
       <input class="input expense-amount" type="text" inputmode="decimal" value="${e.amount||''}" placeholder="Amount (${UI.getCurrency()})" oninput="Products.calcPreview()">
-      <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">🗑️ Delete</button>
+      <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">🗑️ ${I18n.choose('Delete', 'حذف', 'Supprimer')}</button>
     </div>`;
   }
 
@@ -265,10 +265,10 @@ const Products = (() => {
     if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to add products.'); return; }
     _editId = null;
     _imgData = null;
-    UI.createModal('productModal', '📦 Add New Product',
+    UI.createModal('productModal', `📦 ${I18n.choose('Add New Product', 'إضافة منتج جديد', 'Ajouter un nouveau produit')}`,
       buildForm(),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Products.save()">💾 Save Product</button>`,
+      `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
+       <button class="btn btn-primary" onclick="Products.save()">💾 ${I18n.choose('Save Product', 'حفظ المنتج', 'Enregistrer le produit')}</button>`,
       'modal-lg'
     );
     calcPreview();
@@ -280,10 +280,10 @@ const Products = (() => {
     _imgData = null;
     const p = DB.getEnrichedProduct(id);
     if (!p) return;
-    UI.createModal('productModal', '✏️ Edit Product',
+    UI.createModal('productModal', `✏️ ${I18n.choose('Edit Product', 'تعديل المنتج', 'Modifier le produit')}`,
       buildForm(p),
-      `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="Products.save()">💾 Update Product</button>`,
+      `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
+       <button class="btn btn-primary" onclick="Products.save()">💾 ${I18n.choose('Update Product', 'تحديث المنتج', 'Mettre à jour le produit')}</button>`,
       'modal-lg'
     );
     calcPreview();
@@ -358,17 +358,17 @@ const Products = (() => {
     if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to delete products.'); return; }
     const p = DB.getById('products', id);
     if (!p) return;
-    const ok = await UI.confirm('Delete Product?', `"${p.name}" will be permanently deleted along with all its expenses.`);
+    const ok = await UI.confirm(I18n.choose('Delete Product?', 'حذف المنتج؟', 'Supprimer le produit ?'), `"${p.name}" ` + I18n.choose('will be permanently deleted along with all its expenses.', 'سيتم حذفه نهائياً مع جميع مصاريفه.', 'sera définitivement supprimé ainsi que toutes ses dépenses.'));
     if (!ok) return;
     try {
       const exps = DB.query('productExpenses', e => e.productId === id);
       for (const e of exps) { await DB.remove('productExpenses', e.id); }
       await DB.remove('products', id);
     } catch (err) {
-      UI.toast('error', 'Not Allowed', err.message || 'The server rejected this action.');
+      UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
       return;
     }
-    UI.toast('success', 'Product Deleted');
+    UI.toast('success', I18n.choose('Product Deleted', 'تم حذف المنتج', 'Produit supprimé'));
     renderTable();
   }
 
@@ -420,8 +420,8 @@ const Products = (() => {
     ${p.description ? `<div class="divider"></div><p style="color:var(--text-secondary);font-size:0.875rem">${p.description}</p>` : ''}`;
 
     UI.createModal('viewProdModal', `📦 ${p.name}`, body,
-      `<button class="btn btn-ghost" onclick="UI.closeModal('viewProdModal')">Close</button>
-       <button class="btn btn-primary" onclick="UI.closeModal('viewProdModal');Products.openEdit(${p.id})">Edit</button>`,
+      `<button class="btn btn-ghost" onclick="UI.closeModal('viewProdModal')">${I18n.choose('Close', 'إغلاق', 'Fermer')}</button>
+       <button class="btn btn-primary" onclick="UI.closeModal('viewProdModal');Products.openEdit(${p.id})">${I18n.choose('Edit', 'تعديل', 'Modifier')}</button>`,
       'modal-lg'
     );
   }
