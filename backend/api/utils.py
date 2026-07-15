@@ -92,7 +92,7 @@ def send_verification_email(user, request=None):
                 f"========================================================================")
     print(f"\n========================================================================\n"
           f"CLICKABLE VERIFICATION LINK (Copy this exact line):\n{link}\n"
-          f"========================================================================")
+          f"========================================================================\n", flush=True)
     try:
         send_mail(
             subject="SmartIMS: Activate Your Account & Set Password",

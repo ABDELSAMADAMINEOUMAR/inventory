@@ -152,7 +152,7 @@ class RequestPasswordResetView(views.APIView):
                         f"========================================================================")
             print(f"\n========================================================================\n"
                   f"CLICKABLE RESET LINK (Copy this exact line):\n{reset_link}\n"
-                  f"========================================================================")
+                  f"========================================================================\n", flush=True)
             try:
                 send_mail(
                     subject="Password Reset Request - SmartIMS",

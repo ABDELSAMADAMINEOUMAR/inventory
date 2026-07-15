@@ -186,6 +186,6 @@ if EMAIL_HOST:
     EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
     EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 else:
-    EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+    EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'api.mail_backend.CleanConsoleEmailBackend')
 
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', 'support@smartims.com')
