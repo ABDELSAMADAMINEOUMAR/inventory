@@ -118,11 +118,6 @@
             style="width:100%; padding: 13px; font-size: 0.96rem; margin-top: 10px; border-radius: 12px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 10px 25px -5px rgba(124, 58, 237, 0.45);">
             Sign In to Workspace →
           </button>
-          <div style="margin-top:14px; text-align:center;">
-            <a href="#" onclick="if(confirm('Clear device cache and reset local storage? This removes leftover offline accounts on this device.')) { if(typeof DB !== 'undefined' && DB.clearAll) DB.clearAll(); localStorage.clear(); sessionStorage.clear(); window.location.reload(); } return false;" style="font-size:0.78rem; color:#64748b; text-decoration:none; display:inline-flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#64748b'">
-              🧹 Clear Device Cache & Reset Storage
-            </a>
-          </div>
         </form>
       </div>
     </div>
