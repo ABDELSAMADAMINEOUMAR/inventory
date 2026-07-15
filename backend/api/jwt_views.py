@@ -147,6 +147,12 @@ class RequestPasswordResetView(views.APIView):
             if ".github.io" in origin and "/inventory" not in origin:
                 origin = f"{origin.rstrip('/')}/inventory"
             reset_link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
+            logger.info(f"\n========================================================================\n"
+                        f"CLICKABLE RESET LINK (Copy this exact line):\n{reset_link}\n"
+                        f"========================================================================")
+            print(f"\n========================================================================\n"
+                  f"CLICKABLE RESET LINK (Copy this exact line):\n{reset_link}\n"
+                  f"========================================================================")
             try:
                 send_mail(
                     subject="Password Reset Request - SmartIMS",

@@ -87,6 +87,12 @@ def send_verification_email(user, request=None):
         if ".github.io" in origin and "/inventory" not in origin:
             origin = f"{origin.rstrip('/')}/inventory"
     link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
+    logger.info(f"\n========================================================================\n"
+                f"CLICKABLE VERIFICATION LINK (Copy this exact line):\n{link}\n"
+                f"========================================================================")
+    print(f"\n========================================================================\n"
+          f"CLICKABLE VERIFICATION LINK (Copy this exact line):\n{link}\n"
+          f"========================================================================")
     try:
         send_mail(
             subject="SmartIMS: Activate Your Account & Set Password",
