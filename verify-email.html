@@ -224,8 +224,10 @@
         return;
       }
 
-      const uid = params.get('uid');
-      const token = params.get('token');
+      let uid = params.get('uid');
+      if (uid) uid = uid.replace(/=3D/g, '').replace(/^3D/, '').trim();
+      let token = params.get('token');
+      if (token) token = token.replace(/=3D/g, '').replace(/^3D/, '').trim();
 
       if (!uid || !token) {
         errText.textContent = 'Invalid verification link. Missing uid or token in URL.';

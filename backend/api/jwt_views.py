@@ -137,9 +137,15 @@ class RequestPasswordResetView(views.APIView):
         if user:
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN') or "http://127.0.0.1:8000"
-            if not origin or origin == "null":
-                origin = "http://127.0.0.1:8000"
+            referer = request.headers.get('Referer') or request.META.get('HTTP_REFERER')
+            req_origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN')
+            origin = "http://127.0.0.1:8000"
+            if referer and "verify-email.html" not in referer and "reset-password.html" not in referer:
+                origin = referer.split('?')[0].rsplit('/', 1)[0]
+            elif req_origin and req_origin != "null":
+                origin = req_origin
+                if ".github.io" in origin and "/inventory" not in origin:
+                    origin = f"{origin.rstrip('/')}/inventory"
             reset_link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
             try:
                 send_mail(
@@ -164,8 +170,12 @@ class ConfirmPasswordResetView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        uid = request.data.get('uid')
-        token = request.data.get('token')
+        uid = str(request.data.get('uid') or '').strip().replace('=3D', '')
+        if uid.startswith('3D'):
+            uid = uid[2:]
+        token = str(request.data.get('token') or '').strip().replace('=3D', '')
+        if token.startswith('3D'):
+            token = token[2:]
         new_password = request.data.get('new_password')
         if not uid or not token or not new_password:
             return Response({"detail": "uid, token, and new_password are required."}, status=status.HTTP_400_BAD_REQUEST)
@@ -206,10 +216,16 @@ class VerifyEmailView(views.APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request):
-        uid = str(request.data.get('uid') or '').strip()
-        token = str(request.data.get('token') or '').strip()
+        uid = str(request.data.get('uid') or '').strip().replace('=3D', '')
+        if uid.startswith('3D'):
+            uid = uid[2:]
+        token = str(request.data.get('token') or '').strip().replace('=3D', '')
+        if token.startswith('3D'):
+            token = token[2:]
         new_password = request.data.get('new_password')
-        email = str(request.data.get('email') or '').strip()
+        email = str(request.data.get('email') or '').strip().replace('=3D', '')
+        if email.startswith('3D'):
+            email = email[2:]
 
         if not uid or not new_password:
             return Response({"detail": "uid and new_password are required."}, status=status.HTTP_400_BAD_REQUEST)
