@@ -285,8 +285,6 @@ const Auth = (() => {
             const errData = await apiRes.json();
             return { success: false, message: errData.detail || 'Failed to update password.' };
           }
-          const newHash = await DB.hashPassword(newPwd);
-          await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash });
           return { success: true };
         }
       } catch (e) {}
