@@ -28,6 +28,16 @@ class UserSerializer(serializers.ModelSerializer):
         read_only_fields = ['created_at', 'updated_at']
 
     def validate(self, attrs):
+        if self.instance is not None:
+            if not attrs.get('email') and not self.instance.email:
+                import uuid
+                u_name = attrs.get('username') or self.instance.username or 'user'
+                attrs['email'] = f"{u_name}_{uuid.uuid4().hex[:6]}@internal.smartims.local"
+            if not attrs.get('username') and not self.instance.username:
+                u_name = attrs.get('name', '') or self.instance.name or ''
+                attrs['username'] = u_name.lower().replace(' ', '_') if u_name else (self.instance.email.split('@')[0] if self.instance.email else 'user')
+            return attrs
+
         username = attrs.get('username') or attrs.get('name', '').lower().replace(' ', '_')
         email = attrs.get('email')
         if not email:
