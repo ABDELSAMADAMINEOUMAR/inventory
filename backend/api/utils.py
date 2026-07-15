@@ -84,8 +84,8 @@ def send_verification_email(user, request=None):
             origin = referer.split('?')[0].rsplit('/', 1)[0]
         elif req_origin and req_origin != "null":
             origin = req_origin
-            if ".github.io" in origin and "/inventory" not in origin:
-                origin = f"{origin.rstrip('/')}/inventory"
+        if ".github.io" in origin and "/inventory" not in origin:
+            origin = f"{origin.rstrip('/')}/inventory"
     link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
     try:
         send_mail(
