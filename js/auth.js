@@ -74,6 +74,20 @@ const Auth = (() => {
               message: detail
             };
           }
+          if (detail.toLowerCase().includes('not been verified') || detail.toLowerCase().includes('activation link')) {
+            return {
+              success: false,
+              unverified: true,
+              email: email.trim(),
+              message: detail
+            };
+          }
+          if (res.status === 400 || res.status === 401 || res.status === 403) {
+            return {
+              success: false,
+              message: detail.startsWith('❌') ? detail : ('❌ ' + detail)
+            };
+          }
           throw new Error(detail);
         }
 

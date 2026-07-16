@@ -322,7 +322,15 @@
           btn.innerHTML = I18n.t('login_btn');
           btn.disabled = false;
         } else {
-          errText.textContent = result.message;
+          let msg = result.message || 'Error';
+          if (typeof I18n !== 'undefined' && I18n.choose) {
+            if (msg.includes('No account found')) {
+              msg = I18n.choose('❌ No account found with this username or email address.', '❌ لا يوجد حساب مطابق لاسم المستخدم أو البريد الإلكتروني.', '❌ Aucun compte trouvé pour ce nom d\'utilisateur ou cet e-mail.');
+            } else if (msg.includes('Incorrect password')) {
+              msg = I18n.choose('❌ Incorrect password for this account.', '❌ كلمة المرور غير صحيحة لهذا الحساب.', '❌ Mot de passe incorrect pour ce compte.');
+            }
+          }
+          errText.textContent = msg;
           err.classList.add('show');
           btn.innerHTML = I18n.t('login_btn');
           btn.disabled = false;
