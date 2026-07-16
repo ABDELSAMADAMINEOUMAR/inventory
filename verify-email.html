@@ -166,7 +166,8 @@
       </div>
 
       <div class="login-success" id="verifySuccess">
-        ✓ Email verified & password set successfully!<br><span style="font-size:0.8rem; font-weight:400;">Redirecting to sign-in screen...</span>
+        <div data-i18n="activate_success_title">✓ Email verified & password set successfully!</div>
+        <div style="font-size:0.8rem; font-weight:400; margin-top:4px;" data-i18n="activate_success_sub">Redirecting to sign-in screen...</div>
       </div>
 
       <form id="verifyForm" onsubmit="handleVerifySubmit(event)">
@@ -177,12 +178,12 @@
 
         <div class="form-group">
           <label for="newPassword" data-i18n="activate_create_pwd">Create Permanent Password</label>
-          <input type="password" id="newPassword" class="input" placeholder="At least 6 characters" required minlength="6">
+          <input type="password" id="newPassword" class="input" placeholder="At least 6 characters" data-i18n-ph="activate_ph_min" required minlength="6">
         </div>
 
         <div class="form-group" style="margin-bottom: 22px;">
           <label for="confirmPassword" data-i18n="activate_confirm_pwd">Confirm Password</label>
-          <input type="password" id="confirmPassword" class="input" placeholder="Re-enter permanent password" required minlength="6">
+          <input type="password" id="confirmPassword" class="input" placeholder="Re-enter permanent password" data-i18n-ph="activate_ph_confirm" required minlength="6">
         </div>
 
         <button type="submit" class="btn" id="verifyBtn" data-i18n="activate_btn">
@@ -190,7 +191,7 @@
         </button>
 
         <div style="text-align: center; margin-top: 18px;">
-          <a href="index.html" style="font-size: 0.85rem; color: #8b5cf6; text-decoration: none; font-weight: 600;">← Back to Sign In</a>
+          <a href="index.html" style="font-size: 0.85rem; color: #8b5cf6; text-decoration: none; font-weight: 600;" data-i18n="activate_back">← Back to Sign In</a>
         </div>
       </form>
     </div>
@@ -198,6 +199,7 @@
 
   <script src="js/i18n.js"></script>
   <script>
+    if (typeof I18n !== 'undefined') I18n.init();
     const params = new URLSearchParams(window.location.search);
     const emailParam = params.get('email');
     if (emailParam) {
@@ -219,7 +221,7 @@
       const cp = document.getElementById('confirmPassword').value;
 
       if (np !== cp) {
-        errText.textContent = 'Passwords do not match.';
+        errText.textContent = I18n.t('activate_err_match');
         err.classList.add('show');
         return;
       }
@@ -230,13 +232,13 @@
       if (token) token = token.replace(/=3D/g, '').replace(/^3D/, '').trim();
 
       if (!uid || !token) {
-        errText.textContent = 'Invalid verification link. Missing uid or token in URL.';
+        errText.textContent = I18n.t('activate_err_link');
         err.classList.add('show');
         return;
       }
 
       btn.disabled = true;
-      btn.textContent = 'Verifying Account...';
+      btn.textContent = I18n.t('activate_verifying');
 
       let activated = false;
 
@@ -297,10 +299,10 @@
         localStorage.removeItem('sims_session');
         setTimeout(() => { window.location.href = 'index.html'; }, 1500);
       } else {
-        errText.textContent = 'Account not found or verification link expired.';
+        errText.textContent = I18n.t('activate_err_expired');
         err.classList.add('show');
         btn.disabled = false;
-        btn.textContent = 'Verify Email & Activate Account →';
+        btn.textContent = I18n.t('activate_btn');
       }
     }
     window.addEventListener('DOMContentLoaded', () => {

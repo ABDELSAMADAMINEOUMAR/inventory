@@ -39,6 +39,15 @@ const I18n = (() => {
       activate_create_pwd: 'Create Permanent Password',
       activate_confirm_pwd: 'Confirm Password',
       activate_btn: 'Verify Email & Activate Account →',
+      activate_ph_min: 'At least 6 characters',
+      activate_ph_confirm: 'Re-enter permanent password',
+      activate_back: '← Back to Sign In',
+      activate_err_match: 'Passwords do not match.',
+      activate_err_link: 'Invalid verification link. Missing uid or token in URL.',
+      activate_verifying: 'Verifying Account...',
+      activate_err_expired: 'Account not found or verification link expired.',
+      activate_success_title: '✓ Email verified & password set successfully!',
+      activate_success_sub: 'Redirecting to sign-in screen...',
 
       /* Page Titles */
       page_dashboard: 'Dashboard', page_products: 'Products',
@@ -202,6 +211,15 @@ const I18n = (() => {
       activate_create_pwd: 'إنشاء كلمة المرور الجديدة',
       activate_confirm_pwd: 'تأكيد كلمة المرور',
       activate_btn: 'تفعيل الحساب وتعيين كلمة المرور ←',
+      activate_ph_min: 'على الأقل 6 أحرف',
+      activate_ph_confirm: 'أعد إدخال كلمة المرور الدائمة',
+      activate_back: '← العودة إلى تسجيل الدخول',
+      activate_err_match: 'كلمتا المرور غير متطابقتين.',
+      activate_err_link: 'رابط التفعيل غير صالح. مفقود uid أو token في الرابط.',
+      activate_verifying: 'جاري تفعيل الحساب...',
+      activate_err_expired: 'الحساب غير موجود أو رابط التفعيل منتهي الصلاحية.',
+      activate_success_title: '✓ تم تأكيد البريد وتعيين كلمة المرور بنجاح!',
+      activate_success_sub: 'جاري التوجيه إلى شاشة تسجيل الدخول...',
 
       /* Page Titles */
       page_dashboard: 'لوحة التحكم', page_products: 'المنتجات',
@@ -365,6 +383,15 @@ const I18n = (() => {
       activate_create_pwd: 'Créer un mot de passe permanent',
       activate_confirm_pwd: 'Confirmer le mot de passe',
       activate_btn: 'Vérifier l\'e-mail et activer le compte →',
+      activate_ph_min: 'Au moins 6 caractères',
+      activate_ph_confirm: 'Saisissez à nouveau le mot de passe permanent',
+      activate_back: '← Retour à la connexion',
+      activate_err_match: 'Les mots de passe ne correspondent pas.',
+      activate_err_link: 'Lien de vérification invalide. uid ou token manquant.',
+      activate_verifying: 'Vérification du compte en cours...',
+      activate_err_expired: 'Compte introuvable ou lien de vérification expiré.',
+      activate_success_title: '✓ E-mail vérifié et mot de passe configuré avec succès !',
+      activate_success_sub: 'Redirection vers l\'écran de connexion...',
 
       /* Page Titles */
       page_dashboard: 'Tableau de bord', page_products: 'Produits',
