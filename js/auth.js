@@ -153,6 +153,9 @@ const Auth = (() => {
         if (!user.currency) user.currency = 'RWF';
 
         setSession(user);
+        if (typeof DB !== 'undefined' && typeof DB.flushOfflineQueue === 'function') {
+          setTimeout(() => { try { DB.flushOfflineQueue(); } catch(e) {} }, 100);
+        }
         return { success: true, user, must_change_password: user.must_change_password };
       } catch (e) {
         console.warn("Django JWT Login failed, falling back to local DB login:", e);
@@ -221,6 +224,9 @@ const Auth = (() => {
       try { DB.clearTenantCache(); } catch(e) {}
     }
     setSession(user);
+    if (typeof DB !== 'undefined' && typeof DB.flushOfflineQueue === 'function') {
+      setTimeout(() => { try { DB.flushOfflineQueue(); } catch(e) {} }, 100);
+    }
     return {
       success: true,
       user,

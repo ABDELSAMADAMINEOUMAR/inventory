@@ -89,6 +89,31 @@ const DB = (() => {
     }
   }
 
+  function _getOfflineQueueKey(tenantId) {
+    const tid = tenantId || getTenantId() || 'anon';
+    return PREFIX + 'offline_queue_' + tid;
+  }
+
+  function _addToOfflineQueue(table, action, recordId, data) {
+    if (table === 'companies' || table === 'users') return;
+    try {
+      const key = _getOfflineQueueKey();
+      const existing = JSON.parse(localStorage.getItem(key) || '[]');
+      existing.push({
+        id: 'q_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+        table,
+        action,
+        recordId,
+        data: data || null,
+        timestamp: _now()
+      });
+      localStorage.setItem(key, JSON.stringify(existing));
+      console.log(`[Offline Queue] Added ${action} on ${table} to queue (${key}).`);
+    } catch (e) {
+      console.warn('Failed to add to offline queue:', e);
+    }
+  }
+
   function _nextId(table) {
     const rows = _readTable(table);
     if (!rows.length) return 1;
@@ -247,6 +272,7 @@ const DB = (() => {
     }
     rows.push(row);
     _writeTable(table, rows);
+    _addToOfflineQueue(table, 'insert', row.id, row);
     return row;
   }
 
@@ -291,6 +317,7 @@ const DB = (() => {
     const rowOwner = rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || tenantId || 1;
     rows[idx] = _normalizeRecord(table, { ...rows[idx], ...data, userId: rowOwner, user_id: rowOwner, adminId: rowOwner, updatedAt: _now() });
     _writeTable(table, rows);
+    _addToOfflineQueue(table, 'update', rows[idx].id, rows[idx]);
     return rows[idx];
   }
 
@@ -329,6 +356,7 @@ const DB = (() => {
     }
     rows.splice(idx, 1);
     _writeTable(table, rows);
+    _addToOfflineQueue(table, 'remove', id, null);
     return true;
   }
 
@@ -649,6 +677,55 @@ const DB = (() => {
     return 'PRD-' + String(next).padStart(3, '0');
   }
 
+  async function flushOfflineQueue() {
+    if (typeof ApiClient === 'undefined') return 0;
+    try {
+      const isOnline = await ApiClient.checkHealth();
+      if (!isOnline) return 0;
+      const key = _getOfflineQueueKey();
+      const queue = JSON.parse(localStorage.getItem(key) || '[]');
+      if (!Array.isArray(queue) || queue.length === 0) return 0;
+
+      console.log(`[Offline Queue] Flushing ${queue.length} items to Django backend...`);
+      let successCount = 0;
+      const remaining = [];
+
+      for (const item of queue) {
+        try {
+          const endpoint = _apiEndpoint(item.table);
+          if (item.action === 'insert') {
+            const payload = _toServerPayload(item.table, item.data);
+            await ApiClient.insert(endpoint, payload);
+          } else if (item.action === 'update') {
+            const payload = _toServerPayload(item.table, item.data);
+            await ApiClient.update(endpoint, item.recordId, payload);
+          } else if (item.action === 'remove') {
+            await ApiClient.remove(endpoint, item.recordId);
+          }
+          successCount++;
+        } catch (err) {
+          console.warn(`[Offline Queue] Failed item ${item.id} (${item.action} on ${item.table}):`, err);
+          if (err.name === 'AbortError' || String(err.message).includes('Failed to fetch')) {
+            remaining.push(item);
+          }
+        }
+      }
+
+      if (remaining.length > 0) {
+        localStorage.setItem(key, JSON.stringify(remaining));
+      } else {
+        localStorage.removeItem(key);
+      }
+      if (successCount > 0) {
+        console.log(`[Offline Queue] Successfully flushed ${successCount} offline records to Django!`);
+      }
+      return successCount;
+    } catch (e) {
+      console.error('Error flushing offline queue:', e);
+      return 0;
+    }
+  }
+
   async function syncFromBackend() {
     if (typeof ApiClient === 'undefined') return false;
     try {
@@ -657,6 +734,7 @@ const DB = (() => {
         console.warn('Django API is offline or unreachable. Using local cache.');
         return false;
       }
+      await flushOfflineQueue();
       for (const table of TABLES) {
         if (table === 'users') continue;
         const endpoint = _apiEndpoint(table);
@@ -688,7 +766,7 @@ const DB = (() => {
 
   return {
     getAll, getRawAll, getTenantId, getById, insert, update, remove, query, count, sum,
-    clearAll, clearTenantCache, isInitialised, hashPassword, seed, syncFromBackend,
+    clearAll, clearTenantCache, flushOfflineQueue, isInitialised, hashPassword, seed, syncFromBackend,
     getProductTotalExpenses, getProductCostPerUnit, getProductTotalCost,
     getProductStock, getStockStatus, getEnrichedProduct, getAllEnrichedProducts,
     getEnrichedSale, getAllEnrichedSales,
