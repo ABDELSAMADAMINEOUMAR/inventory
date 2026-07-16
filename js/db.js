@@ -60,6 +60,16 @@ const DB = (() => {
       if (copy.expense_date !== undefined && copy.expenseDate === undefined) copy.expenseDate = copy.expense_date;
       if (copy.expenseDate !== undefined && copy.expense_date === undefined) copy.expense_date = copy.expenseDate;
     }
+    const tId = getTenantId();
+    if (copy.userId === undefined && copy.user_id === undefined && copy.adminId === undefined && copy.ownerId === undefined) {
+      if (copy.user !== undefined) {
+        copy.userId = copy.user;
+        copy.user_id = copy.user;
+      } else if (tId && table !== 'companies') {
+        copy.userId = tId;
+        copy.user_id = tId;
+      }
+    }
     return copy;
   }
 
@@ -117,31 +127,34 @@ const DB = (() => {
 
   function _tenantRows(table) {
     const all = _readTable(table);
-    // If we're running against the real backend, Django already
-    // scoped this data correctly — don't re-filter with the old heuristic.
-    if (typeof ApiClient !== 'undefined' && sessionStorage.getItem('sims_token')) {
-      return all;
-    }
     if (table === 'companies') return all;
     const tenantId = getTenantId();
     if (!tenantId) return all;
+
+    const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
+    if (uSess && uSess.role === 'platform_owner') return all;
+
     if (table === 'users') {
       return all.filter(u => {
         const uId = Number(u.id);
-        const uOwner = Number(u.userId || u.user_id || u.adminId || u.ownerId || 1);
+        const uOwner = Number(u.userId || u.user_id || u.adminId || u.ownerId || u.user || 1);
         const uComp = Number(u.company_id || u.company || 0);
         return uId === tenantId || uOwner === tenantId || (uComp && uComp === tenantId);
       });
     }
+
     const filtered = all.filter(r => {
-      const rOwner = Number(r.userId || r.user_id || r.adminId || r.ownerId || 1);
-      return rOwner === tenantId;
+      const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
+      if (rOwner === undefined || rOwner === null) return true;
+      return Number(rOwner) === tenantId;
     });
+
     if (table === 'categories' && filtered.length === 0) {
       _seedTenantCategories(tenantId);
       return _readTable('categories').filter(r => {
-        const rOwner = Number(r.userId || r.user_id || r.adminId || r.ownerId || 1);
-        return rOwner === tenantId;
+        const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
+        if (rOwner === undefined || rOwner === null) return true;
+        return Number(rOwner) === tenantId;
       });
     }
     return filtered;
@@ -339,6 +352,15 @@ const DB = (() => {
   /** Clear all data (factory reset) */
   function clearAll() {
     TABLES.forEach(t => localStorage.removeItem(_key(t)));
+  }
+
+  /** Clear only cached tenant data tables right on logout or account switch */
+  function clearTenantCache() {
+    const dataTables = ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
+    dataTables.forEach(t => {
+      localStorage.removeItem(_key(t));
+      sessionStorage.removeItem(_key(t));
+    });
   }
 
   /** Check if DB is initialised */
@@ -641,7 +663,15 @@ const DB = (() => {
         try {
           const serverData = await ApiClient.getAll(endpoint);
           if (Array.isArray(serverData)) {
-            const normalized = serverData.map(r => _normalizeRecord(table, r));
+            const tenantId = getTenantId();
+            const normalized = serverData.map(r => {
+              const rec = _normalizeRecord(table, r);
+              if (tenantId && rec.userId === undefined && rec.user_id === undefined && rec.adminId === undefined && rec.ownerId === undefined && rec.user === undefined) {
+                rec.userId = tenantId;
+                rec.user_id = tenantId;
+              }
+              return rec;
+            });
             localStorage.setItem(_key(table), JSON.stringify(normalized));
           }
         } catch (err) {
@@ -658,7 +688,7 @@ const DB = (() => {
 
   return {
     getAll, getRawAll, getTenantId, getById, insert, update, remove, query, count, sum,
-    clearAll, isInitialised, hashPassword, seed, syncFromBackend,
+    clearAll, clearTenantCache, isInitialised, hashPassword, seed, syncFromBackend,
     getProductTotalExpenses, getProductCostPerUnit, getProductTotalCost,
     getProductStock, getStockStatus, getEnrichedProduct, getAllEnrichedProducts,
     getEnrichedSale, getAllEnrichedSales,

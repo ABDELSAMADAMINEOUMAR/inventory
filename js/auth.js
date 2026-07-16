@@ -28,6 +28,16 @@ const Auth = (() => {
     localStorage.removeItem(SESSION_KEY);
     localStorage.removeItem('sims_token');
     localStorage.removeItem('sims_refresh');
+    // Wipe all cached tenant data tables immediately upon session termination
+    if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
+      try { DB.clearTenantCache(); } catch(e) {}
+    } else {
+      const TABLES = ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
+      TABLES.forEach(t => {
+        localStorage.removeItem('sims_' + t);
+        sessionStorage.removeItem('sims_' + t);
+      });
+    }
   }
 
   function isLoggedIn() {
@@ -65,6 +75,17 @@ const Auth = (() => {
             };
           }
           throw new Error(detail);
+        }
+
+        // Wipe old tenant cached data right before establishing new session
+        if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
+          try { DB.clearTenantCache(); } catch(e) {}
+        } else {
+          const TABLES = ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
+          TABLES.forEach(t => {
+            localStorage.removeItem('sims_' + t);
+            sessionStorage.removeItem('sims_' + t);
+          });
         }
 
         // Save tokens
@@ -195,6 +216,10 @@ const Auth = (() => {
     }
     if (!user.currency) user.currency = 'RWF';
 
+    // Wipe old tenant cached data right before establishing new session
+    if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
+      try { DB.clearTenantCache(); } catch(e) {}
+    }
     setSession(user);
     return {
       success: true,

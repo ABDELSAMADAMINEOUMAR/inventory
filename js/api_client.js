@@ -122,6 +122,9 @@ const ApiClient = (() => {
             localStorage.removeItem('sims_session');
             localStorage.removeItem('sims_token');
             localStorage.removeItem('sims_refresh');
+            if (typeof DB !== 'undefined' && DB.clearTenantCache) {
+              try { DB.clearTenantCache(); } catch(e) {}
+            }
             if (window.location.pathname.endsWith('app.html')) {
               window.location.href = 'index.html';
             }
