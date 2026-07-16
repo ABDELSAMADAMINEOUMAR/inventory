@@ -298,6 +298,8 @@ const Auth = (() => {
   let _expiredHandled = false;
   function handleExpiredSession() {
     if (_expiredHandled) return;
+    const sess = getSession();
+    if (sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine')) return;
     _expiredHandled = true;
     clearSession();
     try {

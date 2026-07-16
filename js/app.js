@@ -436,8 +436,9 @@ const UI = (() => {
     const hashPage = window.location.hash.slice(1);
     const page = (hashPage && allowed.includes(hashPage)) ? hashPage : defaultPage;
 
+    const isMasterOwner = user && (user.role === 'platform_owner' || user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine');
     const isLocalEmpty = typeof DB !== 'undefined' && DB.getAll('products').length === 0 && DB.getAll('sales').length === 0;
-    if (typeof DB !== 'undefined' && DB.syncFromBackend) {
+    if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner) {
       if (isLocalEmpty && (sessionStorage.getItem('sims_token') || localStorage.getItem('sims_token'))) {
         const cont = document.getElementById('mainContent');
         if (cont) {

@@ -113,6 +113,11 @@ const ApiClient = (() => {
           response = await fetch(`${BASE_URL}${endpoint}/`, config);
           clearTimeout(retryTimeoutId);
         } else {
+          const sess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
+          const isMasterOwner = sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com');
+          if (isMasterOwner) {
+            throw new Error('API request unauthorized or offline for master account.');
+          }
           if (typeof Auth !== 'undefined' && Auth.handleExpiredSession) {
             Auth.handleExpiredSession();
           } else if (typeof Auth !== 'undefined' && Auth.logout) {
@@ -205,20 +210,11 @@ const ApiClient = (() => {
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 30000);
-      const res = await fetch(`${BASE_URL}dashboard/`, { signal: controller.signal });
+      const headers = {};
+      const token = _getToken();
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      const res = await fetch(`${BASE_URL}dashboard/`, { headers, signal: controller.signal });
       clearTimeout(timeoutId);
-      if (res.status === 401 && _getToken()) {
-        const newToken = await _refreshToken();
-        if (newToken) {
-          _lastHealthResult = true;
-          _lastHealthCheck = Date.now();
-          return true;
-        } else {
-          if (typeof Auth !== 'undefined' && Auth.handleExpiredSession) {
-            Auth.handleExpiredSession();
-          }
-        }
-      }
       _lastHealthResult = res.status === 200 || res.status === 401 || res.status === 403;
       _lastHealthCheck = Date.now();
       return _lastHealthResult;

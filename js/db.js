@@ -728,6 +728,9 @@ const DB = (() => {
 
   async function syncFromBackend() {
     if (typeof ApiClient === 'undefined') return false;
+    const sess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
+    const isMasterOwner = sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine');
+    if (isMasterOwner) return false;
     try {
       const isOnline = await ApiClient.checkHealth();
       if (!isOnline) {
