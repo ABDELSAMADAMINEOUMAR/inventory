@@ -381,14 +381,6 @@ const UI = (() => {
     document.body.classList.remove('theme-nordic');
     if (!Auth.requireAuth()) return;
 
-    if (typeof DB !== 'undefined' && DB.syncFromBackend) {
-      DB.syncFromBackend().then(() => {
-        if (_currentPage && Auth.isLoggedIn()) {
-          navigate(_currentPage);
-        }
-      });
-    }
-
     // Auto-upgrade only the master platform owner account (`abdouamine@gmail.com`)
     let user = Auth.currentUser();
     if (user && user.role !== 'platform_owner' && (user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine')) {
@@ -443,7 +435,35 @@ const UI = (() => {
     const defaultPage = allowed[0] || 'dashboard';
     const hashPage = window.location.hash.slice(1);
     const page = (hashPage && allowed.includes(hashPage)) ? hashPage : defaultPage;
-    navigate(page);
+
+    const isLocalEmpty = typeof DB !== 'undefined' && DB.getAll('products').length === 0 && DB.getAll('sales').length === 0;
+    if (typeof DB !== 'undefined' && DB.syncFromBackend) {
+      if (isLocalEmpty && (sessionStorage.getItem('sims_token') || localStorage.getItem('sims_token'))) {
+        const cont = document.getElementById('mainContent');
+        if (cont) {
+          cont.innerHTML = `
+            <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center;">
+              <div class="spinner" style="width: 54px; height: 54px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: simsSpin 0.8s linear infinite; margin-bottom: 22px;"></div>
+              <h3 style="margin-bottom: 8px; font-size: 1.25rem; font-weight: 600; color: var(--text);">${I18n.choose('Syncing your workspace data...', 'جاري تحميل بيانات مساحة العمل...', 'Chargement des données de votre espace de travail...')}</h3>
+              <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 420px; line-height: 1.5;">${I18n.choose('Please wait a moment while we securely fetch your latest inventory and sales analytics from the cloud.', 'يرجى الانتظار قليلاً بينما نقوم بجلب أحدث بيانات المخزون والمبيعات من السحابة.', 'Veuillez patienter un instant pendant la récupération de vos données de stock et de ventes depuis le cloud.')}</p>
+            </div>
+            <style>@keyframes simsSpin { 100% { transform: rotate(360deg); } }</style>
+          `;
+        }
+        DB.syncFromBackend().finally(() => {
+          if (Auth.isLoggedIn()) navigate(page);
+        });
+      } else {
+        navigate(page);
+        DB.syncFromBackend().then(() => {
+          if (_currentPage && Auth.isLoggedIn()) {
+            navigate(_currentPage);
+          }
+        });
+      }
+    } else {
+      navigate(page);
+    }
 
     // Handle hash changes
     window.addEventListener('hashchange', () => {
