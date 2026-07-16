@@ -167,6 +167,7 @@ const Users = (() => {
 
     const pwHash = await DB.hashPassword(password);
     const currentUser = Auth.currentUser();
+    const tenantId = typeof DB !== 'undefined' && DB.getTenantId ? DB.getTenantId() : (currentUser?.company_id || currentUser?.id || 1);
     const generatedEmail = `${username}@${(currentUser?.company_name || 'store').replace(/[^a-z0-9]/gi, '')}.local`;
     const newUser = {
       username,
@@ -176,6 +177,10 @@ const Users = (() => {
       passwordHash: pwHash,
       password_hash: pwHash,
       role,
+      company_id: currentUser?.company_id || tenantId,
+      userId: tenantId,
+      user_id: tenantId,
+      adminId: tenantId,
       is_active: true,
       must_change_password: false,
       phone: '',

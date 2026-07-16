@@ -227,6 +227,9 @@ const Auth = (() => {
       return { success: false, message: '❌ Incorrect password for this account.' };
     }
 
+    if (!user.company_id && (user.adminId || user.userId || user.user_id)) {
+      user.company_id = user.adminId || user.userId || user.user_id;
+    }
     if (typeof DB !== 'undefined') {
       const comp = DB.getAll('companies').find(c => c.id == user.company_id);
       if (comp && comp.currency) user.currency = comp.currency;
