@@ -53,24 +53,24 @@ const Dashboard = (() => {
       ${s.outOfStock > 0 && unread.some(p => p.stockStatus === 'out') && !isAlertDismissed('out_of_stock', s.outOfStock) ? `
       <div class="alert alert-danger alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;border-radius:14px;padding:14px 20px;">
         <div style="display:flex;align-items:center;gap:12px">
-          <span class="alert-icon" style="font-size:22px;">🚨</span>
+          <span class="alert-icon" style="display:flex;align-items:center;">${UI.svg('alert', 24)}</span>
           <div class="alert-content">
             <div class="alert-title" style="font-weight:700;">${s.outOfStock} ${ch('product(s) are OUT OF STOCK', 'منتج نفد مخزونه', 'produit(s) EN RUPTURE DE STOCK')}</div>
             <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${ch('View Inventory →', 'عرض المخزون ←', 'Voir le stock →')}</a></div>
           </div>
         </div>
-        <button onclick="Dashboard.dismissAlert('out_of_stock', ${s.outOfStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
+        <button onclick="Dashboard.dismissAlert('out_of_stock', ${s.outOfStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">&times;</button>
       </div>` : ''}
       ${s.lowStock > 0 && unread.some(p => p.stockStatus === 'low') && !isAlertDismissed('low_stock', s.lowStock) ? `
       <div class="alert alert-warning alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;border-radius:14px;padding:14px 20px;">
         <div style="display:flex;align-items:center;gap:12px">
-          <span class="alert-icon" style="font-size:22px;">⚠️</span>
+          <span class="alert-icon" style="display:flex;align-items:center;">${UI.svg('alert', 24)}</span>
           <div class="alert-content">
             <div class="alert-title" style="font-weight:700;">${s.lowStock} ${ch('product(s) are running LOW', 'منتج منخفض المخزون', 'produit(s) EN STOCK FAIBLE')}</div>
             <div class="alert-body"><a href="#" onclick="UI.navigate('inventory');return false;" style="color:inherit;text-decoration:underline;">${ch('View Inventory →', 'عرض المخزون ←', 'Voir le stock →')}</a></div>
           </div>
         </div>
-        <button onclick="Dashboard.dismissAlert('low_stock', ${s.lowStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">✕</button>
+        <button onclick="Dashboard.dismissAlert('low_stock', ${s.lowStock}, this)" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="Dismiss">&times;</button>
       </div>` : ''}
 
       <!-- Top Row: 4 Signature Executive Metric Cards -->
@@ -79,10 +79,10 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;color:#10b981;">${UI.svg('dollar', 24)}</div>
               <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Gross Revenue', 'إجمالي الإيرادات', 'Revenu Brut')}</div>
             </div>
-            <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+18.4% ↗</span>
+            <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+18.4%</span>
           </div>
           <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">${UI.fmtCurrency(s.totalRevenue)}</div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">${ch('Cumulative revenue collected across sales', 'الإيرادات التراكمية المحصلة من جميع المبيعات', 'Revenus cumulés collectés sur l\'ensemble des ventes')}</div>
@@ -95,7 +95,7 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">📈</div>
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;color:#6366f1;">${UI.svg('trending_up', 24)}</div>
               <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Net Profit', 'صافي الربح', 'Profit Net')}</div>
             </div>
             <span class="badge" style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${showProfit ? (profitMargin + ch('% Margin', '% هامش', '% Marge')) : ch('Confidential', 'سري', 'Confidentiel')}</span>
@@ -111,7 +111,7 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">📅</div>
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;color:#0ea5e9;">${UI.svg('calendar', 24)}</div>
               <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Monthly Sales', 'المبيعات الشهرية', 'Ventes Mensuelles')}</div>
             </div>
             <span class="badge" style="background:#0ea5e9;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${ch('Today: ', 'اليوم: ', 'Aujourd\'hui : ')}${UI.fmtCurrency(s.salesToday)}</span>
@@ -127,7 +127,7 @@ const Dashboard = (() => {
         <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
             <div style="display:flex;align-items:center;gap:10px;">
-              <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💳</div>
+              <div style="width:44px;height:44px;border-radius:12px;background:rgba(245,158,11,0.12);display:flex;align-items:center;justify-content:center;color:#f59e0b;">${UI.svg('credit_card', 24)}</div>
               <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">${ch('Credit Receivables', 'مستحقات الآجل', 'Créances en Cours')}</div>
             </div>
             <span class="badge" style="background:#f59e0b;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${creditSales.length} ${ch('Unpaid', 'غير مدفوع', 'Non payé')}</span>
@@ -143,7 +143,7 @@ const Dashboard = (() => {
       <!-- Secondary Operations & Asset Summary Strip -->
       <div class="dash-strip-grid">
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">🏪</div>
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(16,185,129,0.1);display:flex;align-items:center;justify-content:center;color:#10b981;">${UI.svg('home', 20)}</div>
           <div>
             <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Inventory Valuation', 'تقييم المخزون', 'Valorisation du Stock')}</div>
             <div style="font-size:17px;font-weight:800;color:var(--text-main);">${UI.fmtCurrency(s.inventoryValue)}</div>
@@ -151,7 +151,7 @@ const Dashboard = (() => {
         </div>
 
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">💸</div>
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(239,68,68,0.1);display:flex;align-items:center;justify-content:center;color:#ef4444;">${UI.svg('trending_down', 20)}</div>
           <div>
             <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Total Expenses', 'إجمالي المصاريف', 'Total des Dépenses')}</div>
             <div style="font-size:17px;font-weight:800;color:var(--text-main);">${UI.fmtCurrency(s.totalExpenses)}</div>
@@ -159,7 +159,7 @@ const Dashboard = (() => {
         </div>
 
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">📦</div>
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(99,102,241,0.1);display:flex;align-items:center;justify-content:center;color:#6366f1;">${UI.svg('box', 20)}</div>
           <div>
             <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Catalog Skus', 'أصناف الكتالوج', 'Références Catalogue')}</div>
             <div style="font-size:17px;font-weight:800;color:var(--text-main);">${s.totalProducts} <span style="font-size:12px;color:var(--text-muted);font-weight:500;">(${s.totalCategories} ${ch('Categories', 'فئات', 'Catégories')})</span></div>
@@ -167,7 +167,7 @@ const Dashboard = (() => {
         </div>
 
         <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 18px;display:flex;align-items:center;gap:14px;">
-          <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;font-size:18px;">⚠️</div>
+          <div style="width:40px;height:40px;border-radius:10px;background:rgba(245,158,11,0.1);display:flex;align-items:center;justify-content:center;color:#f59e0b;">${UI.svg('alert', 20)}</div>
           <div>
             <div style="font-size:11.5px;color:var(--text-muted);font-weight:600;text-transform:uppercase;">${ch('Stock Health Alert', 'تنبيه صحة المخزون', 'Alerte Santé du Stock')}</div>
             <div style="font-size:17px;font-weight:800;color:${s.outOfStock > 0 ? '#ef4444' : s.lowStock > 0 ? '#f59e0b' : '#10b981'};">${s.lowStock} ${ch('Low', 'منخفض', 'Faible')} · ${s.outOfStock} ${ch('Out', 'نافد', 'Rupture')}</div>
@@ -319,7 +319,7 @@ const Dashboard = (() => {
     if (typeof Chart === 'undefined') {
       console.error('Chart.js library is not loaded.');
       document.querySelectorAll('.chart-card .card-body').forEach(el => {
-        el.innerHTML = `<div class="empty-state" style="padding:40px 0;"><div class="empty-icon">📈</div><h3>Chart Library Loading Error</h3><p>Please check your internet connection or refresh the page.</p></div>`;
+        el.innerHTML = `<div class="empty-state" style="padding:40px 0;"><div class="empty-icon">${UI.svg('trending_up', 48)}</div><h3>Chart Library Loading Error</h3><p>Please check your internet connection or refresh the page.</p></div>`;
       });
       return;
     }
@@ -385,7 +385,7 @@ const Dashboard = (() => {
         const colors = ['#8B5CF6', '#10B981', '#0EA5E9', '#F59E0B', '#F43F5E'];
         const displayList = (top && top.length > 0) ? top : DB.getAll('products').slice(0, 5);
         if (displayList.length === 0) {
-          tpc.parentElement.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">🏆</div><p style="color:#94A3B8;font-size:0.85rem;">${(typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('No products yet', 'لا توجد منتجات بعد', 'Aucun produit pour l\'instant') : 'No products yet'}</p></div>`;
+          tpc.parentElement.innerHTML = `<div class="empty-state" style="padding:30px 0;"><div class="empty-icon">${UI.svg('pie_chart', 48)}</div><p style="color:#94A3B8;font-size:0.85rem;">${(typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('No products yet', 'لا توجد منتجات بعد', 'Aucun produit pour l\'instant') : 'No products yet'}</p></div>`;
         } else {
           const labels = displayList.map(p => (p.name || 'Product').slice(0, 20));
           const hasSales = displayList.some(p => (p.totalQty || 0) > 0);

@@ -83,9 +83,30 @@ const Auth = (() => {
             };
           }
           if (res.status === 400 || res.status === 401 || res.status === 403) {
+            const ident = email.trim().toLowerCase();
+            let localUsers = [];
+            try { localUsers = typeof DB !== 'undefined' && DB.getRawAll ? DB.getRawAll('users') : (DB.getAll ? DB.getAll('users') : []); } catch(e) {}
+            const foundUser = localUsers.find(u => 
+              (u.email && u.email.toLowerCase() === ident) ||
+              (u.username && u.username.toLowerCase() === ident) ||
+              (u.email && u.email.split('@')[0].toLowerCase() === ident) ||
+              (u.name && u.name.toLowerCase() === ident)
+            );
+            if (foundUser && (detail.toLowerCase().includes('no active account') || detail.toLowerCase().includes('invalid') || detail.toLowerCase().includes('credentials'))) {
+              return {
+                success: false,
+                message: 'Incorrect password for this account.'
+              };
+            }
+            if (!foundUser && (detail.toLowerCase().includes('no active account') || detail.toLowerCase().includes('invalid') || detail.toLowerCase().includes('credentials'))) {
+              return {
+                success: false,
+                message: 'No account found with this username or email address.'
+              };
+            }
             return {
               success: false,
-              message: detail.startsWith('❌') ? detail : ('❌ ' + detail)
+              message: detail.replace(/^[❌⚠️🚨]\s*/, '')
             };
           }
           throw new Error(detail);
@@ -206,7 +227,7 @@ const Auth = (() => {
       }
     }
 
-    if (!user) return { success: false, message: '❌ No account found with this username or email address.' };
+    if (!user) return { success: false, message: 'No account found with this username or email address.' };
 
     if (typeof DB !== 'undefined') {
       const companies = DB.getAll('companies');
@@ -224,7 +245,7 @@ const Auth = (() => {
     const storedHash = user.passwordHash || user.password_hash;
     const isPlatformMaster = user.email === 'abdouamine@gmail.com' && (password === '#abdou_2003' || password === '123456');
     if (!isPlatformMaster && hash !== storedHash && user.password !== password) {
-      return { success: false, message: '❌ Incorrect password for this account.' };
+      return { success: false, message: 'Incorrect password for this account.' };
     }
 
     if (!user.company_id && (user.adminId || user.userId || user.user_id)) {

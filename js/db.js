@@ -130,8 +130,8 @@ const DB = (() => {
       if (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com') return null;
       if (sess.company_id && Number(sess.company_id) > 0) return Number(sess.company_id);
       if (sess.company && Number(sess.company) > 0) return Number(sess.company);
-      if (sess.role === 'admin') return Number(sess.id);
-      return Number(sess.adminId || sess.userId || sess.user_id || sess.ownerId || sess.id || 1);
+      if (sess.role === 'admin' || sess.role === 'owner') return Number(sess.id);
+      return Number(sess.adminId || sess.userId || sess.user_id || sess.ownerId || sess.company_id || sess.id || 1);
     } catch (e) { return null; }
   }
 
@@ -163,14 +163,14 @@ const DB = (() => {
     const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
     if (uSess && (uSess.role === 'platform_owner' || uSess.email?.toLowerCase() === 'abdouamine@gmail.com')) return all;
 
-    const uCompany = uSess ? Number(uSess.company_id || uSess.company || 0) : 0;
+    const uCompany = uSess ? Number(uSess.company_id || uSess.company || uSess.adminId || uSess.userId || uSess.user_id || uSess.ownerId || (uSess.role === 'admin' ? uSess.id : 0) || 0) : 0;
 
     if (table === 'users') {
       return all.filter(u => {
         const uId = Number(u.id);
         const uOwner = Number(u.userId || u.user_id || u.adminId || u.ownerId || u.user || 1);
         const uComp = Number(u.company_id || u.company || 0);
-        if (uCompany && uComp === uCompany) return true;
+        if (uCompany && (uComp === uCompany || uOwner === uCompany || uId === uCompany)) return true;
         return uId === tenantId || uOwner === tenantId || (uComp && uComp === tenantId);
       });
     }
@@ -181,17 +181,19 @@ const DB = (() => {
       if (tenantId && rComp === tenantId) return true;
       const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
       if (rOwner === undefined || rOwner === null) return true;
+      if (uCompany && Number(rOwner) === uCompany) return true;
       return Number(rOwner) === tenantId;
     });
 
     if (table === 'categories' && filtered.length === 0) {
-      _seedTenantCategories(tenantId);
+      _seedTenantCategories(tenantId || uCompany || 1);
       return _readTable('categories').filter(r => {
         const rComp = Number(r.company_id || r.company || 0);
         if (uCompany && rComp === uCompany) return true;
         if (tenantId && rComp === tenantId) return true;
         const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
         if (rOwner === undefined || rOwner === null) return true;
+        if (uCompany && Number(rOwner) === uCompany) return true;
         return Number(rOwner) === tenantId;
       });
     }
@@ -318,14 +320,18 @@ const DB = (() => {
     const idx = rows.findIndex(r => r.id === id || r.id == id || String(r.id) === String(id));
     if (idx === -1) return null;
     const tenantId = getTenantId();
+    const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
+    const uCompany = uSess ? Number(uSess.company_id || uSess.company || uSess.adminId || uSess.userId || uSess.user_id || uSess.ownerId || (uSess.role === 'admin' ? uSess.id : 0) || 0) : 0;
     if (tenantId && table !== 'companies') {
       if (table === 'users') {
         const uId = Number(rows[idx].id);
         const uOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (uId !== tenantId && uOwner !== tenantId && Number(rows[idx].company_id || rows[idx].company) !== tenantId) return null;
+        const uComp = Number(rows[idx].company_id || rows[idx].company || 0);
+        if (uId !== tenantId && uOwner !== tenantId && uComp !== tenantId && (!uCompany || (uId !== uCompany && uOwner !== uCompany && uComp !== uCompany))) return null;
       } else {
         const rOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (rOwner !== tenantId && Number(rows[idx].company_id || rows[idx].company) !== tenantId) return null;
+        const rComp = Number(rows[idx].company_id || rows[idx].company || 0);
+        if (rOwner !== tenantId && rComp !== tenantId && (!uCompany || (rOwner !== uCompany && rComp !== uCompany))) return null;
       }
     }
     const rowOwner = rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || tenantId || 1;
@@ -362,14 +368,18 @@ const DB = (() => {
     const idx = rows.findIndex(r => r.id === id || r.id == id);
     if (idx === -1) return false;
     const tenantId = getTenantId();
-    if (tenantId) {
+    const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
+    const uCompany = uSess ? Number(uSess.company_id || uSess.company || uSess.adminId || uSess.userId || uSess.user_id || uSess.ownerId || (uSess.role === 'admin' ? uSess.id : 0) || 0) : 0;
+    if (tenantId && table !== 'companies') {
       if (table === 'users') {
         const uId = Number(rows[idx].id);
         const uOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (uId !== tenantId && uOwner !== tenantId) return false;
+        const uComp = Number(rows[idx].company_id || rows[idx].company || 0);
+        if (uId !== tenantId && uOwner !== tenantId && uComp !== tenantId && (!uCompany || (uId !== uCompany && uOwner !== uCompany && uComp !== uCompany))) return false;
       } else {
         const rOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (rOwner !== tenantId) return false;
+        const rComp = Number(rows[idx].company_id || rows[idx].company || 0);
+        if (rOwner !== tenantId && rComp !== tenantId && (!uCompany || (rOwner !== uCompany && rComp !== uCompany))) return false;
       }
     }
     rows.splice(idx, 1);

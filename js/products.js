@@ -16,12 +16,12 @@ const Products = (() => {
     <div class="fade-in">
       <div class="page-header">
         <div class="page-title">
-          <h2>📦 ${t('page_products')}</h2>
+          <h2 style="display:flex;align-items:center;gap:10px;">${UI.svg('box', 26)} ${t('page_products')}</h2>
           <p>${products.length} ${I18n.choose('products in catalogue', 'منتجات في الكتالوج', 'produits dans le catalogue')}</p>
         </div>
         <div class="page-actions">
-          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Products.openAdd()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Products.openAdd()" style="display:inline-flex;align-items:center;gap:6px;">
+            ${UI.svg('plus', 16)}
             ${t('btn_add_product')}
           </button>` : ''}
         </div>
@@ -95,7 +95,7 @@ const Products = (() => {
     const data = filtered();
 
     if (!data.length) {
-      body.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.choose('No products found', 'لم يتم العثور على منتجات', 'Aucun produit trouvé')}</h3><p>${I18n.choose('Add your first product or adjust the filters.', 'أضف منتجك الأول أو اضبط الفلاتر.', 'Ajoutez votre premier produit ou ajustez les filtres.')}</p><button class="btn btn-primary" onclick="Products.openAdd()">${t('btn_add_product')}</button></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="10"><div class="empty-state"><div class="empty-icon">${UI.svg('box', 48)}</div><h3>${I18n.choose('No products found', 'لم يتم العثور على منتجات', 'Aucun produit trouvé')}</h3><p>${I18n.choose('Add your first product or adjust the filters.', 'أضف منتجك الأول أو اضبط الفلاتر.', 'Ajoutez votre premier produit ou ajustez les filtres.')}</p><button class="btn btn-primary" onclick="Products.openAdd()">${t('btn_add_product')}</button></div></td></tr>`;
       return;
     }
 
@@ -104,7 +104,7 @@ const Products = (() => {
         <td>
           ${p.image
             ? `<img src="${p.image}" class="product-thumb" alt="${p.name}">`
-            : `<div class="product-thumb-placeholder">📦</div>`}
+            : `<div class="product-thumb-placeholder" style="display:flex;align-items:center;justify-content:center;color:var(--text-muted);">${UI.svg('box', 20)}</div>`}
         </td>
         <td><span class="badge badge-purple" style="font-family:monospace">${p.code}</span></td>
         <td>
@@ -126,9 +126,9 @@ const Products = (() => {
         <td>${stockBadge(p.stockStatus)}</td>
         <td>
           <div class="actions">
-            <button class="act-btn view" onclick="Products.view(${p.id})" title="View Details">👁</button>
-            ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Products.openEdit(${p.id})" title="Edit">✏️</button>
-            <button class="act-btn del"  onclick="Products.delete(${p.id})" title="Delete">🗑️</button>` : ''}
+            <button class="act-btn view" onclick="Products.view(${p.id})" title="View Details">${UI.svg('eye', 14)}</button>
+            ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Products.openEdit(${p.id})" title="Edit">${UI.svg('edit', 14)}</button>
+            <button class="act-btn del"  onclick="Products.delete(${p.id})" title="Delete">${UI.svg('del', 14)}</button>` : ''}
           </div>
         </td>
       </tr>`).join('');
@@ -149,7 +149,7 @@ const Products = (() => {
         <div class="img-upload" id="imgUpload" onclick="document.getElementById('imgInput').click()">
           <input type="file" id="imgInput" accept="image/*" onchange="Products.handleImage(event)">
           <div id="imgPreviewWrap">
-            ${p.image ? `<img src="${p.image}" class="img-preview" id="imgPreview">` : `<div class="img-upload-icon">📷</div><p>${I18n.choose('Click to upload product image', 'انقر لرفع صورة المنتج', 'Cliquez pour télécharger l\'image du produit')}</p><small>${I18n.choose('JPG, PNG, WebP — max 2MB', 'JPG، PNG، WebP — بحد أقصى 2 ميجابايت', 'JPG, PNG, WebP — max 2 Mo')}</small>`}
+            ${p.image ? `<img src="${p.image}" class="img-preview" id="imgPreview">` : `<div class="img-upload-icon" style="display:flex;align-items:center;justify-content:center;color:var(--primary);margin-bottom:8px;">${UI.svg('eye', 32)}</div><p>${I18n.choose('Click to upload product image', 'انقر لرفع صورة المنتج', 'Cliquez pour télécharger l\'image du produit')}</p><small>${I18n.choose('JPG, PNG, WebP — max 2MB', 'JPG، PNG، WebP — بحد أقصى 2 ميجابايت', 'JPG, PNG, WebP — max 2 Mo')}</small>`}
           </div>
         </div>
       </div>
@@ -163,7 +163,7 @@ const Products = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_category')} <span class="req">*</span></label>
-        <input class="input" type="text" id="fCatSearch" placeholder="🔍 Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
+        <input class="input" type="text" id="fCatSearch" placeholder="Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
         <select class="select" id="fCat" required>
           <option value="">${I18n.choose('Select category', 'اختر فئة', 'Sélectionner une catégorie')}</option>
           ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>${c.name}</option>`).join('')}
@@ -223,7 +223,7 @@ const Products = (() => {
         ${types.map(typ => `<option value="${typ}" ${e.expenseType===typ?'selected':''}>${t('exp_' + typ.replace(/\s+/g, '_')) || typ}</option>`).join('')}
       </select>
       <input class="input expense-amount" type="text" inputmode="decimal" value="${e.amount||''}" placeholder="Amount (${UI.getCurrency()})" oninput="Products.calcPreview()">
-      <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">🗑️ ${I18n.choose('Delete', 'حذف', 'Supprimer')}</button>
+      <button type="button" onclick="this.closest('.expense-row').remove();Products.calcPreview()" title="Delete Cost Item" style="background:#fee2e2;color:#dc2626;border:1px solid #fca5a5;border-radius:8px;padding:8px 14px;font-weight:700;font-size:0.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap;transition:0.2s;">${UI.svg('del', 14)} ${I18n.choose('Delete', 'حذف', 'Supprimer')}</button>
     </div>`;
   }
 
@@ -265,10 +265,10 @@ const Products = (() => {
     if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to add products.'); return; }
     _editId = null;
     _imgData = null;
-    UI.createModal('productModal', `📦 ${I18n.choose('Add New Product', 'إضافة منتج جديد', 'Ajouter un nouveau produit')}`,
+    UI.createModal('productModal', `${UI.svg('box', 20)} ${I18n.choose('Add New Product', 'إضافة منتج جديد', 'Ajouter un nouveau produit')}`,
       buildForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
-       <button class="btn btn-primary" onclick="Products.save()">💾 ${I18n.choose('Save Product', 'حفظ المنتج', 'Enregistrer le produit')}</button>`,
+       <button class="btn btn-primary" onclick="Products.save()">${I18n.choose('Save Product', 'حفظ المنتج', 'Enregistrer le produit')}</button>`,
       'modal-lg'
     );
     calcPreview();
@@ -280,10 +280,10 @@ const Products = (() => {
     _imgData = null;
     const p = DB.getEnrichedProduct(id);
     if (!p) return;
-    UI.createModal('productModal', `✏️ ${I18n.choose('Edit Product', 'تعديل المنتج', 'Modifier le produit')}`,
+    UI.createModal('productModal', `${UI.svg('edit', 20)} ${I18n.choose('Edit Product', 'تعديل المنتج', 'Modifier le produit')}`,
       buildForm(p),
       `<button class="btn btn-ghost" onclick="UI.closeModal('productModal')">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
-       <button class="btn btn-primary" onclick="Products.save()">💾 ${I18n.choose('Update Product', 'تحديث المنتج', 'Mettre à jour le produit')}</button>`,
+       <button class="btn btn-primary" onclick="Products.save()">${I18n.choose('Update Product', 'تحديث المنتج', 'Mettre à jour le produit')}</button>`,
       'modal-lg'
     );
     calcPreview();
@@ -384,7 +384,7 @@ const Products = (() => {
     const body = `
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
       <div>
-        ${p.image ? `<img src="${p.image}" style="width:100%;border-radius:12px;object-fit:contain;max-height:200px;background:var(--bg-elevated)">` : `<div style="width:100%;height:180px;background:var(--bg-elevated);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:64px">📦</div>`}
+        ${p.image ? `<img src="${p.image}" style="width:100%;border-radius:12px;object-fit:contain;max-height:200px;background:var(--bg-elevated)">` : `<div style="width:100%;height:180px;background:var(--bg-elevated);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">${UI.svg('box', 64)}</div>`}
         <div style="margin-top:12px;">
           <span class="badge badge-purple" style="font-family:monospace">${p.code}</span>
           ${stockBadge(p.stockStatus)}
@@ -412,14 +412,14 @@ const Products = (() => {
       ${statBox(t('lbl_profit_gen'), UI.fmtCurrency(totalProfit), totalProfit>=0?'green':'red')}
     </div>
     ${exps.length ? `
-    <div style="font-weight:600;margin-bottom:10px">💸 ${t('import_expenses')}</div>
+    <div style="font-weight:600;margin-bottom:10px;display:flex;align-items:center;gap:6px;">${UI.svg('trending_down', 16, 'text-danger')} ${t('import_expenses')}</div>
     <table style="font-size:0.85rem">
       <thead><tr><th>${t('lbl_type')}</th><th>${t('lbl_amount')}</th><th>${t('th_date')}</th></tr></thead>
       <tbody>${exps.map(e => `<tr><td>${t('exp_' + e.expenseType.replace(/\s+/g, '_')) || e.expenseType}</td><td class="text-accent">${UI.fmtCurrency(e.amount)}</td><td class="td-muted">${UI.fmtDate(e.date)}</td></tr>`).join('')}</tbody>
     </table>` : ''}
     ${p.description ? `<div class="divider"></div><p style="color:var(--text-secondary);font-size:0.875rem">${p.description}</p>` : ''}`;
 
-    UI.createModal('viewProdModal', `📦 ${p.name}`, body,
+    UI.createModal('viewProdModal', `${UI.svg('box', 20)} ${p.name}`, body,
       `<button class="btn btn-ghost" onclick="UI.closeModal('viewProdModal')">${I18n.choose('Close', 'إغلاق', 'Fermer')}</button>
        <button class="btn btn-primary" onclick="UI.closeModal('viewProdModal');Products.openEdit(${p.id})">${I18n.choose('Edit', 'تعديل', 'Modifier')}</button>`,
       'modal-lg'

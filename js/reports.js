@@ -10,7 +10,7 @@ const Reports = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>📊 ${t('page_reports')}</h2><p>${I18n.choose('Financial reports and business analytics', 'التقارير المالية والتحليلات التجارية', 'Rapports financiers et analyses commerciales')}</p></div>
+        <div class="page-title"><h2 style="display:flex;align-items:center;gap:10px;">${UI.svg('reports', 26)} ${t('page_reports')}</h2><p>${I18n.choose('Financial reports and business analytics', 'التقارير المالية والتحليلات التجارية', 'Rapports financiers et analyses commerciales')}</p></div>
         <div class="page-actions">
           <button class="btn btn-ghost" onclick="Reports.exportExcel()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -127,28 +127,28 @@ const Reports = (() => {
     <!-- Key Metrics -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(6,214,160,0.1);color:var(--accent)">📊</div>
+        <div class="report-section-icon" style="background:rgba(6,214,160,0.1);color:var(--accent)">${UI.svg('bar_chart', 20)}</div>
         <div>
           <div style="font-weight:600">${getPeriodLabel()}</div>
           <div style="font-size:0.78rem;color:var(--text-muted)">${I18n.choose('Generated:', 'تم التوليد في:', 'Généré :')} ${new Date().toLocaleString()}</div>
         </div>
       </div>
       <div class="kpi-grid" style="padding:20px;margin-bottom:0">
-        ${metricBox('💰', t('th_revenue'), UI.fmtCurrency(d.revenue), 'green')}
-        ${metricBox('📈', t('kpi_profit'), UI.fmtCurrency(d.profit), 'purple')}
-        ${metricBox('🔄', I18n.choose('Net Profit', 'صافي الربح', 'Bénéfice net'), UI.fmtCurrency(d.netProfit), d.netProfit >= 0 ? 'green' : 'red')}
-        ${metricBox('💸', I18n.choose('Biz Expenses', 'مصاريف العمل', 'Dépenses prof.'), UI.fmtCurrency(d.bizExpTotal), 'orange')}
-        ${metricBox('📦', I18n.choose('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation'), UI.fmtCurrency(d.impExpTotal), 'orange')}
-        ${metricBox('📊', t('th_margin'), UI.fmtPct(d.margin), 'blue')}
-        ${metricBox('🛒', I18n.choose('Sales Made', 'عمليات البيع', 'Ventes réalisées'), d.sales.length, 'teal')}
-        ${metricBox('📦', I18n.choose('Units Sold', 'الوحدات المباعة', 'Unités vendues'), d.unitsSold, 'indigo')}
+        ${metricBox(UI.svg('trending_up', 22), t('th_revenue'), UI.fmtCurrency(d.revenue), 'green')}
+        ${metricBox(UI.svg('trending_up', 22), t('kpi_profit'), UI.fmtCurrency(d.profit), 'purple')}
+        ${metricBox(UI.svg('dollar', 22), I18n.choose('Net Profit', 'صافي الربح', 'Bénéfice net'), UI.fmtCurrency(d.netProfit), d.netProfit >= 0 ? 'green' : 'red')}
+        ${metricBox(UI.svg('home', 22), I18n.choose('Biz Expenses', 'مصاريف العمل', 'Dépenses prof.'), UI.fmtCurrency(d.bizExpTotal), 'orange')}
+        ${metricBox(UI.svg('box', 22), I18n.choose('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation'), UI.fmtCurrency(d.impExpTotal), 'orange')}
+        ${metricBox(UI.svg('bar_chart', 22), t('th_margin'), UI.fmtPct(d.margin), 'blue')}
+        ${metricBox(UI.svg('cart', 22), I18n.choose('Sales Made', 'عمليات البيع', 'Ventes réalisées'), d.sales.length, 'teal')}
+        ${metricBox(UI.svg('box', 22), I18n.choose('Units Sold', 'الوحدات المباعة', 'Unités vendues'), d.unitsSold, 'indigo')}
       </div>
     </div>
 
     <!-- Sales Breakdown -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(124,58,237,0.1);color:var(--primary-light)">🛒</div>
+        <div class="report-section-icon" style="background:rgba(124,58,237,0.1);color:var(--primary-light)">${UI.svg('cart', 20)}</div>
         <div style="font-weight:600">${I18n.choose('Sales Breakdown', 'تفاصيل المبيعات', 'Détails des ventes')}</div>
       </div>
       ${d.sales.length ? `
@@ -177,14 +177,14 @@ const Reports = (() => {
             <td colspan="3"></td>
           </tr>
         </tfoot>
-      </table></div>` : `<div class="empty-state" style="padding:40px"><div class="empty-icon">🛒</div><h3>${I18n.choose('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</h3></div>`}
+      </table></div>` : `<div class="empty-state" style="padding:40px"><div class="empty-icon">${UI.svg('cart', 48)}</div><h3>${I18n.choose('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</h3></div>`}
     </div>
 
     <!-- Best Selling Products -->
     ${d.bestProducts.length ? `
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(245,158,11,0.1);color:var(--warning)">🏆</div>
+        <div class="report-section-icon" style="background:rgba(245,158,11,0.1);color:var(--warning)">${UI.svg('trending_up', 20)}</div>
         <div style="font-weight:600">${t('chart_top_selling')}</div>
       </div>
       <div style="padding:16px 20px">
@@ -207,7 +207,7 @@ const Reports = (() => {
     ${d.bizExp.length ? `
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(239,68,68,0.1);color:var(--danger)">🏢</div>
+        <div class="report-section-icon" style="background:rgba(239,68,68,0.1);color:var(--danger)">${UI.svg('home', 20)}</div>
         <div style="font-weight:600">${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')} — ${UI.fmtCurrency(d.bizExpTotal)}</div>
       </div>
       <div style="overflow-x:auto"><table>
@@ -228,7 +228,7 @@ const Reports = (() => {
     <!-- Inventory Snapshot -->
     <div class="report-section">
       <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(59,130,246,0.1);color:#60A5FA">🏪</div>
+        <div class="report-section-icon" style="background:rgba(59,130,246,0.1);color:#60A5FA">${UI.svg('inventory', 20)}</div>
         <div style="font-weight:600">${I18n.choose('Current Inventory Snapshot — Value:', 'لقطة للمخزون الحالي — القيمة:', 'Aperçu actuel du stock — Valeur :')} ${UI.fmtCurrency(inventoryValue)}</div>
       </div>
       <div style="overflow-x:auto"><table>

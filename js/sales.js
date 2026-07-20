@@ -37,32 +37,32 @@ const Sales = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>🛒 ${t('page_sales')}</h2><p>${sales.length} ${I18n.choose('sales records', 'سجلات المبيعات', 'enregistrements de vente')}</p></div>
+        <div class="page-title"><h2 style="display:flex;align-items:center;gap:10px;">${UI.svg('cart', 26)} ${t('page_sales')}</h2><p>${sales.length} ${I18n.choose('sales records', 'سجلات المبيعات', 'enregistrements de vente')}</p></div>
         <div class="page-actions">
-          <button class="btn btn-primary" onclick="Sales.openAdd()">
-            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <button class="btn btn-primary" onclick="Sales.openAdd()" style="display:inline-flex;align-items:center;gap:6px;">
+            ${UI.svg('plus', 16)}
             ${t('btn_record_sale')}
           </button>
         </div>
       </div>
 
       <div class="kpi-grid stagger-children">
-        ${statCard('💰', t('th_revenue'), UI.fmtCurrency(totalRevenue), 'green')}
-        ${showProfit ? statCard('📈', t('th_profit'), UI.fmtCurrency(totalProfit), 'purple') : ''}
-        ${showProfit ? statCard('💸', t('th_cost'), UI.fmtCurrency(totalCost), 'orange') : ''}
-        ${showProfit ? statCard('📊', t('th_margin'), UI.fmtPct(avgMargin), 'blue') : ''}
-        ${statCard('🛒', t('nav_sales'), sales.length, 'teal')}
-        ${statCard('💳', t('kpi_credit'), UI.fmtCurrency(outstanding), 'red', creditSales.length + ' ' + I18n.choose('unpaid', 'متبقية', 'impayé(s)'))}
+        ${statCard(UI.svg('trending_up', 22), t('th_revenue'), UI.fmtCurrency(totalRevenue), 'green')}
+        ${showProfit ? statCard(UI.svg('trending_up', 22), t('th_profit'), UI.fmtCurrency(totalProfit), 'purple') : ''}
+        ${showProfit ? statCard(UI.svg('trending_down', 22), t('th_cost'), UI.fmtCurrency(totalCost), 'orange') : ''}
+        ${showProfit ? statCard(UI.svg('bar_chart', 22), t('th_margin'), UI.fmtPct(avgMargin), 'blue') : ''}
+        ${statCard(UI.svg('cart', 22), t('nav_sales'), sales.length, 'teal')}
+        ${statCard(UI.svg('credit_card', 22), t('kpi_credit'), UI.fmtCurrency(outstanding), 'red', creditSales.length + ' ' + I18n.choose('unpaid', 'متبقية', 'impayé(s)'))}
       </div>
 
       ${creditSales.length ? `
       <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:12px;padding:14px 18px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:12px">
-          <span style="font-size:22px">💳</span>
+          <span style="color:var(--danger);">${UI.svg('credit_card', 24)}</span>
           <div>
-            <div style="font-weight:600;color:var(--danger)">
+            <div style="font-weight:600;color:var(--danger);display:flex;align-items:center;gap:8px;">
               ${creditSales.length} ${I18n.choose('unpaid credit sale(s)', 'مبيعات آجلة غير مدفوعة', 'vente(s) à crédit impayée(s)')}
-              ${overdueCount ? `<span style="background:rgba(239,68,68,0.2);color:var(--danger);font-size:0.75rem;padding:2px 8px;border-radius:20px;margin-left:8px">⚠ ${overdueCount} ${I18n.choose('overdue', 'متأخرة', 'en retard')}</span>` : ''}
+              ${overdueCount ? `<span style="background:rgba(239,68,68,0.2);color:var(--danger);font-size:0.75rem;padding:2px 8px;border-radius:20px;display:inline-flex;align-items:center;gap:4px;">${UI.svg('alert', 12)} ${overdueCount} ${I18n.choose('overdue', 'متأخرة', 'en retard')}</span>` : ''}
             </div>
             <div style="font-size:0.82rem;color:var(--text-secondary)">${I18n.choose('Total outstanding:', 'إجمالي المتبقي للتحصيل:', 'Total restant dû :')} <strong style="color:var(--danger)">${UI.fmtCurrency(outstanding)}</strong></div>
           </div>
@@ -161,7 +161,7 @@ const Sales = (() => {
     if (to)   data = data.filter(s => s.saleDate <= to);
 
     if (!data.length) {
-      body.innerHTML = `<tr><td colspan="${showProfit ? 12 : 10}"><div class="empty-state"><div class="empty-icon">🛒</div><h3>${I18n.choose('No sales found', 'لم يتم العثور على مبيعات', 'Aucune vente trouvée')}</h3><p>${I18n.choose('Record your first sale to start tracking profit.', 'سجل عملية البيع الأولى لبدء التتبع.', 'Enregistrez votre première vente pour suivre les bénéfices.')}</p><button class="btn btn-primary" onclick="Sales.openAdd()">${t('btn_record_sale')}</button></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="${showProfit ? 12 : 10}"><div class="empty-state"><div class="empty-icon">${UI.svg('cart', 48)}</div><h3>${I18n.choose('No sales found', 'لم يتم العثور على مبيعات', 'Aucune vente trouvée')}</h3><p>${I18n.choose('Record your first sale to start tracking profit.', 'سجل عملية البيع الأولى لبدء التتبع.', 'Enregistrez votre première vente pour suivre les bénéfices.')}</p><button class="btn btn-primary" onclick="Sales.openAdd()">${t('btn_record_sale')}</button></div></td></tr>`;
       return;
     }
 
@@ -195,19 +195,19 @@ const Sales = (() => {
         <td>
           ${isCredit
             ? `<div style="line-height:1.35;white-space:nowrap">
-                 <div style="font-size:0.78rem;color:var(--success);font-weight:600">✓ ${I18n.choose('Paid:', 'مدفوع:', 'Payé :')} ${UI.fmtCurrency(paidAmt)}</div>
-                 <div style="font-size:0.82rem;color:var(--danger);font-weight:700">⏳ ${I18n.choose('Rem:', 'متبقي:', 'Restant :')} ${UI.fmtCurrency(Math.max(0, Number(s.revenue || 0) - paidAmt))}</div>
-                 ${s.dueDate ? `<div style="font-size:0.7rem;color:${isOverdue?'var(--danger)':'var(--text-muted)'};margin-top:2px">📅 ${UI.fmtDate(s.dueDate)}</div>` : ''}
+                 <div style="font-size:0.78rem;color:var(--success);font-weight:600;display:flex;align-items:center;gap:4px;">${UI.svg('check', 13)} ${I18n.choose('Paid:', 'مدفوع:', 'Payé :')} ${UI.fmtCurrency(paidAmt)}</div>
+                 <div style="font-size:0.82rem;color:var(--danger);font-weight:700;display:flex;align-items:center;gap:4px;">${UI.svg('alert', 13)} ${I18n.choose('Rem:', 'متبقي:', 'Restant :')} ${UI.fmtCurrency(Math.max(0, Number(s.revenue || 0) - paidAmt))}</div>
+                 ${s.dueDate ? `<div style="font-size:0.7rem;color:${isOverdue?'var(--danger)':'var(--text-muted)'};margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.svg('calendar', 12)} ${UI.fmtDate(s.dueDate)}</div>` : ''}
                </div>`
             : `<span class="badge badge-success" style="font-size:0.75rem;white-space:nowrap">${I18n.choose('Paid Full', 'مدفوع كلياً', 'Payé en totalité')}</span>`}
         </td>
         <td>
           <div class="actions">
             ${isCredit
-              ? `<button class="act-btn" onclick="Sales.openPaymentModal(${s.id})" title="${I18n.choose('Add Payment / Settle', 'إضافة دفعة / سداد', 'Ajouter un paiement / Régler')}" style="background:rgba(16,185,129,0.15);color:var(--success);font-weight:700;padding:4px 8px;border-radius:6px;width:auto;display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;">💵 ${I18n.choose('Pay', 'سداد', 'Régler')}</button>`
+              ? `<button class="act-btn" onclick="Sales.openPaymentModal(${s.id})" title="${I18n.choose('Add Payment / Settle', 'إضافة دفعة / سداد', 'Ajouter un paiement / Régler')}" style="background:rgba(16,185,129,0.15);color:var(--success);font-weight:700;padding:4px 8px;border-radius:6px;width:auto;display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;">${UI.svg('dollar', 14)} ${I18n.choose('Pay', 'سداد', 'Régler')}</button>`
               : ''}
-            <button class="act-btn edit" onclick="Sales.openEdit(${s.id})" title="${t('btn_edit') || 'Edit'}">✏️</button>
-            <button class="act-btn del"  onclick="Sales.delete(${s.id})"   title="${t('btn_delete') || 'Delete'}">🗑️</button>
+            <button class="act-btn edit" onclick="Sales.openEdit(${s.id})" title="${t('btn_edit') || 'Edit'}">${UI.svg('edit', 14)}</button>
+            <button class="act-btn del"  onclick="Sales.delete(${s.id})"   title="${t('btn_delete') || 'Delete'}">${UI.svg('del', 14)}</button>
           </div>
         </td>
       </tr>`;
@@ -215,9 +215,9 @@ const Sales = (() => {
   }
 
   function paymentBadge(status, overdue) {
-    if (status === 'credit' && overdue) return `<span class="badge badge-danger">⚠ ${I18n.choose('Overdue', 'متأخر', 'En retard')}</span>`;
-    if (status === 'credit')            return `<span class="badge badge-warning">💳 ${I18n.choose('Credit', 'آجل', 'Crédit')}</span>`;
-    return `<span class="badge badge-success">✓ ${I18n.choose('Paid', 'مدفوع', 'Payé')}</span>`;
+    if (status === 'credit' && overdue) return `<span class="badge badge-danger" style="display:inline-flex;align-items:center;gap:4px;">${UI.svg('alert', 12)} ${I18n.choose('Overdue', 'متأخر', 'En retard')}</span>`;
+    if (status === 'credit')            return `<span class="badge badge-warning" style="display:inline-flex;align-items:center;gap:4px;">${UI.svg('credit_card', 12)} ${I18n.choose('Credit', 'آجل', 'Crédit')}</span>`;
+    return `<span class="badge badge-success" style="display:inline-flex;align-items:center;gap:4px;">${UI.svg('check', 12)} ${I18n.choose('Paid', 'مدفوع', 'Payé')}</span>`;
   }
 
   // ── Sale Form ─────────────────────────────
@@ -228,7 +228,7 @@ const Sales = (() => {
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
         <label>${t('lbl_product')} <span class="req">*</span></label>
-        <input class="input" type="text" id="sProductSearch" placeholder="${I18n.choose('🔍 Search product by name or code...', '🔍 ابحث عن منتج بالاسم أو الرمز...', '🔍 Rechercher un produit par nom ou code...')}" oninput="Sales.filterProducts()" style="margin-bottom:8px">
+        <input class="input" type="text" id="sProductSearch" placeholder="${I18n.choose('Search product by name or code...', 'ابحث عن منتج بالاسم أو الرمز...', 'Rechercher un produit par nom ou code...')}" oninput="Sales.filterProducts()" style="margin-bottom:8px">
         <select class="select" id="sProduct" onchange="Sales.updateCalc()" required>
           <option value="">${I18n.choose('Select product to sell', 'اختر منتجاً للبيع', 'Sélectionner un produit à vendre')}</option>
           ${products.map(p => `<option value="${p.id}" data-search="${p.name.toLowerCase()} ${p.code.toLowerCase()}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${p.name} (${p.code}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
@@ -265,7 +265,7 @@ const Sales = (() => {
         <div class="pay-toggle-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
           <label id="payOptPaid" onclick="Sales.togglePayment('paid')" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;border:2px solid ${!isCredit?'var(--accent)':'var(--border-light)'};background:${!isCredit?'rgba(6,214,160,0.08)':'var(--bg-elevated)'};transition:var(--transition)">
             <input type="radio" name="payStatus" value="paid" ${!isCredit?'checked':''} style="display:none">
-            <span style="width:20px;height:20px;border-radius:50%;background:${!isCredit?'var(--accent)':'var(--border-light)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotPaid">${!isCredit?'✓':''}</span>
+            <span style="width:20px;height:20px;border-radius:50%;background:${!isCredit?'var(--accent)':'var(--border-light)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotPaid">${!isCredit?UI.svg('check', 12, 'text-white'):''}</span>
             <div>
               <div style="font-weight:600;font-size:0.875rem;color:${!isCredit?'var(--accent)':'var(--text-primary)'}">${t('pay_now')}</div>
               <div style="font-size:0.75rem;color:var(--text-muted)">${t('pay_now_sub')}</div>
@@ -273,7 +273,7 @@ const Sales = (() => {
           </label>
           <label id="payOptCredit" onclick="Sales.togglePayment('credit')" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;border:2px solid ${isCredit?'var(--warning)':'var(--border-light)'};background:${isCredit?'rgba(245,158,11,0.08)':'var(--bg-elevated)'};transition:var(--transition)">
             <input type="radio" name="payStatus" value="credit" ${isCredit?'checked':''} style="display:none">
-            <span style="width:20px;height:20px;border-radius:50%;background:${isCredit?'var(--warning)':'var(--border-light)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotCredit">${isCredit?'✓':''}</span>
+            <span style="width:20px;height:20px;border-radius:50%;background:${isCredit?'var(--warning)':'var(--border-light)'};display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotCredit">${isCredit?UI.svg('check', 12, 'text-white'):''}</span>
             <div>
               <div style="font-weight:600;font-size:0.875rem;color:${isCredit?'var(--warning)':'var(--text-primary)'}">${t('pay_later')}</div>
               <div style="font-size:0.75rem;color:var(--text-muted)">${t('pay_later_sub')}</div>
@@ -310,7 +310,7 @@ const Sales = (() => {
     <!-- Live Calculator -->
     <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px;box-shadow:var(--shadow)">
       <div style="font-size:0.9rem;font-weight:700;margin-bottom:14px;color:var(--text-primary);display:flex;align-items:center;gap:8px">
-        <span>📊</span> ${canViewProfit() ? t('profit_calc') : I18n.choose('Sale Summary', 'ملخص البيع', 'Résumé de la vente')}
+        ${UI.svg('bar_chart', 18, 'text-primary')} ${canViewProfit() ? t('profit_calc') : I18n.choose('Sale Summary', 'ملخص البيع', 'Résumé de la vente')}
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
         ${calcBox('sCalcRevenue', t('th_revenue'), 'var(--accent)')}
@@ -342,8 +342,8 @@ const Sales = (() => {
       creditOpt.style.borderColor = !isPaid ? 'var(--warning)' : 'var(--border-light)';
       creditOpt.style.background  = !isPaid ? 'rgba(245,158,11,0.08)' : 'var(--bg-elevated)';
     }
-    if (dotPaid) { dotPaid.style.background = isPaid ? 'var(--accent)' : 'var(--border-light)'; dotPaid.textContent = isPaid ? '✓' : ''; }
-    if (dotCredit) { dotCredit.style.background = !isPaid ? 'var(--warning)' : 'var(--border-light)'; dotCredit.textContent = !isPaid ? '✓' : ''; }
+    if (dotPaid) { dotPaid.style.background = isPaid ? 'var(--accent)' : 'var(--border-light)'; dotPaid.innerHTML = isPaid ? UI.svg('check', 12, 'text-white') : ''; }
+    if (dotCredit) { dotCredit.style.background = !isPaid ? 'var(--warning)' : 'var(--border-light)'; dotCredit.innerHTML = !isPaid ? UI.svg('check', 12, 'text-white') : ''; }
 
     // Show/hide due date field
     const dueWrap = document.getElementById('dueDateWrap');
@@ -409,10 +409,10 @@ const Sales = (() => {
   function openAdd() {
     _editId = null;
     _paymentStatus = 'paid';
-    UI.createModal('saleModal', `🛒 ${I18n.choose('Record New Sale', 'تسجيل بيع جديد', 'Enregistrer une nouvelle vente')}`,
+    UI.createModal('saleModal', `${UI.svg('cart', 20)} ${I18n.choose('Record New Sale', 'تسجيل بيع جديد', 'Enregistrer une nouvelle vente')}`,
       saleForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('saleModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Sales.save()">💾 ${I18n.choose('Save Sale', 'حفظ البيع', 'Enregistrer la vente')}</button>`,
+       <button class="btn btn-primary" onclick="Sales.save()">${I18n.choose('Save Sale', 'حفظ البيع', 'Enregistrer la vente')}</button>`,
       'modal-lg'
     );
     setTimeout(updateCalc, 100);
@@ -423,10 +423,10 @@ const Sales = (() => {
     const s = DB.getEnrichedSale(id);
     if (!s) return;
     _paymentStatus = s.paymentStatus || 'paid';
-    UI.createModal('saleModal', `✏️ ${I18n.choose('Edit Sale', 'تعديل البيع', 'Modifier la vente')}`,
+    UI.createModal('saleModal', `${UI.svg('edit', 20)} ${I18n.choose('Edit Sale', 'تعديل البيع', 'Modifier la vente')}`,
       saleForm(s),
       `<button class="btn btn-ghost" onclick="UI.closeModal('saleModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Sales.save()">💾 ${I18n.choose('Update Sale', 'تحديث البيع', 'Mettre à jour la vente')}</button>`,
+       <button class="btn btn-primary" onclick="Sales.save()">${I18n.choose('Update Sale', 'تحديث البيع', 'Mettre à jour la vente')}</button>`,
       'modal-lg'
     );
     setTimeout(updateCalc, 100);
@@ -543,10 +543,10 @@ const Sales = (() => {
       </div>
     </div>`;
 
-    UI.createModal('payModal', `💳 ${I18n.choose('Add Customer Payment', 'سداد دفعة العميل', 'Ajouter un paiement client')} — ${customer}`,
+    UI.createModal('payModal', `${UI.svg('credit_card', 20)} ${I18n.choose('Add Customer Payment', 'سداد دفعة العميل', 'Ajouter un paiement client')} — ${customer}`,
       body,
       `<button class="btn btn-ghost" onclick="UI.closeModal('payModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Sales.confirmPayment(${id})">💾 ${I18n.choose('Save Payment', 'حفظ الدفعة', 'Enregistrer le paiement')}</button>`,
+       <button class="btn btn-primary" onclick="Sales.confirmPayment(${id})">${I18n.choose('Save Payment', 'حفظ الدفعة', 'Enregistrer le paiement')}</button>`,
       'modal-md'
     );
   }

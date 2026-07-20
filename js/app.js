@@ -7,6 +7,56 @@ const UI = (() => {
   let _confirmResolve = null;
   let _currentPage = '';
 
+  // ── Vector Icon Registry ─────────────────
+  const SVGS = {
+    dashboard: '<rect x="3" y="3" width="7" height="9" rx="1"/><rect x="14" y="3" width="7" height="5" rx="1"/><rect x="14" y="12" width="7" height="9" rx="1"/><rect x="3" y="16" width="7" height="5" rx="1"/>',
+    products: '<path d="m7.5 4.27 9 5.15"/><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/>',
+    categories: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    suppliers: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    expenses: '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    sales: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+    inventory: '<path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/>',
+    reports: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/>',
+    users: '<path d="M18 21a8 8 0 0 0-16 0"/><circle cx="10" cy="8" r="5"/><path d="M22 20c0-3.37-2-6.5-4-8a5 5 0 0 0-.45-8.3"/>',
+    platform: '<rect width="16" height="20" x="4" y="2" rx="2" ry="2"/><path d="M9 22v-4h6v4"/><path d="M8 6h.01"/><path d="M16 6h.01"/><path d="M12 6h.01"/><path d="M12 10h.01"/><path d="M12 14h.01"/><path d="M16 10h.01"/><path d="M16 14h.01"/><path d="M8 10h.01"/><path d="M8 14h.01"/>',
+    settings: '<path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/>',
+    edit: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
+    del: '<path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>',
+    view: '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>',
+    plus: '<line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>',
+    check: '<polyline points="20 6 9 17 4 12"/>',
+    alert: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>',
+    info: '<circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>',
+    dollar: '<line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>',
+    trending_up: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
+    building: '<path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4"/><path d="M10 10h4"/><path d="M10 14h4"/><path d="M10 18h4"/>',
+    pie_chart: '<path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/>',
+    tag: '<path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/><circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>',
+    box: '<path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/>',
+    laptop: '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>',
+    shirt: '<path d="M20.38 3.46 16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.47a1 1 0 0 0 .99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.84l.58-3.47a2 2 0 0 0-1.34-2.23z"/>',
+    pill: '<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>',
+    wrench: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>',
+    book: '<path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1-0-5H20"/>',
+    home: '<path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    key: '<circle cx="7.5" cy="15.5" r="5.5"/><path d="m21 2-9.6 9.6"/><path d="m15.5 7.5 3 3L22 7l-3-3"/>',
+    mail: '<rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>',
+    link: '<path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>',
+    copy: '<rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/>',
+    restore: '<polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+    trending_down: '<polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/>',
+    calendar: '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>',
+    cart: '<circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>',
+    credit_card: '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" x2="22" y1="10" y2="10"/>',
+    bar_chart: '<line x1="12" x2="12" y1="20" y2="10"/><line x1="18" x2="18" y1="20" y2="4"/><line x1="6" x2="6" y1="20" y2="16"/>'
+  };
+
+  function svg(name, size = 18, extraClass = '', strokeWidth = 2) {
+    const content = SVGS[name] || SVGS.box;
+    return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${strokeWidth}" stroke-linecap="round" stroke-linejoin="round" class="svg-icon ${extraClass}" style="display:inline-block;vertical-align:middle;flex-shrink:0;">${content}</svg>`;
+  }
+
   // ── Routing ──────────────────────────────
   const PAGES = {
     dashboard:  { title: 'Dashboard',   subtitle: 'Business overview & analytics', render: Dashboard.render },
@@ -78,7 +128,7 @@ const UI = (() => {
         PAGES[page].render(content);
         initTableScroller(content);
       } catch(e) {
-        content.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Page Error</h3><p>${e.message}</p></div>`;
+        content.innerHTML = `<div class="empty-state"><div class="empty-icon">${UI.svg('alert', 48, 'text-warning')}</div><h3>Page Error</h3><p>${e.message}</p></div>`;
         console.error(e);
       }
     });
@@ -158,17 +208,22 @@ const UI = (() => {
 
   // ── Toast Notifications ───────────────
   function toast(type, title, message = '', duration = 3500) {
-    const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' };
+    const icons = {
+      success: svg('check', 18, 'text-success', 2.5),
+      error: svg('alert', 18, 'text-danger', 2.2),
+      warning: svg('alert', 18, 'text-warning', 2.2),
+      info: svg('info', 18, 'text-info', 2.2)
+    };
     const container = document.getElementById('toast-container');
     const el = document.createElement('div');
     el.className = `toast ${type}`;
     el.innerHTML = `
-      <span class="toast-icon">${icons[type] || 'ℹ'}</span>
+      <span class="toast-icon" style="display:flex;align-items:center;justify-content:center;">${icons[type] || icons.info}</span>
       <div class="toast-text">
         <div class="toast-title">${title}</div>
         ${message ? `<div class="toast-msg">${message}</div>` : ''}
       </div>
-      <button class="toast-dismiss" onclick="this.parentElement.remove()">✕</button>
+      <button class="toast-dismiss" onclick="this.parentElement.remove()">&times;</button>
     `;
     container.appendChild(el);
     setTimeout(() => {
@@ -185,7 +240,7 @@ const UI = (() => {
     const btnClass = iconType === 'danger' ? 'btn-danger' : iconType === 'success' ? 'btn-accent' : 'btn-primary';
     document.getElementById('confirmOkBtn').className = `btn ${btnClass} confirm-action-btn`;
     document.getElementById('confirmIcon').className = `confirm-icon ${iconType === 'success' ? 'warning' : iconType}`;
-    document.getElementById('confirmIcon').textContent = iconType === 'danger' ? '🗑️' : iconType === 'success' ? '✅' : '⚠️';
+    document.getElementById('confirmIcon').innerHTML = iconType === 'danger' ? svg('del', 28) : iconType === 'success' ? svg('check', 28) : svg('alert', 28);
     document.getElementById('confirmModal').classList.add('show');
     return new Promise(resolve => { _confirmResolve = resolve; });
   }
@@ -209,7 +264,7 @@ const UI = (() => {
       <div class="modal ${size}">
         <div class="modal-header">
           <div class="modal-title">${title}</div>
-          <button class="modal-close" onclick="UI.closeModal('${id}')">✕</button>
+          <button class="modal-close" onclick="UI.closeModal('${id}')">&times;</button>
         </div>
         <div class="modal-body">${bodyHtml}</div>
         ${footerHtml ? `<div class="modal-footer">${footerHtml}</div>` : ''}
@@ -271,23 +326,23 @@ const UI = (() => {
 
     let body = '';
     if (!low.length && !out.length) {
-      body = '<div class="empty-state" style="padding:32px"><div class="empty-icon" style="font-size:32px">✅</div><p>No alerts at the moment</p></div>';
+      body = `<div class="empty-state" style="padding:32px"><div class="empty-icon" style="color:var(--success)">${UI.svg('check', 32)}</div><p>No alerts at the moment</p></div>`;
     }
     out.forEach(p => {
       body += `<div class="alert alert-danger" style="margin-bottom:8px">
-        <span class="alert-icon">🚨</span>
+        <span class="alert-icon">${UI.svg('alert', 20, 'text-danger')}</span>
         <div class="alert-content"><div class="alert-title">Out of Stock</div><div class="alert-body">${p.name} — 0 units remaining</div></div>
       </div>`;
     });
     low.forEach(p => {
       body += `<div class="alert alert-warning" style="margin-bottom:8px">
-        <span class="alert-icon">⚠️</span>
+        <span class="alert-icon">${UI.svg('alert', 20, 'text-warning')}</span>
         <div class="alert-content"><div class="alert-title">Low Stock</div><div class="alert-body">${p.name} — Only ${p.currentStock} units left</div></div>
       </div>`;
     });
 
-    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">✅ ${I18n.choose('Mark as Read & Close', 'تم القراءة وإغلاق التنبيهات', 'Marquer comme lu & fermer')}</button>`;
-    createModal('notifModal', `🔔 ${I18n.choose('Notifications', 'التنبيهات', 'Notifications')}`, body, footer, 'modal-sm');
+    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;display:inline-flex;align-items:center;justify-content:center;gap:6px;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">${UI.svg('check', 16)} ${I18n.choose('Mark as Read & Close', 'تم القراءة وإغلاق التنبيهات', 'Marquer comme lu & fermer')}</button>`;
+    createModal('notifModal', `<span style="display:inline-flex;align-items:center;gap:8px;">${UI.svg('bell', 20)} ${I18n.choose('Notifications', 'التنبيهات', 'Notifications')}</span>`, body, footer, 'modal-sm');
 
     // Mark current alerts as read
     let readNotifs = {};
@@ -438,30 +493,22 @@ const UI = (() => {
 
     const isMasterOwner = user && (user.role === 'platform_owner' || user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine');
     const isLocalEmpty = typeof DB !== 'undefined' && DB.getAll('products').length === 0 && DB.getAll('sales').length === 0;
-    if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner) {
-      if (isLocalEmpty && (sessionStorage.getItem('sims_token') || localStorage.getItem('sims_token'))) {
-        const cont = document.getElementById('mainContent');
-        if (cont) {
-          cont.innerHTML = `
-            <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center;">
-              <div class="spinner" style="width: 54px; height: 54px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: simsSpin 0.8s linear infinite; margin-bottom: 22px;"></div>
-              <h3 style="margin-bottom: 8px; font-size: 1.25rem; font-weight: 600; color: var(--text);">${I18n.choose('Syncing your workspace data...', 'جاري تحميل بيانات مساحة العمل...', 'Chargement des données de votre espace de travail...')}</h3>
-              <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 420px; line-height: 1.5;">${I18n.choose('Please wait a moment while we securely fetch your latest inventory and sales analytics from the cloud.', 'يرجى الانتظار قليلاً بينما نقوم بجلب أحدث بيانات المخزون والمبيعات من السحابة.', 'Veuillez patienter un instant pendant la récupération de vos données de stock et de ventes depuis le cloud.')}</p>
-            </div>
-            <style>@keyframes simsSpin { 100% { transform: rotate(360deg); } }</style>
-          `;
-        }
-        DB.syncFromBackend().finally(() => {
-          if (Auth.isLoggedIn()) navigate(page);
-        });
-      } else {
-        navigate(page);
-        DB.syncFromBackend().then(() => {
-          if (_currentPage && Auth.isLoggedIn()) {
-            navigate(_currentPage);
-          }
-        });
+    const hasBackendToken = sessionStorage.getItem('sims_token') || localStorage.getItem('sims_token');
+    if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner && hasBackendToken) {
+      const cont = document.getElementById('mainContent');
+      if (cont) {
+        cont.innerHTML = `
+          <div class="fade-in" style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 65vh; text-align: center;">
+            <div class="spinner" style="width: 54px; height: 54px; border: 4px solid var(--border); border-top-color: var(--primary); border-radius: 50%; animation: simsSpin 0.8s linear infinite; margin-bottom: 22px;"></div>
+            <h3 style="margin-bottom: 8px; font-size: 1.25rem; font-weight: 600; color: var(--text);">${I18n.choose('Syncing your workspace data...', 'جاري تحميل بيانات مساحة العمل...', 'Chargement des données de votre espace de travail...')}</h3>
+            <p style="color: var(--text-muted); font-size: 0.95rem; max-width: 420px; line-height: 1.5;">${I18n.choose('Please wait a moment while we securely fetch your latest inventory and sales analytics from the cloud.', 'يرجى الانتظار قليلاً بينما نقوم بجلب أحدث بيانات المخزون والمبيعات من السحابة.', 'Veuillez patienter un instant pendant la récupération de vos données de stock et de ventes depuis le cloud.')}</p>
+          </div>
+          <style>@keyframes simsSpin { 100% { transform: rotate(360deg); } }</style>
+        `;
       }
+      DB.syncFromBackend().finally(() => {
+        if (Auth.isLoggedIn()) navigate(page);
+      });
     } else {
       navigate(page);
     }
@@ -532,7 +579,7 @@ const UI = (() => {
                 </select>
               </div>
               <div style="grid-column:1/-1">
-                <button type="submit" class="btn btn-primary">💾 ${I18n.choose('Save Profile', 'حفظ الملف الشخصي', 'Enregistrer le profil')}</button>
+                <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;">${UI.svg('check', 16)} ${I18n.choose('Save Profile', 'حفظ الملف الشخصي', 'Enregistrer le profil')}</button>
               </div>
             </form>
           </div>
@@ -556,7 +603,7 @@ const UI = (() => {
                 <input class="input" type="password" id="confirmPwd" placeholder="Repeat new password">
               </div>
               <div>
-                <button type="submit" class="btn btn-primary">🔑 ${t('set_password')}</button>
+                <button type="submit" class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;">${UI.svg('lock', 16)} ${t('set_password')}</button>
               </div>
             </form>
           </div>
@@ -696,7 +743,7 @@ const UI = (() => {
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:12px 10px;word-break:break-word;">
                 <strong style="font-size:13.5px;color:var(--text-main);">${c.name}</strong>
-                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">👤 <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.svg('user', 14)} <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
               </td>
               <td style="padding:12px 10px;">
                 <span class="badge" style="background:${planColor};color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;">
@@ -718,11 +765,11 @@ const UI = (() => {
               </td>
               <td style="padding:12px 10px;">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;" onclick="UI.promptPlanChange('${c.id}', '${c.subscription_plan}')">⭐ Plan</button>
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;" onclick="UI.toggleCompanyStatus('${c.id}', '${c.status === 'active' ? 'suspended' : 'active'}')">
-                    ${c.status === 'active' ? '⏸️ Suspend' : '▶️ Activate'}
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.promptPlanChange('${c.id}', '${c.subscription_plan}')">${svg('tag', 13)} Plan</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.toggleCompanyStatus('${c.id}', '${c.status === 'active' ? 'suspended' : 'active'}')">
+                    ${c.status === 'active' ? 'Suspend' : 'Activate'}
                   </button>
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);" onclick="UI.deleteCompany('${c.id}', '${(c.name||'Company').replace(/'/g, "\\'")}')" title="Delete Company">🗑️ Delete</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.deleteCompany('${c.id}', '${(c.name||'Company').replace(/'/g, "\\'")}')" title="Delete Company">${svg('del', 13)} Delete</button>
                 </div>
               </td>
             </tr>
@@ -746,9 +793,9 @@ const UI = (() => {
               <p style="margin:4px 0 0;font-size:13.5px;color:var(--text-muted);">Real-time subscription tiers, Monthly Recurring Revenue (MRR), and lifetime collections</p>
             </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-              <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.showCreateCompanyModal()">+ Add New Tenant Company</button>
-              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecoverTenantsModal()">♻️ Recover Tenants</button>
-              <button class="btn btn-danger" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;" onclick="UI.removeAllCompanies()">🗑️ Remove All Companies</button>
+              <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.showCreateCompanyModal()">${svg('plus', 16)} Add New Tenant Company</button>
+              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecoverTenantsModal()">${svg('restore', 16)} Recover Tenants</button>
+              <button class="btn btn-danger" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;" onclick="UI.removeAllCompanies()">${svg('del', 16)} Remove All Companies</button>
             </div>
           </div>
 
@@ -758,10 +805,10 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;color:#10b981;">${svg('dollar', 22)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Monthly Recurring (MRR)</div>
                 </div>
-                <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+24.5% ↗</span>
+                <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+24.5%</span>
               </div>
               <div style="font-size:28px;font-weight:800;color:var(--text-main);letter-spacing:-0.5px;">$${totalMRR.toLocaleString()}.00 <span style="font-size:14px;font-weight:600;color:var(--text-muted);">USD/mo</span></div>
               <div style="font-size:12px;color:var(--text-muted);margin-top:6px;">Active recurring monthly subscription fees</div>
@@ -774,7 +821,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">🚀</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;color:#6366f1;">${svg('trending_up', 22)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Annualized Run Rate (ARR)</div>
                 </div>
                 <span class="badge" style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">Yearly Projection</span>
@@ -790,7 +837,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💎</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;color:#8b5cf6;">${svg('pie_chart', 22)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Lifetime Collections</div>
                 </div>
                 <span class="badge" style="background:#8b5cf6;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">Total Paid</span>
@@ -806,7 +853,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">🏢</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;color:#0ea5e9;">${svg('building', 22)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Active Tenants</div>
                 </div>
                 <span class="badge" style="background:#0ea5e9;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${stats?.activeCompanies || 0} Active</span>
@@ -972,11 +1019,11 @@ const UI = (() => {
   function showRecoverTenantsModal() {
     const archived = getArchivedCompanies();
     if (archived.length === 0) {
-      createModal('recoverTenantsModal', '♻️ Recover Deleted Tenant Companies',
+      createModal('recoverTenantsModal', 'Recover Deleted Tenant Companies',
         `<div style="text-align:center;padding:36px 20px;">
-          <div style="font-size:48px;margin-bottom:12px;">🗑️</div>
+          <div style="width:56px;height:56px;border-radius:16px;background:rgba(100,116,139,0.1);color:var(--text-muted);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${svg('box', 32)}</div>
           <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">Recovery Bin is Empty</h3>
-          <p style="margin:0;color:var(--text-muted);font-size:13.5px;">There are no deleted tenant companies available to restore. Your system is completely clean.</p>
+          <p style="margin:0;color:var(--text-muted);font-size:13.5px;">There are no deleted tenant companies available to restore. Your system is clean.</p>
         </div>`,
         `<button class="btn btn-ghost" onclick="UI.closeModal('recoverTenantsModal')">Close</button>`
       );
@@ -991,11 +1038,11 @@ const UI = (() => {
         <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;">
           <div>
             <div style="font-weight:700;font-size:14.5px;color:var(--text-main);">${comp.name}</div>
-            <div style="font-size:12px;color:var(--text-muted);">📧 ${comp.admin_email} | Tier: <strong style="text-transform:uppercase;">${comp.subscription_plan}</strong></div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">${svg('mail', 14)} ${comp.admin_email} | Tier: <strong style="text-transform:uppercase;">${comp.subscription_plan}</strong></div>
           </div>
           <div>
             ${isRestored 
-              ? `<span class="badge" style="background:rgba(16,185,129,0.15);color:#10b981;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px;">✓ Restored</span>` 
+              ? `<span class="badge" style="background:rgba(16,185,129,0.15);color:#10b981;padding:6px 12px;border-radius:20px;font-weight:700;font-size:12px;">Restored</span>` 
               : `<button class="btn btn-sm btn-primary" style="padding:6px 14px;font-size:12px;font-weight:700;" onclick="UI.recoverSingleTenant(${comp.id})">+ Restore Tenant</button>`
             }
           </div>
@@ -1003,14 +1050,14 @@ const UI = (() => {
       `;
     }).join('');
 
-    createModal('recoverTenantsModal', '♻️ Recover Deleted Tenant Companies',
+    createModal('recoverTenantsModal', 'Recover Deleted Tenant Companies',
       `<p style="margin-top:0;margin-bottom:16px;color:var(--text-muted);font-size:13.5px;">
         Restore individual tenant companies or purge the recovery bin permanently.
       </p>
       <div>${rowsHtml}</div>`,
-      `<button class="btn btn-danger" style="margin-right:auto;font-weight:700;" onclick="UI.clearRecoveryBin()">🗑️ Purge Recovery Bin</button>
+      `<button class="btn btn-danger" style="margin-right:auto;font-weight:700;display:inline-flex;align-items:center;gap:6px;" onclick="UI.clearRecoveryBin()">${svg('del', 15)} Purge Recovery Bin</button>
        <button class="btn btn-ghost" onclick="UI.closeModal('recoverTenantsModal')">Close</button>
-       <button class="btn btn-secondary" style="border:1px solid rgba(16,185,129,0.4);color:#10b981;font-weight:700;" onclick="UI.recoverAllDeletedTenants()">♻️ Restore All</button>`
+       <button class="btn btn-secondary" style="border:1px solid rgba(16,185,129,0.4);color:#10b981;font-weight:700;display:inline-flex;align-items:center;gap:6px;" onclick="UI.recoverAllDeletedTenants()">${svg('restore', 15)} Restore All</button>`
     );
   }
 
@@ -1025,7 +1072,7 @@ const UI = (() => {
       const activeUsers = DB.getAll('users');
       if (activeUsers.some(u => u.email && comp.admin_email && u.email.toLowerCase() === comp.admin_email.toLowerCase())) {
         const newEmail = prompt(
-          `⚠️ Email "${comp.admin_email}" is currently already in use by another active company.\n\nPlease enter a NEW email address for restoring "${comp.name}" admin:`,
+          `Email "${comp.admin_email}" is currently already in use by another active company.\n\nPlease enter a NEW email address for restoring "${comp.name}" admin:`,
           `recovered_${comp.admin_email}`
         );
         if (!newEmail) {
@@ -1164,7 +1211,7 @@ const UI = (() => {
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('changePlanModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="UI.saveChangedPlan('${id}')">💾 Save Plan & Fee</button>`
+       <button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;" onclick="UI.saveChangedPlan('${id}')">${UI.svg('check', 16)} Save Plan & Fee</button>`
     );
   }
 
@@ -1197,7 +1244,7 @@ const UI = (() => {
   }
 
   function showCreateCompanyModal() {
-    createModal('createCompanyModal', '🏢 Add New Tenant Company',
+    createModal('createCompanyModal', `<span style="display:inline-flex;align-items:center;gap:8px;">${UI.svg('home', 20)} Add New Tenant Company</span>`,
       `<div class="form-grid">
         <div class="field">
           <label>Company / Tenant Name <span class="req">*</span></label>
@@ -1226,7 +1273,7 @@ const UI = (() => {
           </select>
         </div>
         <div style="grid-column: 1 / -1; margin-top: 8px; padding: 10px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid var(--primary); border-radius: 4px;">
-          <strong style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--primary);">👤 Initial Admin User Credentials</strong>
+          <strong style="display: flex; align-items: center; gap: 6px; font-size: 13px; margin-bottom: 4px; color: var(--primary);">${UI.svg('user', 16)} Initial Admin User Credentials</strong>
           <span style="font-size: 12px; color: var(--text-muted);">An activation link will be sent to the Admin Email to activate the account and set a password.</span>
         </div>
         <div class="field">
@@ -1243,7 +1290,7 @@ const UI = (() => {
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('createCompanyModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="UI.saveNewCompany()">💾 Create Tenant & Send Invite</button>`
+       <button class="btn btn-primary" style="display:inline-flex;align-items:center;gap:6px;" onclick="UI.saveNewCompany()">${UI.svg('plus', 16)} Create Tenant & Send Invite</button>`
     );
   }
 
@@ -1395,9 +1442,9 @@ const UI = (() => {
         const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmail)}&su=${emailSubject}&body=${emailBody}`;
         const mailtoUrl = `mailto:${encodeURIComponent(adminEmail)}?subject=${emailSubject}&body=${emailBody}`;
 
-        createModal('tenantCreatedModal', '📧 Tenant Created & Activation Invitation Ready!',
+        createModal('tenantCreatedModal', 'Tenant Created & Activation Invitation Ready!',
           `<div style="text-align:center;padding:10px 0;">
-            <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">✉️</div>
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${svg('check', 32)}</div>
             <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">${name}</h3>
             <p style="margin:0 0 16px;color:var(--text-muted);font-size:13.5px;">Send the activation invitation directly to <strong>${adminEmail}</strong>:</p>
             
@@ -1405,7 +1452,7 @@ const UI = (() => {
               <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">DIRECT ACTIVATION & PASSWORD LINK</div>
               <div style="display:flex;gap:8px;margin-bottom:12px;">
                 <input type="text" readonly class="input" value="${activationUrl}" style="font-size:12px;background:var(--surface);cursor:text;" onclick="this.select()">
-                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;" onclick="navigator.clipboard.writeText('${activationUrl}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">📋 Copy Link</button>
+                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:6px;" onclick="navigator.clipboard.writeText('${activationUrl}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">${svg('copy', 14)} Copy Link</button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">TENANT ADMIN CREDENTIALS</div>
               <div style="font-size:13.5px;color:var(--text-main);margin-bottom:4px;"><strong>Username:</strong> ${adminUsername}</div>
@@ -1413,8 +1460,8 @@ const UI = (() => {
             </div>
 
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-              <a href="${gmailComposeUrl}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">📧 Send via Gmail ↗</a>
-              <a href="${mailtoUrl}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">✉️ Send via Email App</a>
+              <a href="${gmailComposeUrl}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${svg('mail', 16)} Send via Gmail</a>
+              <a href="${mailtoUrl}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${svg('mail', 16)} Send via Email App</a>
             </div>
           </div>`,
           `<button class="btn btn-ghost" style="width:100%;font-weight:700;" onclick="UI.closeModal('tenantCreatedModal')">Done</button>`
@@ -1457,7 +1504,7 @@ const UI = (() => {
     btnElement.dataset.locked = '1';
     btnElement.dataset.origHtml = btnElement.innerHTML;
     const loadingTextFr = (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('Saving...', 'جاري الحفظ...', 'Enregistrement en cours...') : 'Saving...';
-    btnElement.innerHTML = loadingText || ('⏳ ' + loadingTextFr);
+    btnElement.innerHTML = `<span class="spinner" style="width:14px;height:14px;border-width:2px;display:inline-block;vertical-align:middle;margin-right:6px;"></span>` + (loadingText || loadingTextFr);
     btnElement.style.opacity = '0.65';
     btnElement.style.cursor = 'not-allowed';
     return false; // PROCEED WITH EXECUTION
@@ -1483,6 +1530,7 @@ const UI = (() => {
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,
     toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecoverTenantsModal, recoverSingleTenant, recoverAllDeletedTenants,
+    svg, SVGS
   };
 })();
 
