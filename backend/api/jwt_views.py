@@ -304,3 +304,25 @@ class ForceChangePasswordView(views.APIView):
         on_password_changed(user, request=request)
         return Response({"detail": "Password has been changed successfully."}, status=status.HTTP_200_OK)
 
+
+class ForceSeedRecoveryView(views.APIView):
+    permission_classes = [permissions.AllowAny]
+
+    def get(self, request):
+        return self.trigger_seed()
+
+    def post(self, request):
+        return self.trigger_seed()
+
+    def trigger_seed(self):
+        from .recovery_seed import ensure_recovered
+        from .models import Company, User
+        res = ensure_recovered()
+        users_list = [
+            {"id": u.id, "email": u.email, "username": u.username, "role": u.role, "company": u.company.name if u.company else "Platform"}
+            for u in User.objects.all().order_by('id')
+        ]
+        res["users_list"] = users_list
+        return Response(res, status=status.HTTP_200_OK)
+
+

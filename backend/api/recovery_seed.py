@@ -182,6 +182,10 @@ RECOVERY_USERS = [
 
 def ensure_recovered():
     from .models import Company, User
+    import logging
+    logger = logging.getLogger(__name__)
+    errors = []
+
     for comp_data in RECOVERY_COMPANIES:
         try:
             comp = Company.objects.filter(id=comp_data["id"]).first()
@@ -196,7 +200,8 @@ def ensure_recovered():
                         status=comp_data["status"],
                         currency=comp_data.get("currency", "USD")
                     )
-                except Exception:
+                except Exception as e:
+                    errors.append(f"Company create with ID {comp_data['id']} failed: {str(e)}")
                     comp = Company.objects.create(
                         name=comp_data["name"],
                         subscription_plan=comp_data["subscription_plan"],
@@ -207,7 +212,8 @@ def ensure_recovered():
                 comp.currency = comp_data["currency"]
                 comp.save()
         except Exception as e:
-            pass
+            errors.append(f"Company {comp_data['name']} error: {str(e)}")
+            logger.error(f"RECOVERY SEED COMPANY ERROR: {e}")
 
     for u_data in RECOVERY_USERS:
         try:
@@ -221,7 +227,6 @@ def ensure_recovered():
             if u_data["company_id"]:
                 comp = Company.objects.filter(id=u_data["company_id"]).first()
                 if not comp:
-                    # try by name match if ID shifted
                     comp = Company.objects.filter(name__iexact=u_data.get("business", "")).first()
 
             if not user:
@@ -244,25 +249,28 @@ def ensure_recovered():
                         must_change_password=u_data["must_change_password"]
                     )
                     user.save()
-                except Exception:
-                    # Fallback creation without forcing primary key ID
-                    user = User(
-                        username=u_data["username"],
-                        email=u_data["email"],
-                        name=u_data["name"],
-                        role=u_data["role"],
-                        status=u_data["status"],
-                        phone=u_data["phone"] or "",
-                        business=u_data["business"] or "",
-                        currency=u_data["currency"] or "USD",
-                        company=comp,
-                        password=u_data["password"],
-                        is_active=u_data["is_active"],
-                        is_superuser=u_data["is_superuser"],
-                        is_staff=u_data["is_staff"],
-                        must_change_password=u_data["must_change_password"]
-                    )
-                    user.save()
+                except Exception as e1:
+                    errors.append(f"User create with ID {u_data['id']} ({u_data['email']}) failed: {str(e1)}")
+                    try:
+                        user = User(
+                            username=u_data["username"],
+                            email=u_data["email"],
+                            name=u_data["name"],
+                            role=u_data["role"],
+                            status=u_data["status"],
+                            phone=u_data["phone"] or "",
+                            business=u_data["business"] or "",
+                            currency=u_data["currency"] or "USD",
+                            company=comp,
+                            password=u_data["password"],
+                            is_active=u_data["is_active"],
+                            is_superuser=u_data["is_superuser"],
+                            is_staff=u_data["is_staff"],
+                            must_change_password=u_data["must_change_password"]
+                        )
+                        user.save()
+                    except Exception as e2:
+                        errors.append(f"User fallback create ({u_data['email']}) failed: {str(e2)}")
             else:
                 updated = False
                 if not user.password or not user.password.startswith('pbkdf2_sha256$'):
@@ -277,5 +285,14 @@ def ensure_recovered():
                 if updated:
                     user.save()
         except Exception as e:
-            pass
+            errors.append(f"User {u_data['email']} error: {str(e)}")
+            logger.error(f"RECOVERY SEED USER ERROR: {e}")
+
+    return {
+        "success": len(errors) == 0,
+        "companies_count": Company.objects.count(),
+        "users_count": User.objects.count(),
+        "errors": errors
+    }
+
 
