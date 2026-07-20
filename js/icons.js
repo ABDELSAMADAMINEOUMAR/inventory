@@ -55,3 +55,10 @@ window.UI.icon = function(name, className = '', size = 18) {
   const paths = window.UI.icons[name] || window.UI.icons['box'];
   return `<svg class="lucide-icon ${className}" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${paths}</svg>`;
 };
+
+if (typeof UI !== 'undefined') {
+  try {
+    UI.icons = window.UI.icons;
+    UI.icon = window.UI.icon;
+  } catch (e) {}
+}

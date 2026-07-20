@@ -96,7 +96,7 @@ const ApiClient = (() => {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 65000);
+    const timeoutId = setTimeout(() => controller.abort(), 8000);
     config.signal = controller.signal;
 
     try {
@@ -108,7 +108,7 @@ const ApiClient = (() => {
         if (newToken) {
           config.headers['Authorization'] = `Bearer ${newToken}`;
           const retryController = new AbortController();
-          const retryTimeoutId = setTimeout(() => retryController.abort(), 65000);
+          const retryTimeoutId = setTimeout(() => retryController.abort(), 8000);
           config.signal = retryController.signal;
           response = await fetch(`${BASE_URL}${endpoint}/`, config);
           clearTimeout(retryTimeoutId);
@@ -209,7 +209,7 @@ const ApiClient = (() => {
     }
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 30000);
+      const timeoutId = setTimeout(() => controller.abort(), 2000);
       const headers = {};
       const token = _getToken();
       if (token) headers['Authorization'] = `Bearer ${token}`;

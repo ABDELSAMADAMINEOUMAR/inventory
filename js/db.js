@@ -154,6 +154,39 @@ const DB = (() => {
     localStorage.setItem(_key('categories'), JSON.stringify(rows));
   }
 
+  function _seedDemoData(tenantId) {
+    if (!tenantId || localStorage.getItem('sims_demo_seeded_' + tenantId) === '1') return;
+    localStorage.setItem('sims_demo_seeded_' + tenantId, '1');
+
+    _seedTenantCategories(tenantId);
+    const catRows = _readTable('categories').filter(c => Number(c.userId || c.user_id || c.adminId || c.company_id || 1) === Number(tenantId));
+    const electronicsCatId = catRows.find(c => c.name === 'Electronics')?.id || catRows[0]?.id || 1;
+    const clothingCatId = catRows.find(c => c.name === 'Clothing')?.id || catRows[0]?.id || 1;
+
+    let supRows = _readTable('suppliers');
+    let nextSupId = supRows.length ? Math.max(...supRows.map(r => r.id)) + 1 : 1;
+    const s1 = _normalizeRecord('suppliers', { id: nextSupId++, userId: tenantId, user_id: tenantId, name: 'Global Tech Imports Ltd', contactPerson: 'David Miller', phone: '+250788112233', email: 'orders@globaltech.com', address: 'Kigali Logistics Center', status: 'active', createdAt: _now() });
+    const s2 = _normalizeRecord('suppliers', { id: nextSupId++, userId: tenantId, user_id: tenantId, name: 'Fashion Hub Suppliers', contactPerson: 'Sarah Jenkins', phone: '+250788445566', email: 'supply@fashionhub.com', address: 'Special Economic Zone', status: 'active', createdAt: _now() });
+    supRows.push(s1, s2);
+    localStorage.setItem(_key('suppliers'), JSON.stringify(supRows));
+
+    let prodRows = _readTable('products');
+    let nextProdId = prodRows.length ? Math.max(...prodRows.map(r => r.id)) + 1 : 1;
+    const p1 = _normalizeRecord('products', { id: nextProdId++, userId: tenantId, user_id: tenantId, sku: 'SKU-EL-001', name: 'MacBook Pro M3 Max 16-inch', categoryId: electronicsCatId, supplierId: s1.id, purchasePrice: 2400, sellingPrice: 2950, quantity: 15, minStock: 5, status: 'active', importCountry: 'USA', customDutyRate: 15, freightRate: 5, insuranceRate: 1, portCharges: 25, clearCharge: 50, exchangeRate: 1350, currency: 'USD', createdAt: _now() });
+    const p2 = _normalizeRecord('products', { id: nextProdId++, userId: tenantId, user_id: tenantId, sku: 'SKU-EL-002', name: 'Wireless Noise-Canceling Headphones', categoryId: electronicsCatId, supplierId: s1.id, purchasePrice: 180, sellingPrice: 260, quantity: 45, minStock: 10, status: 'active', importCountry: 'China', customDutyRate: 10, freightRate: 4, insuranceRate: 1, portCharges: 10, clearCharge: 15, exchangeRate: 1350, currency: 'USD', createdAt: _now() });
+    const p3 = _normalizeRecord('products', { id: nextProdId++, userId: tenantId, user_id: tenantId, sku: 'SKU-CL-001', name: 'Premium Executive Suit Collection', categoryId: clothingCatId, supplierId: s2.id, purchasePrice: 120, sellingPrice: 210, quantity: 28, minStock: 8, status: 'active', importCountry: 'Turkey', customDutyRate: 12, freightRate: 3, insuranceRate: 1, portCharges: 12, clearCharge: 20, exchangeRate: 1350, currency: 'USD', createdAt: _now() });
+    prodRows.push(p1, p2, p3);
+    localStorage.setItem(_key('products'), JSON.stringify(prodRows));
+
+    let salesRows = _readTable('sales');
+    let nextSaleId = salesRows.length ? Math.max(...salesRows.map(r => r.id)) + 1 : 1;
+    const today = new Date().toISOString().split('T')[0];
+    const sale1 = _normalizeRecord('sales', { id: nextSaleId++, userId: tenantId, user_id: tenantId, invoiceNumber: 'INV-1001', customerName: 'Apex Enterprises', customerPhone: '+250781234567', saleDate: today, productId: p1.id, quantity: 2, sellingPrice: 2950, unitCost: 2400, revenue: 5900, profit: 1100, paymentMethod: 'bank_transfer', amountPaid: 5900, status: 'completed', createdAt: _now() });
+    const sale2 = _normalizeRecord('sales', { id: nextSaleId++, userId: tenantId, user_id: tenantId, invoiceNumber: 'INV-1002', customerName: 'Kigali Tech Store', customerPhone: '+250789876543', saleDate: today, productId: p2.id, quantity: 5, sellingPrice: 260, unitCost: 180, revenue: 1300, profit: 400, paymentMethod: 'cash', amountPaid: 1300, status: 'completed', createdAt: _now() });
+    salesRows.push(sale1, sale2);
+    localStorage.setItem(_key('sales'), JSON.stringify(salesRows));
+  }
+
   function _tenantRows(table) {
     const all = _readTable(table);
     if (table === 'companies') return all;
@@ -195,6 +228,19 @@ const DB = (() => {
         return Number(rOwner) === tenantId;
       });
     }
+
+    if (table === 'products' && filtered.length === 0) {
+      _seedDemoData(tenantId);
+      return _readTable('products').filter(r => {
+        const rComp = Number(r.company_id || r.company || 0);
+        if (uCompany && rComp === uCompany) return true;
+        if (tenantId && rComp === tenantId) return true;
+        const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
+        if (rOwner === undefined || rOwner === null) return true;
+        return Number(rOwner) === tenantId;
+      });
+    }
+
     return filtered;
   }
 
