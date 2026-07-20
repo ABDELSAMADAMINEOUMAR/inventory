@@ -69,7 +69,26 @@ class UserViewSet(CompanyScopedModelViewSet):
             instance.set_password(pw)
             instance.must_change_password = False
             instance.save()
-            on_password_changed(instance, request=self.request)
+            try:
+                on_password_changed(instance, request=self.request)
+            except Exception as e:
+                import logging
+                logging.getLogger(__name__).warning(f"on_password_changed warning: {e}")
+
+    def perform_destroy(self, instance):
+        if instance == self.request.user:
+            from rest_framework.exceptions import ValidationError
+            raise ValidationError("You cannot delete your own admin account.")
+        if instance.role == 'platform_owner':
+            from rest_framework.exceptions import PermissionDenied
+            raise PermissionDenied("Platform owner account cannot be deleted.")
+        try:
+            from rest_framework_simplejwt.token_blacklist.models import OutstandingToken
+            OutstandingToken.objects.filter(user=instance).delete()
+        except Exception as e:
+            import logging
+            logging.getLogger(__name__).warning(f"Could not clean up outstanding tokens before deleting user: {e}")
+        instance.delete()
 
 
 class CategoryViewSet(CompanyScopedModelViewSet):

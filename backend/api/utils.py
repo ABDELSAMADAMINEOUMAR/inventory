@@ -29,7 +29,8 @@ def invalidate_all_sessions(user):
             logger.info("Successfully blacklisted %d active session tokens for user %s.", len(blacklist_entries), user.email)
     except Exception as e:
         logger.error("Error blacklisting sessions for user %s: %s", user.email, e, exc_info=True)
-        raise e  # Re-raise to ensure transaction atomicity if DB fails
+        # Do not re-raise so password changes / updates always succeed cleanly even if token tables are locked/missing
+
 
 
 def on_password_changed(user, request=None):

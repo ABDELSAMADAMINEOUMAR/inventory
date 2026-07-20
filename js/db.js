@@ -306,25 +306,26 @@ const DB = (() => {
         }
         return _normalizeRecord(table, { id, ...data, ...saved });
       } catch (err) {
-        if (err.name !== 'AbortError' && !String(err.message).includes('Failed to fetch')) {
+        const msg = String(err.message || '').toLowerCase();
+        if (err.name !== 'AbortError' && !msg.includes('failed to fetch') && !msg.includes('404') && !msg.includes('not found')) {
           throw err;
         }
       }
     }
 
-    // Offline fallback (no backend reachable) — local-only, unchanged behavior
+    // Offline fallback (no backend reachable or item exists local-only)
     const rows = _readTable(table);
-    const idx = rows.findIndex(r => r.id === id || r.id == id);
+    const idx = rows.findIndex(r => r.id === id || r.id == id || String(r.id) === String(id));
     if (idx === -1) return null;
     const tenantId = getTenantId();
     if (tenantId && table !== 'companies') {
       if (table === 'users') {
         const uId = Number(rows[idx].id);
         const uOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (uId !== tenantId && uOwner !== tenantId) return null;
+        if (uId !== tenantId && uOwner !== tenantId && Number(rows[idx].company_id || rows[idx].company) !== tenantId) return null;
       } else {
         const rOwner = Number(rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || 1);
-        if (rOwner !== tenantId) return null;
+        if (rOwner !== tenantId && Number(rows[idx].company_id || rows[idx].company) !== tenantId) return null;
       }
     }
     const rowOwner = rows[idx].userId || rows[idx].user_id || rows[idx].adminId || rows[idx].ownerId || tenantId || 1;
@@ -339,17 +340,21 @@ const DB = (() => {
     const endpoint = _apiEndpoint(table);
 
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
-      // Ask Django FIRST. If it rejects (403, 400, etc.), this throws
-      // and nothing gets removed locally.
-      await ApiClient.remove(endpoint, id); // throws on non-2xx
-
-      const rows = _readTable(table);
-      const idx = rows.findIndex(r => r.id === id || r.id == id);
-      if (idx !== -1) {
-        rows.splice(idx, 1);
-        _writeTable(table, rows);
+      try {
+        await ApiClient.remove(endpoint, id); // throws on non-2xx
+        const rows = _readTable(table);
+        const idx = rows.findIndex(r => r.id === id || r.id == id || String(r.id) === String(id));
+        if (idx !== -1) {
+          rows.splice(idx, 1);
+          _writeTable(table, rows);
+        }
+        return true;
+      } catch (err) {
+        const msg = String(err.message || '').toLowerCase();
+        if (err.name !== 'AbortError' && !msg.includes('failed to fetch') && !msg.includes('404') && !msg.includes('not found')) {
+          throw err;
+        }
       }
-      return true;
     }
 
     // Offline fallback (no backend reachable) — local-only, unchanged behavior
