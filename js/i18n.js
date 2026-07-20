@@ -20,7 +20,7 @@ const I18n = (() => {
 
       /* Login Page */
       app_subtitle: 'Import & Sales System',
-      login_welcome: 'Welcome Back', login_subtitle: 'Sign in to manage your business',
+      login_welcome: 'Welcome Back 👋', login_subtitle: 'Sign in to manage your business',
       login_email: 'Username or Email', login_password: 'Password',
       login_btn: 'Sign In to Dashboard', login_signing_in: 'Signing in...',
       login_invalid: 'Invalid credentials', login_hint: 'Default',
@@ -46,7 +46,7 @@ const I18n = (() => {
       activate_err_link: 'Invalid verification link. Missing uid or token in URL.',
       activate_verifying: 'Verifying Account...',
       activate_err_expired: 'Account not found or verification link expired.',
-      activate_success_title: 'Email verified & password set successfully!',
+      activate_success_title: '✓ Email verified & password set successfully!',
       activate_success_sub: 'Redirecting to sign-in screen...',
 
       /* Page Titles */
@@ -68,12 +68,12 @@ const I18n = (() => {
       nav_users: 'Users (Admin)',
 
       /* Dashboard Extra */
-      chart_monthly_rev: 'Monthly Revenue & Profit',
-      chart_monthly_exp: 'Monthly Expenses',
-      chart_top_selling: 'Top Selling Products',
-      chart_rev_vs_exp: 'Revenue vs Expenses',
-      recent_sales: 'Recent Sales',
-      recent_products: 'Recent Products',
+      chart_monthly_rev: '📊 Monthly Revenue & Profit',
+      chart_monthly_exp: '💸 Monthly Expenses',
+      chart_top_selling: '🏆 Top Selling Products',
+      chart_rev_vs_exp: '📈 Revenue vs Expenses',
+      recent_sales: '🛒 Recent Sales',
+      recent_products: '📦 Recent Products',
       no_recent_sales: 'No sales yet',
       no_recent_products: 'No products yet',
 
@@ -96,9 +96,9 @@ const I18n = (() => {
       btn_view_all: 'View All',
 
       /* Status */
-      status_available: 'In Stock', status_low: 'Low Stock',
-      status_out: 'Out of Stock', status_paid: 'Paid',
-      status_credit: 'Credit', status_overdue: 'Overdue',
+      status_available: '✓ In Stock', status_low: '⚠ Low Stock',
+      status_out: '✕ Out of Stock', status_paid: '✓ Paid',
+      status_credit: '💳 Credit', status_overdue: '⚠ Overdue',
 
       /* Product Form */
       lbl_code: 'Product Code', lbl_name: 'Product Name',
@@ -117,7 +117,7 @@ const I18n = (() => {
       lbl_customer: 'Customer Name', lbl_phone: 'Customer Phone',
       lbl_payment: 'Payment Status', lbl_due_date: 'Payment Due Date',
       lbl_amount_paid: 'Amount Already Paid',
-      lbl_note: 'Note', pay_now: 'Paid Now', pay_later: 'Credit (Pay Later)',
+      lbl_note: 'Note', pay_now: '✓ Paid Now', pay_later: '💳 Credit (Pay Later)',
       pay_now_sub: 'Customer paid immediately', pay_later_sub: 'Customer will pay later',
 
       /* Table Headers */
@@ -133,12 +133,12 @@ const I18n = (() => {
       th_stock_value: 'Stock Value',
 
       /* Reports */
-      rep_daily: 'Daily', rep_weekly: 'Weekly',
-      rep_monthly: 'Monthly', rep_annual: 'Annual',
+      rep_daily: '📅 Daily', rep_weekly: '📆 Weekly',
+      rep_monthly: '📊 Monthly', rep_annual: '📈 Annual',
 
       /* Settings */
-      set_profile: 'Profile Information', set_password: 'Change Password',
-      set_system: 'System Summary', set_danger: 'Danger Zone',
+      set_profile: '👤 Profile Information', set_password: '🔒 Change Password',
+      set_system: '📊 System Summary', set_danger: 'Danger Zone',
       set_reset: 'Reset All Data',
 
       /* Misc */
@@ -147,9 +147,9 @@ const I18n = (() => {
       search_ph: 'Search products, suppliers…',
       no_data: 'No data found',
       confirm_delete: 'Are you sure?', cannot_undo: 'This action cannot be undone.',
-      profit_calc: 'Profit Calculator (Live Preview)',
+      profit_calc: '📊 Profit Calculator (Live Preview)',
       available_stock: 'Available stock',
-      import_expenses: 'Import Expenses',
+      import_expenses: '💸 Import Expenses',
 
       /* Added Keys */
       brand_sub: 'Import & Sales',
@@ -175,7 +175,7 @@ const I18n = (() => {
       showcase_revenue_title: 'Gross Revenue Overview',
       day_mon: 'Mon', day_tue: 'Tue', day_wed: 'Wed', day_thu: 'Thu', day_fri: 'Fri', day_sat: 'Sat', day_sun: 'Sun',
       showcase_sync_title: 'Multi-Warehouse Sync', showcase_sync_desc: 'Real-Time Stock Automated Tracking',
-      showcase_sync_status: 'Active', showcase_sync_item: 'Import Container #492 (Electronics)', showcase_sync_done: 'Synced',
+      showcase_sync_status: 'Active', showcase_sync_item: 'Import Container #492 (Electronics)', showcase_sync_done: 'Synced ✓',
       showcase_quote_text: '"SmartIMS automated our entire import supply chain and gave us instant clarity on FX conversion & net profit margins."',
       showcase_quote_role: 'Managing Director, Global Imports',
       session_expired_title: 'Session Expired', session_expired_desc: 'Your session expired after inactivity. Please sign in again.',
@@ -192,7 +192,7 @@ const I18n = (() => {
 
       /* Login Page */
       app_subtitle: 'نظام الاستيراد والمبيعات الذكي',
-      login_welcome: 'مرحباً بعودتك', login_subtitle: 'سجل الدخول لإدارة عملك ومساحتك',
+      login_welcome: 'مرحباً بعودتك 👋', login_subtitle: 'سجل الدخول لإدارة عملك ومساحتك',
       login_email: 'اسم المستخدم أو البريد الإلكتروني', login_password: 'كلمة المرور',
       login_btn: 'تسجيل الدخول إلى لوحة التحكم', login_signing_in: 'جاري تسجيل الدخول...',
       login_invalid: 'بيانات الاعتماد غير صالحة', login_hint: 'الافتراضي',
@@ -218,7 +218,7 @@ const I18n = (() => {
       activate_err_link: 'رابط التفعيل غير صالح. مفقود uid أو token في الرابط.',
       activate_verifying: 'جاري تفعيل الحساب...',
       activate_err_expired: 'الحساب غير موجود أو رابط التفعيل منتهي الصلاحية.',
-      activate_success_title: 'تم تأكيد البريد وتعيين كلمة المرور بنجاح!',
+      activate_success_title: '✓ تم تأكيد البريد وتعيين كلمة المرور بنجاح!',
       activate_success_sub: 'جاري التوجيه إلى شاشة تسجيل الدخول...',
 
       /* Page Titles */
@@ -240,12 +240,12 @@ const I18n = (() => {
       nav_users: 'المستخدمون (إدارة)',
 
       /* Dashboard Extra */
-      chart_monthly_rev: 'الإيرادات والأرباح الشهرية',
-      chart_monthly_exp: 'المصاريف الشهرية',
-      chart_top_selling: 'المنتجات الأكثر مبيعاً',
-      chart_rev_vs_exp: 'الإيرادات مقابل المصاريف',
-      recent_sales: 'المبيعات الأخيرة',
-      recent_products: 'المنتجات الأخيرة',
+      chart_monthly_rev: '📊 الإيرادات والأرباح الشهرية',
+      chart_monthly_exp: '💸 المصاريف الشهرية',
+      chart_top_selling: '🏆 المنتجات الأكثر مبيعاً',
+      chart_rev_vs_exp: '📈 الإيرادات مقابل المصاريف',
+      recent_sales: '🛒 المبيعات الأخيرة',
+      recent_products: '📦 المنتجات الأخيرة',
       no_recent_sales: 'لا توجد مبيعات بعد',
       no_recent_products: 'لا توجد منتجات بعد',
 
@@ -268,9 +268,9 @@ const I18n = (() => {
       btn_view_all: 'عرض الكل',
 
       /* Status */
-      status_available: 'متوفر', status_low: 'مخزون منخفض',
-      status_out: 'نفد المخزون', status_paid: 'مدفوع',
-      status_credit: 'آجل', status_overdue: 'متأخر',
+      status_available: '✓ متوفر', status_low: '⚠ مخزون منخفض',
+      status_out: '✕ نفد المخزون', status_paid: '✓ مدفوع',
+      status_credit: '💳 آجل', status_overdue: '⚠ متأخر',
 
       /* Product Form */
       lbl_code: 'رمز المنتج', lbl_name: 'اسم المنتج',
@@ -289,7 +289,7 @@ const I18n = (() => {
       lbl_customer: 'اسم العميل', lbl_phone: 'هاتف العميل',
       lbl_payment: 'حالة الدفع', lbl_due_date: 'تاريخ استحقاق الدفع',
       lbl_amount_paid: 'المبلغ المدفوع مسبقاً',
-      lbl_note: 'ملاحظة', pay_now: 'مدفوع الآن', pay_later: 'آجل (ادفع لاحقاً)',
+      lbl_note: 'ملاحظة', pay_now: '✓ مدفوع الآن', pay_later: '💳 آجل (ادفع لاحقاً)',
       pay_now_sub: 'دفع العميل فوراً', pay_later_sub: 'سيدفع العميل لاحقاً',
 
       /* Table Headers */
@@ -305,12 +305,12 @@ const I18n = (() => {
       th_stock_level: 'مستوى المخزون', th_stock_value: 'قيمة المخزون',
 
       /* Reports */
-      rep_daily: 'يومي', rep_weekly: 'أسبوعي',
-      rep_monthly: 'شهري', rep_annual: 'سنوي',
+      rep_daily: '📅 يومي', rep_weekly: '📆 أسبوعي',
+      rep_monthly: '📊 شهري', rep_annual: '📈 سنوي',
 
       /* Settings */
-      set_profile: 'معلومات الملف الشخصي', set_password: 'تغيير كلمة المرور',
-      set_system: 'ملخص النظام', set_danger: 'منطقة الخطر',
+      set_profile: '👤 معلومات الملف الشخصي', set_password: '🔒 تغيير كلمة المرور',
+      set_system: '📊 ملخص النظام', set_danger: 'منطقة الخطر',
       set_reset: 'إعادة تعيين البيانات',
 
       /* Misc */
@@ -319,9 +319,9 @@ const I18n = (() => {
       search_ph: 'ابحث عن منتجات، موردين…',
       no_data: 'لا توجد بيانات',
       confirm_delete: 'هل أنت متأكد؟', cannot_undo: 'لا يمكن التراجع عن هذا الإجراء.',
-      profit_calc: 'حاسبة الأرباح (معاينة مباشرة)',
+      profit_calc: '📊 حاسبة الأرباح (معاينة مباشرة)',
       available_stock: 'المخزون المتاح',
-      import_expenses: 'مصاريف الاستيراد',
+      import_expenses: '💸 مصاريف الاستيراد',
 
       /* Added Keys */
       brand_sub: 'نظام الاستيراد والمبيعات',
@@ -347,7 +347,7 @@ const I18n = (() => {
       showcase_revenue_title: 'نظرة عامة على الإيرادات الإجمالية',
       day_mon: 'إثن', day_tue: 'ثلا', day_wed: 'أرب', day_thu: 'خمي', day_fri: 'جمعة', day_sat: 'سبت', day_sun: 'أحد',
       showcase_sync_title: 'مزامنة المخازن المتعددة', showcase_sync_desc: 'تتبع آلي وفوري للمخزون',
-      showcase_sync_status: 'نشط', showcase_sync_item: 'حاوية استيراد #492 (إلكترونيات)', showcase_sync_done: 'تمت المزامنة',
+      showcase_sync_status: 'نشط', showcase_sync_item: 'حاوية استيراد #492 (إلكترونيات)', showcase_sync_done: 'تمت المزامنة ✓',
       showcase_quote_text: '"نظام SmartIMS أتمت سلسلة توريد الاستيراد بأكملها ومنحنا وضوحاً فورياً حول تحويل العملات وهوامش الربح الصافي."',
       showcase_quote_role: 'المدير العام، الاستيراد العالمي',
       session_expired_title: 'انتهت الجلسة', session_expired_desc: 'انتهت صلاحية جلستك بسبب عدم النشاط. يرجى تسجيل الدخول مرة أخرى.',
@@ -364,7 +364,7 @@ const I18n = (() => {
 
       /* Login Page */
       app_subtitle: 'Système d\'Importation et de Ventes',
-      login_welcome: 'Bon retour', login_subtitle: 'Connectez-vous pour gérer votre activité',
+      login_welcome: 'Bon retour 👋', login_subtitle: 'Connectez-vous pour gérer votre activité',
       login_email: 'Nom d\'utilisateur ou E-mail', login_password: 'Mot de passe',
       login_btn: 'Se connecter au tableau de bord', login_signing_in: 'Connexion en cours...',
       login_invalid: 'Identifiants invalides', login_hint: 'Par défaut',
@@ -390,7 +390,7 @@ const I18n = (() => {
       activate_err_link: 'Lien de vérification invalide. uid ou token manquant.',
       activate_verifying: 'Vérification du compte en cours...',
       activate_err_expired: 'Compte introuvable ou lien de vérification expiré.',
-      activate_success_title: 'E-mail vérifié et mot de passe configuré avec succès !',
+      activate_success_title: '✓ E-mail vérifié et mot de passe configuré avec succès !',
       activate_success_sub: 'Redirection vers l\'écran de connexion...',
 
       /* Page Titles */
@@ -412,12 +412,12 @@ const I18n = (() => {
       nav_users: 'Utilisateurs (Admin)',
 
       /* Dashboard Extra */
-      chart_monthly_rev: 'Revenus et Profits Mensuels',
-      chart_monthly_exp: 'Dépenses Mensuelles',
-      chart_top_selling: 'Produits les plus vendus',
-      chart_rev_vs_exp: 'Revenus vs Dépenses',
-      recent_sales: 'Ventes Récentes',
-      recent_products: 'Produits Récents',
+      chart_monthly_rev: '📊 Revenus et Profits Mensuels',
+      chart_monthly_exp: '💸 Dépenses Mensuelles',
+      chart_top_selling: '🏆 Produits les plus vendus',
+      chart_rev_vs_exp: '📈 Revenus vs Dépenses',
+      recent_sales: '🛒 Ventes Récentes',
+      recent_products: '📦 Produits Récents',
       no_recent_sales: 'Aucune vente récente',
       no_recent_products: 'Aucun produit récent',
 
@@ -440,9 +440,9 @@ const I18n = (() => {
       btn_view_all: 'Voir Tout',
 
       /* Status */
-      status_available: 'En Stock', status_low: 'Stock Faible',
-      status_out: 'Rupture de Stock', status_paid: 'Payé',
-      status_credit: 'Crédit', status_overdue: 'En Retard',
+      status_available: '✓ En Stock', status_low: '⚠ Stock Faible',
+      status_out: '✕ Rupture de Stock', status_paid: '✓ Payé',
+      status_credit: '💳 Crédit', status_overdue: '⚠ En Retard',
 
       /* Product Form */
       lbl_code: 'Code Produit', lbl_name: 'Nom du Produit',
@@ -461,7 +461,7 @@ const I18n = (() => {
       lbl_customer: 'Nom du Client', lbl_phone: 'Téléphone du Client',
       lbl_payment: 'Statut du Paiement', lbl_due_date: 'Date d\'Échéance',
       lbl_amount_paid: 'Montant Déjà Payé',
-      lbl_note: 'Note', pay_now: 'Payé Immédiatement', pay_later: 'Crédit (Payer plus tard)',
+      lbl_note: 'Note', pay_now: '✓ Payé Immédiatement', pay_later: '💳 Crédit (Payer plus tard)',
       pay_now_sub: 'Le client a payé immédiatement', pay_later_sub: 'Le client paiera plus tard',
 
       /* Table Headers */
@@ -477,12 +477,12 @@ const I18n = (() => {
       th_stock_value: 'Valeur du Stock',
 
       /* Reports */
-      rep_daily: 'Quotidien', rep_weekly: 'Hebdomadaire',
-      rep_monthly: 'Mensuel', rep_annual: 'Annuel',
+      rep_daily: '📅 Quotidien', rep_weekly: '📆 Hebdomadaire',
+      rep_monthly: '📊 Mensuel', rep_annual: '📈 Annuel',
 
       /* Settings */
-      set_profile: 'Informations du Profil', set_password: 'Changer le Mot de Passe',
-      set_system: 'Résumé du Système', set_danger: 'Zone de Danger',
+      set_profile: '👤 Informations du Profil', set_password: '🔒 Changer le Mot de Passe',
+      set_system: '📊 Résumé du Système', set_danger: 'Zone de Danger',
       set_reset: 'Réinitialiser Toutes les Données',
 
       /* Misc */
@@ -491,9 +491,9 @@ const I18n = (() => {
       search_ph: 'Rechercher produits, fournisseurs…',
       no_data: 'Aucune donnée trouvée',
       confirm_delete: 'Êtes-vous sûr ?', cannot_undo: 'Cette action ne peut pas être annulée.',
-      profit_calc: 'Calculateur de Profit (Aperçu en direct)',
+      profit_calc: '📊 Calculateur de Profit (Aperçu en direct)',
       available_stock: 'Stock disponible',
-      import_expenses: 'Dépenses d\'Importation',
+      import_expenses: '💸 Dépenses d\'Importation',
 
       /* Added Keys */
       brand_sub: 'Importation et Ventes',
@@ -519,7 +519,7 @@ const I18n = (() => {
       showcase_revenue_title: 'Aperçu des revenus bruts',
       day_mon: 'Lun', day_tue: 'Mar', day_wed: 'Mer', day_thu: 'Jeu', day_fri: 'Ven', day_sat: 'Sam', day_sun: 'Dim',
       showcase_sync_title: 'Synchronisation multi-entrepôts', showcase_sync_desc: 'Suivi automatisé du stock en temps réel',
-      showcase_sync_status: 'Actif', showcase_sync_item: 'Conteneur d\'import #492 (Électronique)', showcase_sync_done: 'Synchronisé',
+      showcase_sync_status: 'Actif', showcase_sync_item: 'Conteneur d\'import #492 (Électronique)', showcase_sync_done: 'Synchronisé ✓',
       showcase_quote_text: '"SmartIMS a automatisé toute notre chaîne d\'approvisionnement et nous a donné une clarté instantanée sur la conversion FX et les marges nettes."',
       showcase_quote_role: 'Directeur général, Importations mondiales',
       session_expired_title: 'Session expirée', session_expired_desc: 'Votre session a expiré après une période d\'inactivité. Veuillez vous reconnecter.',
@@ -578,10 +578,10 @@ const I18n = (() => {
     // Update language button label
     const btn = document.getElementById('langToggleBtn');
     if (btn) {
-      if (lang === 'en') btn.innerHTML = `${typeof UI !== 'undefined' && UI.svg ? UI.svg('globe', 16) : ''} عربي`;
-      else if (lang === 'ar') btn.innerHTML = `${typeof UI !== 'undefined' && UI.svg ? UI.svg('globe', 16) : ''} Français`;
-      else if (lang === 'fr') btn.innerHTML = `${typeof UI !== 'undefined' && UI.svg ? UI.svg('globe', 16) : ''} English`;
-      else btn.innerHTML = `${typeof UI !== 'undefined' && UI.svg ? UI.svg('globe', 16) : ''} عربي`;
+      if (lang === 'en') btn.textContent = '🌐 عربي';
+      else if (lang === 'ar') btn.textContent = '🌐 Français';
+      else if (lang === 'fr') btn.textContent = '🌐 English';
+      else btn.textContent = '🌐 عربي';
     }
 
     // Update placeholder in header search

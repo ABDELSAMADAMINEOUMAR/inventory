@@ -17,10 +17,10 @@ const Inventory = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2 style="display:flex;align-items:center;gap:10px;">${UI.svg('inventory', 26)} ${t('page_inventory')}</h2><p>${I18n.choose('Real-time stock levels and alerts', 'مستويات المخزون والتنبيهات الحية', 'Niveaux de stock en temps réel et alertes')}</p></div>
+        <div class="page-title"><h2>🏪 ${t('page_inventory')}</h2><p>${I18n.choose('Real-time stock levels and alerts', 'مستويات المخزون والتنبيهات الحية', 'Niveaux de stock en temps réel et alertes')}</p></div>
         <div class="page-actions">
-          ${UI.canEditProducts() ? `<button class="btn btn-ghost" onclick="UI.navigate('products')" style="display:inline-flex;align-items:center;gap:6px;">
-            ${UI.svg('plus', 16)}
+          ${UI.canEditProducts() ? `<button class="btn btn-ghost" onclick="UI.navigate('products')">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             ${t('btn_add_product')}
           </button>` : ''}
         </div>
@@ -54,24 +54,24 @@ const Inventory = (() => {
       ${out.length && unread.some(p => p.stockStatus === 'out') ? `
       <div class="alert alert-danger alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:12px">
-          <span class="alert-icon">${UI.svg('alert', 22, 'text-danger')}</span>
+          <span class="alert-icon">🚨</span>
           <div class="alert-content">
             <div class="alert-title">${I18n.choose('Out of Stock — ' + out.length + ' product(s)', 'نفد من المخزون — ' + out.length + ' منتج(ات)', 'Rupture de stock — ' + out.length + ' produit(s)')}</div>
             <div class="alert-body">${out.map(p => p.name).join(', ')}</div>
           </div>
         </div>
-        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">&times;</button>
+        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">✕</button>
       </div>` : ''}
       ${low.length && unread.some(p => p.stockStatus === 'low') ? `
       <div class="alert alert-warning alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;">
         <div style="display:flex;align-items:center;gap:12px">
-          <span class="alert-icon">${UI.svg('alert', 22, 'text-warning')}</span>
+          <span class="alert-icon">⚠️</span>
           <div class="alert-content">
             <div class="alert-title">${I18n.choose('Low Stock — ' + low.length + ' product(s)', 'مخزون منخفض — ' + low.length + ' منتج(ات)', 'Stock faible — ' + low.length + ' produit(s)')}</div>
             <div class="alert-body">${low.map(p => `${p.name} (${p.currentStock} ${I18n.choose('left', 'متبقي', 'restant(s)')})`).join(', ')}</div>
           </div>
         </div>
-        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">&times;</button>
+        <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">✕</button>
       </div>` : ''}
 
       <!-- Filter Tabs -->
@@ -126,7 +126,7 @@ const Inventory = (() => {
     if (_filter !== 'all') products = products.filter(p => p.stockStatus === _filter);
 
     if (!products.length) {
-      body.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">${UI.svg('inventory', 48)}</div><h3>${I18n.choose('No products in this filter', 'لا توجد منتجات في هذا الفلتر', 'Aucun produit dans ce filtre')}</h3></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="12"><div class="empty-state"><div class="empty-icon">🏪</div><h3>${I18n.choose('No products in this filter', 'لا توجد منتجات في هذا الفلتر', 'Aucun produit dans ce filtre')}</h3></div></td></tr>`;
       return;
     }
 
@@ -140,7 +140,7 @@ const Inventory = (() => {
       <tr>
         <td>
           <div style="display:flex;align-items:center;gap:8px">
-            ${p.image ? `<img src="${p.image}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0">` : `<div style="width:28px;height:28px;border-radius:6px;background:rgba(124,58,237,0.1);display:flex;align-items:center;justify-content:center;color:var(--primary-light);flex-shrink:0">${UI.svg('box', 16)}</div>`}
+            ${p.image ? `<img src="${p.image}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0">` : `<div style="width:28px;height:28px;border-radius:6px;background:rgba(124,58,237,0.1);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0">📦</div>`}
             <div style="font-weight:600;font-size:0.83rem;line-height:1.2;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.name}">${p.name}</div>
           </div>
         </td>

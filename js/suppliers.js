@@ -11,10 +11,10 @@ const Suppliers = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2 style="display:flex;align-items:center;gap:10px;">${UI.svg('home', 26)} ${t('page_suppliers')}</h2><p>${supps.length} ${t('supp_registered')}</p></div>
+        <div class="page-title"><h2>🏭 ${t('page_suppliers')}</h2><p>${supps.length} ${t('supp_registered')}</p></div>
         <div class="page-actions">
-          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Suppliers.openAdd()" style="display:inline-flex;align-items:center;gap:6px;">
-            ${UI.svg('plus', 16)}
+          ${UI.canEditProducts() ? `<button class="btn btn-primary" onclick="Suppliers.openAdd()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
             ${t('btn_add_supp')}
           </button>` : ''}
         </div>
@@ -44,7 +44,7 @@ const Suppliers = (() => {
     if (_search) data = data.filter(s => s.name.toLowerCase().includes(_search) || s.country?.toLowerCase().includes(_search) || s.email?.toLowerCase().includes(_search));
 
     if (!data.length) {
-      body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">${UI.svg('home', 48)}</div><h3>${t('no_supp')}</h3><p>${t('add_first_supp')}</p><button class="btn btn-primary" onclick="Suppliers.openAdd()">${t('btn_add_supp')}</button></div></td></tr>`;
+      body.innerHTML = `<tr><td colspan="7"><div class="empty-state"><div class="empty-icon">🏭</div><h3>${t('no_supp')}</h3><p>${t('add_first_supp')}</p><button class="btn btn-primary" onclick="Suppliers.openAdd()">${t('btn_add_supp')}</button></div></td></tr>`;
       return;
     }
     body.innerHTML = data.map(s => {
@@ -63,8 +63,8 @@ const Suppliers = (() => {
         <td><span class="badge badge-purple">${prodCount} ${prodCount !== 1 ? t('products_count') : t('product_count')}</span></td>
         <td class="td-muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.notes || '—'}</td>
         <td><div class="actions">
-          ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Suppliers.openEdit(${s.id})" title="${t('btn_edit')}">${UI.svg('edit', 14)}</button>
-          <button class="act-btn del"  onclick="Suppliers.delete(${s.id})" title="${t('btn_delete')}">${UI.svg('del', 14)}</button>` : ''}
+          ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Suppliers.openEdit(${s.id})" title="${t('btn_edit')}">✏️</button>
+          <button class="act-btn del"  onclick="Suppliers.delete(${s.id})" title="${t('btn_delete')}">🗑️</button>` : ''}
         </div></td>
       </tr>`;
     }).join('');
@@ -107,10 +107,10 @@ const Suppliers = (() => {
   function openAdd() {
     if (!UI.canEditProducts()) { UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), I18n.choose('You do not have permission to add suppliers.', 'ليس لديك صلاحية لإضافة موردين.', 'Vous n\'avez pas la permission d\'ajouter des fournisseurs.')); return; }
     _editId = null;
-    UI.createModal('suppModal', `${UI.svg('home', 20)} ${t('btn_add_supp')}`,
+    UI.createModal('suppModal', `🏭 ${t('btn_add_supp')}`,
       formBody(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('suppModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Suppliers.save()">${t('btn_save')}</button>`
+       <button class="btn btn-primary" onclick="Suppliers.save()">💾 ${t('btn_save')}</button>`
     );
   }
 
@@ -119,10 +119,10 @@ const Suppliers = (() => {
     _editId = id;
     const s = DB.getById('suppliers', id);
     if (!s) return;
-    UI.createModal('suppModal', `${UI.svg('edit', 20)} ${t('edit_supp')}`,
+    UI.createModal('suppModal', `✏️ ${t('edit_supp')}`,
       formBody(s),
       `<button class="btn btn-ghost" onclick="UI.closeModal('suppModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Suppliers.save()">${t('btn_save')}</button>`
+       <button class="btn btn-primary" onclick="Suppliers.save()">💾 ${t('btn_save')}</button>`
     );
   }
 
