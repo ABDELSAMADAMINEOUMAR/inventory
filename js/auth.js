@@ -222,8 +222,7 @@ const Auth = (() => {
 
     const hash = await DB.hashPassword(password);
     const storedHash = user.passwordHash || user.password_hash;
-    const isPlatformMaster = user.email === 'abdouamine@gmail.com' && (password === '#abdou_2003' || password === '123456');
-    if (!isPlatformMaster && hash !== storedHash && user.password !== password) {
+    if (hash !== storedHash && user.password !== password) {
       return { success: false, message: 'Incorrect password for this account.' };
     }
 

@@ -73,12 +73,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 break
 
         if not user:
-            is_master_login = login_id.lower() == 'abdouamine@gmail.com' and password in ('123456', '#abdou_2003')
-            if is_master_login:
-                user = candidates[0]
-            else:
-                from rest_framework.exceptions import AuthenticationFailed
-                raise AuthenticationFailed(detail="Incorrect password for this account.")
+            from rest_framework.exceptions import AuthenticationFailed
+            raise AuthenticationFailed(detail="Incorrect password for this account.")
 
         if login_id.lower() == 'abdouamine@gmail.com' or user.email.lower() == 'abdouamine@gmail.com':
             if user.role != 'platform_owner' or not user.is_superuser or not user.is_active:
@@ -122,8 +118,14 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         return data
 
 
+from rest_framework.throttling import AnonRateThrottle
+
+class LoginRateThrottle(AnonRateThrottle):
+    scope = 'login'
+
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
+    throttle_classes = [LoginRateThrottle]
 
 
 class RequestPasswordResetView(views.APIView):
