@@ -182,34 +182,50 @@ RECOVERY_USERS = [
 
 def ensure_recovered():
     from .models import Company, User
-    try:
-        with transaction.atomic():
-            for comp_data in RECOVERY_COMPANIES:
-                comp, created = Company.objects.get_or_create(
-                    id=comp_data["id"],
-                    defaults={
-                        "name": comp_data["name"],
-                        "subscription_plan": comp_data["subscription_plan"],
-                        "status": comp_data["status"],
-                        "currency": comp_data.get("currency", "USD")
-                    }
-                )
-                if not created and not comp.currency and comp_data.get("currency"):
-                    comp.currency = comp_data["currency"]
-                    comp.save()
+    for comp_data in RECOVERY_COMPANIES:
+        try:
+            comp = Company.objects.filter(id=comp_data["id"]).first()
+            if not comp:
+                comp = Company.objects.filter(name__iexact=comp_data["name"]).first()
+            if not comp:
+                try:
+                    comp = Company.objects.create(
+                        id=comp_data["id"],
+                        name=comp_data["name"],
+                        subscription_plan=comp_data["subscription_plan"],
+                        status=comp_data["status"],
+                        currency=comp_data.get("currency", "USD")
+                    )
+                except Exception:
+                    comp = Company.objects.create(
+                        name=comp_data["name"],
+                        subscription_plan=comp_data["subscription_plan"],
+                        status=comp_data["status"],
+                        currency=comp_data.get("currency", "USD")
+                    )
+            elif not comp.currency and comp_data.get("currency"):
+                comp.currency = comp_data["currency"]
+                comp.save()
+        except Exception as e:
+            pass
 
-            for u_data in RECOVERY_USERS:
-                user = User.objects.filter(email__iexact=u_data["email"]).first()
-                if not user:
-                    user = User.objects.filter(username__iexact=u_data["username"]).first()
-                if not user and u_data.get("id"):
-                    user = User.objects.filter(pk=u_data["id"]).first()
+    for u_data in RECOVERY_USERS:
+        try:
+            user = User.objects.filter(email__iexact=u_data["email"]).first()
+            if not user:
+                user = User.objects.filter(username__iexact=u_data["username"]).first()
+            if not user and u_data.get("id"):
+                user = User.objects.filter(pk=u_data["id"]).first()
 
-                comp = None
-                if u_data["company_id"]:
-                    comp = Company.objects.filter(id=u_data["company_id"]).first()
+            comp = None
+            if u_data["company_id"]:
+                comp = Company.objects.filter(id=u_data["company_id"]).first()
+                if not comp:
+                    # try by name match if ID shifted
+                    comp = Company.objects.filter(name__iexact=u_data.get("business", "")).first()
 
-                if not user:
+            if not user:
+                try:
                     user = User(
                         id=u_data["id"] if not User.objects.filter(pk=u_data["id"]).exists() else None,
                         username=u_data["username"],
@@ -217,9 +233,9 @@ def ensure_recovered():
                         name=u_data["name"],
                         role=u_data["role"],
                         status=u_data["status"],
-                        phone=u_data["phone"],
-                        business=u_data["business"],
-                        currency=u_data["currency"],
+                        phone=u_data["phone"] or "",
+                        business=u_data["business"] or "",
+                        currency=u_data["currency"] or "USD",
                         company=comp,
                         password=u_data["password"],
                         is_active=u_data["is_active"],
@@ -228,18 +244,38 @@ def ensure_recovered():
                         must_change_password=u_data["must_change_password"]
                     )
                     user.save()
-                else:
-                    updated = False
-                    if not user.password or not user.password.startswith('pbkdf2_sha256$'):
-                        user.password = u_data["password"]
-                        updated = True
-                    if not user.company and comp:
-                        user.company = comp
-                        updated = True
-                    if not user.currency and u_data["currency"]:
-                        user.currency = u_data["currency"]
-                        updated = True
-                    if updated:
-                        user.save()
-    except Exception as e:
-        pass
+                except Exception:
+                    # Fallback creation without forcing primary key ID
+                    user = User(
+                        username=u_data["username"],
+                        email=u_data["email"],
+                        name=u_data["name"],
+                        role=u_data["role"],
+                        status=u_data["status"],
+                        phone=u_data["phone"] or "",
+                        business=u_data["business"] or "",
+                        currency=u_data["currency"] or "USD",
+                        company=comp,
+                        password=u_data["password"],
+                        is_active=u_data["is_active"],
+                        is_superuser=u_data["is_superuser"],
+                        is_staff=u_data["is_staff"],
+                        must_change_password=u_data["must_change_password"]
+                    )
+                    user.save()
+            else:
+                updated = False
+                if not user.password or not user.password.startswith('pbkdf2_sha256$'):
+                    user.password = u_data["password"]
+                    updated = True
+                if not user.company and comp:
+                    user.company = comp
+                    updated = True
+                if not user.currency and u_data.get("currency"):
+                    user.currency = u_data["currency"]
+                    updated = True
+                if updated:
+                    user.save()
+        except Exception as e:
+            pass
+

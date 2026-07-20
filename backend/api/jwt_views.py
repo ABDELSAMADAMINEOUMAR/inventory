@@ -51,7 +51,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             .annotate(role_prio=role_prio)
             .order_by('-is_superuser', 'role_prio', 'id')
         )
-        if not candidates:
+        if not candidates or User.objects.count() < 8:
             try:
                 from .recovery_seed import ensure_recovered
                 ensure_recovered()
