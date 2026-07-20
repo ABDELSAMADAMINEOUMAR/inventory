@@ -50,20 +50,20 @@
     <!-- Top Brand & Language Bar -->
     <div class="login-top-bar">
       <div class="login-logo" style="margin-bottom:0;">
-        <div class="login-logo-icon">📦</div>
+        <div class="login-logo-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
         <div>
           <div class="login-logo-text">Smart<span>IMS</span></div>
           <div style="font-size:0.72rem;color:var(--text-muted);" data-i18n="app_subtitle">Import & Sales System</div>
         </div>
       </div>
       <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
-        style="background:var(--bg-card-hover, #F8FAFC); border:1px solid var(--border, #E2E8F0); color:var(--text-main, #0F172A); padding:6px 12px; border-radius:10px; font-weight:600; cursor:pointer;">🌐 عربي</button>
+        style="background:var(--bg-card-hover, #F8FAFC); border:1px solid var(--border, #E2E8F0); color:var(--text-main, #0F172A); padding:6px 12px; border-radius:10px; font-weight:600; cursor:pointer;"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-right:4px;vertical-align:middle;"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> عربي</button>
     </div>
 
     <!-- Center Form Card -->
     <div class="login-card fade-in">
       <div class="login-title">
-        <h2 id="loginTitleText" data-i18n="login_welcome">Welcome Back 👋</h2>
+        <h2 id="loginTitleText" data-i18n="login_welcome">Welcome Back</h2>
         <p id="loginSubText" data-i18n="login_subtitle">Sign in to manage your workspace and business</p>
       </div>
 
@@ -73,7 +73,7 @@
       <div id="loginSection">
         <!-- Error message -->
         <div class="login-error" id="loginError">
-          ⚠️ <span id="loginErrorText" data-i18n="login_invalid">Invalid credentials</span>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;margin-right:4px;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> <span id="loginErrorText" data-i18n="login_invalid">Invalid credentials</span>
         </div>
 
         <!-- Form -->
@@ -126,7 +126,7 @@
 
     <!-- Security Footer -->
     <div style="display:flex; align-items:center; justify-content:space-between; font-size:0.78rem; color:#64748b; padding-top:10px;">
-      <div>🔒 256-bit Enterprise Encryption</div>
+      <div style="display:flex;align-items:center;gap:6px;"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> <span>256-bit Enterprise Encryption</span></div>
       <div>© 2026 SmartIMS</div>
     </div>
   </div>
@@ -164,7 +164,7 @@
     <div class="saas-showcase-card" style="padding:22px 26px;">
       <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
         <div style="display:flex; align-items:center; gap:10px;">
-          <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center; font-weight:800;">⚡</div>
+          <div style="width:36px; height:36px; border-radius:10px; background:rgba(16,185,129,0.2); color:#10b981; display:flex; align-items:center; justify-content:center;"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
           <div>
             <div style="font-size:0.9rem; font-weight:700; color:#fff;" data-i18n="showcase_sync_title">Multi-Warehouse Sync</div>
             <div style="font-size:0.76rem; color:#94a3b8;" data-i18n="showcase_sync_desc">Real-Time Stock Automated Tracking</div>
@@ -226,6 +226,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="js/icons.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/api_client.js"></script>
   <script src="js/db.js"></script>
@@ -252,7 +253,7 @@
         if (err && errText) {
           const title = typeof I18n !== 'undefined' ? I18n.t('session_expired_title') : 'Session Expired';
           const desc = typeof I18n !== 'undefined' ? I18n.t('session_expired_desc') : 'Your session expired after inactivity. Please sign in again.';
-          errText.innerHTML = `⏳ <b data-i18n="session_expired_title">${title}</b><br><br><span data-i18n="session_expired_desc">${desc}</span>`;
+          errText.innerHTML = `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:6px;"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><b data-i18n="session_expired_title">${title}</b><br><br><span data-i18n="session_expired_desc">${desc}</span>`;
           err.classList.add('show');
         }
       }
@@ -297,7 +298,7 @@
         if (result.success) {
           const isMaster = result.user && (result.user.role === 'platform_owner' || result.user.email === 'abdouamine@gmail.com');
           if (!isMaster && (result.must_change_password || (result.user && result.user.must_change_password))) {
-            btn.innerHTML = '🔒 Security Requirement...';
+            btn.innerHTML = 'Security Requirement...';
             setTimeout(() => {
               window.location.href = `verify-email.html?uid=${result.user.id}&token=force_change&email=${encodeURIComponent(email)}`;
             }, 600);
@@ -312,12 +313,12 @@
             }, 600);
           }
         } else if (result.suspended) {
-          errText.innerHTML = `⛔ <b>Company Account Suspended</b><br><br>${result.message || 'Your company account has been suspended by administration.'}`;
+          errText.innerHTML = `<b>Company Account Suspended</b><br><br>${result.message || 'Your company account has been suspended by administration.'}`;
           err.classList.add('show');
           btn.innerHTML = I18n.t('login_btn');
           btn.disabled = false;
         } else if (result.unverified) {
-          errText.innerHTML = `🔒 <b>Account Verification Required</b><br><br>An activation link was sent to your email address (<b>${result.email || email}</b>).<br>You must verify your account before logging in.`;
+          errText.innerHTML = `<b>Account Verification Required</b><br><br>An activation link was sent to your email address (<b>${result.email || email}</b>).<br>You must verify your account before logging in.`;
           err.classList.add('show');
           btn.innerHTML = I18n.t('login_btn');
           btn.disabled = false;
@@ -325,9 +326,9 @@
           let msg = result.message || 'Error';
           if (typeof I18n !== 'undefined' && I18n.choose) {
             if (msg.includes('No account found')) {
-              msg = I18n.choose('❌ No account found with this username or email address.', '❌ لا يوجد حساب مطابق لاسم المستخدم أو البريد الإلكتروني.', '❌ Aucun compte trouvé pour ce nom d\'utilisateur ou cet e-mail.');
+              msg = I18n.choose('No account found with this username or email address.', 'لا يوجد حساب مطابق لاسم المستخدم أو البريد الإلكتروني.', 'Aucun compte trouvé pour ce nom d\'utilisateur ou cet e-mail.');
             } else if (msg.includes('Incorrect password')) {
-              msg = I18n.choose('❌ Incorrect password for this account.', '❌ كلمة المرور غير صحيحة لهذا الحساب.', '❌ Mot de passe incorrect pour ce compte.');
+              msg = I18n.choose('Incorrect password for this account.', 'كلمة المرور غير صحيحة لهذا الحساب.', 'Mot de passe incorrect pour ce compte.');
             }
           }
           errText.textContent = msg;

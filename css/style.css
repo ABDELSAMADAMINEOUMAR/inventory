@@ -692,9 +692,25 @@ textarea {
 }
 
 .nav-icon {
-  font-size: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   width: 20px;
-  text-align: center;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.nav-icon svg {
+  width: 18px;
+  height: 18px;
+  stroke-width: 2px;
+  transition: transform 0.2s;
+}
+
+.lucide-icon {
+  display: inline-block;
+  vertical-align: middle;
+  flex-shrink: 0;
 }
 
 .nav-label {
@@ -1924,6 +1940,13 @@ textarea.input {
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.act-btn svg {
+  width: 16px;
+  height: 16px;
+  stroke-width: 2px;
+  pointer-events: none;
+}
+
 .act-btn:hover {
   transform: translateY(-2px) scale(1.15);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.4);
@@ -2098,8 +2121,16 @@ textarea.input {
 }
 
 .alert-icon {
-  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+}
+
+.alert-icon svg {
+  width: 22px;
+  height: 22px;
+  stroke-width: 2px;
 }
 
 .alert-content {
@@ -2292,17 +2323,23 @@ textarea.input {
 }
 
 .confirm-icon {
-  font-size: 38px;
-  width: 76px;
-  height: 76px;
-  border-radius: 22px;
+  width: 68px;
+  height: 68px;
+  border-radius: 20px;
   background: rgba(239, 68, 68, 0.15);
   border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--danger, #ef4444);
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 10px 25px -5px rgba(239, 68, 68, 0.35);
   margin: 0 auto;
+}
+
+.confirm-icon svg {
+  width: 34px;
+  height: 34px;
+  stroke-width: 2px;
 }
 
 .confirm-icon.warning {
@@ -2528,10 +2565,22 @@ textarea.input {
 }
 
 .empty-icon {
-  font-size: 48px;
-  margin-bottom: 14px;
-  opacity: 0.8;
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 16px;
+  border-radius: 18px;
+  background: rgba(124, 58, 237, 0.1);
+  color: var(--primary-light, #a855f7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   animation: float 6s ease-in-out infinite;
+}
+
+.empty-icon svg {
+  width: 32px;
+  height: 32px;
+  stroke-width: 1.75px;
 }
 
 .empty-state h3 {

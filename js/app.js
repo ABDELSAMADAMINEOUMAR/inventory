@@ -78,7 +78,7 @@ const UI = (() => {
         PAGES[page].render(content);
         initTableScroller(content);
       } catch(e) {
-        content.innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Page Error</h3><p>${e.message}</p></div>`;
+        content.innerHTML = `<div class="empty-state"><div class="empty-icon">${UI.icon('alert-triangle', '', 32)}</div><h3>Page Error</h3><p>${e.message}</p></div>`;
         console.error(e);
       }
     });
@@ -185,7 +185,7 @@ const UI = (() => {
     const btnClass = iconType === 'danger' ? 'btn-danger' : iconType === 'success' ? 'btn-accent' : 'btn-primary';
     document.getElementById('confirmOkBtn').className = `btn ${btnClass} confirm-action-btn`;
     document.getElementById('confirmIcon').className = `confirm-icon ${iconType === 'success' ? 'warning' : iconType}`;
-    document.getElementById('confirmIcon').textContent = iconType === 'danger' ? '🗑️' : iconType === 'success' ? '✅' : '⚠️';
+    document.getElementById('confirmIcon').innerHTML = iconType === 'danger' ? UI.icon('trash', '', 24) : iconType === 'success' ? UI.icon('check-circle', '', 24) : UI.icon('alert-triangle', '', 24);
     document.getElementById('confirmModal').classList.add('show');
     return new Promise(resolve => { _confirmResolve = resolve; });
   }
@@ -271,23 +271,23 @@ const UI = (() => {
 
     let body = '';
     if (!low.length && !out.length) {
-      body = '<div class="empty-state" style="padding:32px"><div class="empty-icon" style="font-size:32px">✅</div><p>No alerts at the moment</p></div>';
+      body = `<div class="empty-state" style="padding:32px"><div class="empty-icon" style="display:flex;justify-content:center;">${UI.icon('check-circle', '', 32)}</div><p>No alerts at the moment</p></div>`;
     }
     out.forEach(p => {
       body += `<div class="alert alert-danger" style="margin-bottom:8px">
-        <span class="alert-icon">🚨</span>
+        <span class="alert-icon">${UI.icon('alert-triangle', '', 20)}</span>
         <div class="alert-content"><div class="alert-title">Out of Stock</div><div class="alert-body">${p.name} — 0 units remaining</div></div>
       </div>`;
     });
     low.forEach(p => {
       body += `<div class="alert alert-warning" style="margin-bottom:8px">
-        <span class="alert-icon">⚠️</span>
+        <span class="alert-icon">${UI.icon('alert-circle', '', 20)}</span>
         <div class="alert-content"><div class="alert-title">Low Stock</div><div class="alert-body">${p.name} — Only ${p.currentStock} units left</div></div>
       </div>`;
     });
 
-    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">✅ ${I18n.choose('Mark as Read & Close', 'تم القراءة وإغلاق التنبيهات', 'Marquer comme lu & fermer')}</button>`;
-    createModal('notifModal', `🔔 ${I18n.choose('Notifications', 'التنبيهات', 'Notifications')}`, body, footer, 'modal-sm');
+    const footer = `<button class="btn btn-primary" style="width:100%;font-weight:600;" onclick="UI.closeModal('notifModal'); UI.updateStockBadge();">${UI.icon('check', '', 16)} ${I18n.choose('Mark as Read & Close', 'تم القراءة وإغلاق التنبيهات', 'Marquer comme lu & fermer')}</button>`;
+    createModal('notifModal', `${UI.icon('bell', '', 20)} ${I18n.choose('Notifications', 'التنبيهات', 'Notifications')}`, body, footer, 'modal-sm');
 
     // Mark current alerts as read
     let readNotifs = {};
@@ -532,7 +532,7 @@ const UI = (() => {
                 </select>
               </div>
               <div style="grid-column:1/-1">
-                <button type="submit" class="btn btn-primary">💾 ${I18n.choose('Save Profile', 'حفظ الملف الشخصي', 'Enregistrer le profil')}</button>
+                <button type="submit" class="btn btn-primary">${UI.icon('save', '', 16)} ${I18n.choose('Save Profile', 'حفظ الملف الشخصي', 'Enregistrer le profil')}</button>
               </div>
             </form>
           </div>
@@ -556,7 +556,7 @@ const UI = (() => {
                 <input class="input" type="password" id="confirmPwd" placeholder="Repeat new password">
               </div>
               <div>
-                <button type="submit" class="btn btn-primary">🔑 ${t('set_password')}</button>
+                <button type="submit" class="btn btn-primary">${UI.icon('lock', '', 16)} ${t('set_password')}</button>
               </div>
             </form>
           </div>
@@ -696,7 +696,7 @@ const UI = (() => {
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:12px 10px;word-break:break-word;">
                 <strong style="font-size:13.5px;color:var(--text-main);">${c.name}</strong>
-                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;">👤 <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.icon('user', '', 12)} <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
               </td>
               <td style="padding:12px 10px;">
                 <span class="badge" style="background:${planColor};color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;">
@@ -718,11 +718,11 @@ const UI = (() => {
               </td>
               <td style="padding:12px 10px;">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;" onclick="UI.promptPlanChange('${c.id}', '${c.subscription_plan}')">⭐ Plan</button>
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;" onclick="UI.toggleCompanyStatus('${c.id}', '${c.status === 'active' ? 'suspended' : 'active'}')">
-                    ${c.status === 'active' ? '⏸️ Suspend' : '▶️ Activate'}
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.promptPlanChange('${c.id}', '${c.subscription_plan}')">${UI.icon('award', '', 12)} Plan</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.toggleCompanyStatus('${c.id}', '${c.status === 'active' ? 'suspended' : 'active'}')">
+                    ${c.status === 'active' ? UI.icon('pause', '', 12) + ' Suspend' : UI.icon('play', '', 12) + ' Activate'}
                   </button>
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);" onclick="UI.deleteCompany('${c.id}', '${(c.name||'Company').replace(/'/g, "\\'")}')" title="Delete Company">🗑️ Delete</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.deleteCompany('${c.id}', '${(c.name||'Company').replace(/'/g, "\\'")}')" title="Delete Company">${UI.icon('trash', '', 12)} Delete</button>
                 </div>
               </td>
             </tr>
@@ -746,9 +746,9 @@ const UI = (() => {
               <p style="margin:4px 0 0;font-size:13.5px;color:var(--text-muted);">Real-time subscription tiers, Monthly Recurring Revenue (MRR), and lifetime collections</p>
             </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-              <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.showCreateCompanyModal()">+ Add New Tenant Company</button>
-              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecoverTenantsModal()">♻️ Recover Tenants</button>
-              <button class="btn btn-danger" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;" onclick="UI.removeAllCompanies()">🗑️ Remove All Companies</button>
+              <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.showCreateCompanyModal()">${UI.icon('plus', '', 16)} Add New Tenant Company</button>
+              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecoverTenantsModal()">${UI.icon('rotate-ccw', '', 16)} Recover Tenants</button>
+              <button class="btn btn-danger" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;" onclick="UI.removeAllCompanies()">${UI.icon('trash', '', 16)} Remove All Companies</button>
             </div>
           </div>
 
@@ -758,7 +758,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💰</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(16,185,129,0.12);color:#10b981;display:flex;align-items:center;justify-content:center;">${UI.icon('dollar-sign', '', 20)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Monthly Recurring (MRR)</div>
                 </div>
                 <span class="badge" style="background:#10b981;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">+24.5% ↗</span>
@@ -774,7 +774,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">🚀</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(99,102,241,0.12);color:#6366f1;display:flex;align-items:center;justify-content:center;">${UI.icon('trending-up', '', 20)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Annualized Run Rate (ARR)</div>
                 </div>
                 <span class="badge" style="background:#6366f1;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">Yearly Projection</span>
@@ -790,7 +790,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(139,92,246,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">💎</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(139,92,246,0.12);color:#8b5cf6;display:flex;align-items:center;justify-content:center;">${UI.icon('award', '', 20)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Lifetime Collections</div>
                 </div>
                 <span class="badge" style="background:#8b5cf6;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">Total Paid</span>
@@ -806,7 +806,7 @@ const UI = (() => {
             <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;position:relative;overflow:hidden;box-shadow:0 4px 14px rgba(0,0,0,0.03);">
               <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px;">
                 <div style="display:flex;align-items:center;gap:10px;">
-                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);display:flex;align-items:center;justify-content:center;font-size:20px;">🏢</div>
+                  <div style="width:44px;height:44px;border-radius:12px;background:rgba(14,165,233,0.12);color:#0ea5e9;display:flex;align-items:center;justify-content:center;">${UI.icon('home', '', 20)}</div>
                   <div style="font-size:12px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;">Active Tenants</div>
                 </div>
                 <span class="badge" style="background:#0ea5e9;color:#fff;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;">${stats?.activeCompanies || 0} Active</span>
@@ -972,9 +972,9 @@ const UI = (() => {
   function showRecoverTenantsModal() {
     const archived = getArchivedCompanies();
     if (archived.length === 0) {
-      createModal('recoverTenantsModal', '♻️ Recover Deleted Tenant Companies',
+      createModal('recoverTenantsModal', `${UI.icon('rotate-ccw', '', 20)} Recover Deleted Tenant Companies`,
         `<div style="text-align:center;padding:36px 20px;">
-          <div style="font-size:48px;margin-bottom:12px;">🗑️</div>
+          <div style="margin-bottom:12px;">${UI.icon('trash', '', 48)}</div>
           <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">Recovery Bin is Empty</h3>
           <p style="margin:0;color:var(--text-muted);font-size:13.5px;">There are no deleted tenant companies available to restore. Your system is completely clean.</p>
         </div>`,
@@ -991,7 +991,7 @@ const UI = (() => {
         <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;">
           <div>
             <div style="font-weight:700;font-size:14.5px;color:var(--text-main);">${comp.name}</div>
-            <div style="font-size:12px;color:var(--text-muted);">📧 ${comp.admin_email} | Tier: <strong style="text-transform:uppercase;">${comp.subscription_plan}</strong></div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">${UI.icon('mail', '', 12)} ${comp.admin_email} | Tier: <strong style="text-transform:uppercase;">${comp.subscription_plan}</strong></div>
           </div>
           <div>
             ${isRestored 
@@ -1003,14 +1003,14 @@ const UI = (() => {
       `;
     }).join('');
 
-    createModal('recoverTenantsModal', '♻️ Recover Deleted Tenant Companies',
+    createModal('recoverTenantsModal', `${UI.icon('rotate-ccw', '', 20)} Recover Deleted Tenant Companies`,
       `<p style="margin-top:0;margin-bottom:16px;color:var(--text-muted);font-size:13.5px;">
         Restore individual tenant companies or purge the recovery bin permanently.
       </p>
       <div>${rowsHtml}</div>`,
-      `<button class="btn btn-danger" style="margin-right:auto;font-weight:700;" onclick="UI.clearRecoveryBin()">🗑️ Purge Recovery Bin</button>
+      `<button class="btn btn-danger" style="margin-right:auto;font-weight:700;display:inline-flex;align-items:center;gap:4px;" onclick="UI.clearRecoveryBin()">${UI.icon('trash', '', 16)} Purge Recovery Bin</button>
        <button class="btn btn-ghost" onclick="UI.closeModal('recoverTenantsModal')">Close</button>
-       <button class="btn btn-secondary" style="border:1px solid rgba(16,185,129,0.4);color:#10b981;font-weight:700;" onclick="UI.recoverAllDeletedTenants()">♻️ Restore All</button>`
+       <button class="btn btn-secondary" style="border:1px solid rgba(16,185,129,0.4);color:#10b981;font-weight:700;display:inline-flex;align-items:center;gap:4px;" onclick="UI.recoverAllDeletedTenants()">${UI.icon('rotate-ccw', '', 16)} Restore All</button>`
     );
   }
 
@@ -1025,7 +1025,7 @@ const UI = (() => {
       const activeUsers = DB.getAll('users');
       if (activeUsers.some(u => u.email && comp.admin_email && u.email.toLowerCase() === comp.admin_email.toLowerCase())) {
         const newEmail = prompt(
-          `⚠️ Email "${comp.admin_email}" is currently already in use by another active company.\n\nPlease enter a NEW email address for restoring "${comp.name}" admin:`,
+          `[Warning] Email "${comp.admin_email}" is currently already in use by another active company.\n\nPlease enter a NEW email address for restoring "${comp.name}" admin:`,
           `recovered_${comp.admin_email}`
         );
         if (!newEmail) {
@@ -1164,7 +1164,7 @@ const UI = (() => {
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('changePlanModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="UI.saveChangedPlan('${id}')">💾 Save Plan & Fee</button>`
+       <button class="btn btn-primary" onclick="UI.saveChangedPlan('${id}')">${UI.icon('save', '', 16)} Save Plan & Fee</button>`
     );
   }
 
@@ -1197,7 +1197,7 @@ const UI = (() => {
   }
 
   function showCreateCompanyModal() {
-    createModal('createCompanyModal', '🏢 Add New Tenant Company',
+    createModal('createCompanyModal', `${UI.icon('plus', '', 20)} Add New Tenant Company`,
       `<div class="form-grid">
         <div class="field">
           <label>Company / Tenant Name <span class="req">*</span></label>
@@ -1225,9 +1225,12 @@ const UI = (() => {
             <option value="EUR">EUR (€) - Euro</option>
           </select>
         </div>
-        <div style="grid-column: 1 / -1; margin-top: 8px; padding: 10px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid var(--primary); border-radius: 4px;">
-          <strong style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--primary);">👤 Initial Admin User Credentials</strong>
-          <span style="font-size: 12px; color: var(--text-muted);">An activation link will be sent to the Admin Email to activate the account and set a password.</span>
+        <div style="grid-column: 1 / -1; margin-top: 8px; padding: 10px; background: rgba(59, 130, 246, 0.08); border-left: 3px solid var(--primary); border-radius: 4px; display: flex; align-items: flex-start; gap: 8px;">
+          <div style="color:var(--primary);margin-top:2px;">${UI.icon('user', '', 16)}</div>
+          <div>
+            <strong style="display: block; font-size: 13px; margin-bottom: 4px; color: var(--primary);">Initial Admin User Credentials</strong>
+            <span style="font-size: 12px; color: var(--text-muted);">An activation link will be sent to the Admin Email to activate the account and set a password.</span>
+          </div>
         </div>
         <div class="field">
           <label>Admin Full Name <span class="req">*</span></label>
@@ -1243,7 +1246,7 @@ const UI = (() => {
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('createCompanyModal')">Cancel</button>
-       <button class="btn btn-primary" onclick="UI.saveNewCompany()">💾 Create Tenant & Send Invite</button>`
+       <button class="btn btn-primary" onclick="UI.saveNewCompany()">${UI.icon('save', '', 16)} Create Tenant & Send Invite</button>`
     );
   }
 
@@ -1395,9 +1398,9 @@ const UI = (() => {
         const gmailComposeUrl = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(adminEmail)}&su=${emailSubject}&body=${emailBody}`;
         const mailtoUrl = `mailto:${encodeURIComponent(adminEmail)}?subject=${emailSubject}&body=${emailBody}`;
 
-        createModal('tenantCreatedModal', '📧 Tenant Created & Activation Invitation Ready!',
+        createModal('tenantCreatedModal', `${UI.icon('mail', '', 20)} Tenant Created & Activation Invitation Ready!`,
           `<div style="text-align:center;padding:10px 0;">
-            <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 16px;">✉️</div>
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${UI.icon('mail', '', 32)}</div>
             <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">${name}</h3>
             <p style="margin:0 0 16px;color:var(--text-muted);font-size:13.5px;">Send the activation invitation directly to <strong>${adminEmail}</strong>:</p>
             
@@ -1405,7 +1408,7 @@ const UI = (() => {
               <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">DIRECT ACTIVATION & PASSWORD LINK</div>
               <div style="display:flex;gap:8px;margin-bottom:12px;">
                 <input type="text" readonly class="input" value="${activationUrl}" style="font-size:12px;background:var(--surface);cursor:text;" onclick="this.select()">
-                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;" onclick="navigator.clipboard.writeText('${activationUrl}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">📋 Copy Link</button>
+                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;" onclick="navigator.clipboard.writeText('${activationUrl}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">${UI.icon('copy', '', 14)} Copy Link</button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">TENANT ADMIN CREDENTIALS</div>
               <div style="font-size:13.5px;color:var(--text-main);margin-bottom:4px;"><strong>Username:</strong> ${adminUsername}</div>
@@ -1413,8 +1416,8 @@ const UI = (() => {
             </div>
 
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-              <a href="${gmailComposeUrl}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">📧 Send via Gmail ↗</a>
-              <a href="${mailtoUrl}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">✉️ Send via Email App</a>
+              <a href="${gmailComposeUrl}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Gmail ↗</a>
+              <a href="${mailtoUrl}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Email App</a>
             </div>
           </div>`,
           `<button class="btn btn-ghost" style="width:100%;font-weight:700;" onclick="UI.closeModal('tenantCreatedModal')">Done</button>`

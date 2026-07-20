@@ -11,7 +11,7 @@ const Users = (() => {
     if (!currentUser || currentUser.role !== 'admin') {
       container.innerHTML = `
         <div class="empty-state">
-          <div class="empty-icon">🛡️</div>
+          <div class="empty-icon">${UI.icon('shield', '', 32)}</div>
           <h3>${I18n.choose('Access Denied', 'تم رفض الوصول', 'Accès refusé')}</h3>
           <p>${I18n.choose('This administrative area is restricted to Admin accounts only.', 'هذه الصفحة مخصصة للمسؤولين فقط.', 'Cette zone administrative est réservée uniquement aux comptes administrateurs.')}</p>
         </div>`;
@@ -39,8 +39,8 @@ const Users = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title">
-          <h2>👥 ${I18n.choose('User & Role Management', 'إدارة المستخدمين والصلاحيات', 'Gestion des utilisateurs et des rôles')}</h2>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;">
+          <h2>${UI.icon('users', '', 24)} ${I18n.choose('User & Role Management', 'إدارة المستخدمين والصلاحيات', 'Gestion des utilisateurs et des rôles')}</h2>
           <p>${users.length} ${I18n.choose('registered account(s) in system', 'حساب مسجل في النظام', 'compte(s) enregistré(s) dans le système')}</p>
         </div>
         <div class="page-actions">
@@ -75,10 +75,10 @@ const Users = (() => {
 
   function getRoleBadge(role) {
     const r = (role || 'staff').toLowerCase();
-    if (r === 'admin') return `<span class="badge badge-purple" style="font-size:12px;padding:4px 10px;">🛡️ ${I18n.choose('Admin', 'مسؤول', 'Administrateur')}</span>`;
-    if (r === 'manager') return `<span class="badge badge-blue" style="font-size:12px;padding:4px 10px;">👔 ${I18n.choose('Manager', 'مدير', 'Responsable')}</span>`;
-    if (r === 'cashier') return `<span class="badge badge-green" style="font-size:12px;padding:4px 10px;">💵 ${I18n.choose('Cashier', 'كاشير', 'Caissier')}</span>`;
-    return `<span class="badge badge-yellow" style="font-size:12px;padding:4px 10px;">👤 ${I18n.choose('Staff', 'موظف', 'Personnel')}</span>`;
+    if (r === 'admin') return `<span class="badge badge-purple" style="font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;">${UI.icon('shield', '', 14)} ${I18n.choose('Admin', 'مسؤول', 'Administrateur')}</span>`;
+    if (r === 'manager') return `<span class="badge badge-blue" style="font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;">${UI.icon('briefcase', '', 14)} ${I18n.choose('Manager', 'مدير', 'Responsable')}</span>`;
+    if (r === 'cashier') return `<span class="badge badge-green" style="font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;">${UI.icon('dollar-sign', '', 14)} ${I18n.choose('Cashier', 'كاشير', 'Caissier')}</span>`;
+    return `<span class="badge badge-yellow" style="font-size:12px;padding:4px 10px;display:inline-flex;align-items:center;gap:4px;">${UI.icon('user', '', 14)} ${I18n.choose('Staff', 'موظف', 'Personnel')}</span>`;
   }
 
   function renderRow(u, currentUserId) {
@@ -103,16 +103,16 @@ const Users = (() => {
       <td style="padding:16px;color:var(--text-muted);font-size:13px;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</td>
       <td style="padding:16px;text-align:right;">
         <div style="display:inline-flex;gap:8px;">
-          <button class="act-btn edit" onclick="Users.openEditRole(${u.id})" title="${I18n.choose('Edit Role', 'تعديل الصلاحية', 'Modifier le rôle')}">✏️</button>
-          <button class="act-btn view" onclick="Users.openResetPassword(${u.id})" title="${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')}">🔑</button>
-          ${!isMe ? `<button class="act-btn del" onclick="Users.deleteUser(${u.id})" title="${I18n.choose('Delete User', 'حذف الحساب', 'Supprimer l\'utilisateur')}">🗑️</button>` : ''}
+          <button class="act-btn edit" onclick="Users.openEditRole(${u.id})" title="${I18n.choose('Edit Role', 'تعديل الصلاحية', 'Modifier le rôle')}">${UI.icon('edit', '', 16)}</button>
+          <button class="act-btn view" onclick="Users.openResetPassword(${u.id})" title="${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')}">${UI.icon('lock', '', 16)}</button>
+          ${!isMe ? `<button class="act-btn del" onclick="Users.deleteUser(${u.id})" title="${I18n.choose('Delete User', 'حذف الحساب', 'Supprimer l\'utilisateur')}">${UI.icon('trash', '', 16)}</button>` : ''}
         </div>
       </td>
     </tr>`;
   }
 
   function openAdd() {
-    UI.createModal('addUserModal', `👤 ${I18n.choose('Add Staff / Cashier', 'إضافة موظف / كاشير جديد', 'Ajouter un membre du personnel / caissier')}`,
+    UI.createModal('addUserModal', `${UI.icon('user-plus', '', 20)} ${I18n.choose('Add Staff / Cashier', 'إضافة موظف / كاشير جديد', 'Ajouter un membre du personnel / caissier')}`,
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('Username (Login ID)', 'اسم المستخدم (تسجيل الدخول)', 'Nom d\'utilisateur (ID de connexion)')} <span class="req">*</span></label>
@@ -135,12 +135,12 @@ const Users = (() => {
             <option value="admin">${I18n.choose('Admin (Full Access)', 'مسؤول عام (Admin)', 'Administrateur (Accès complet)')}</option>
           </select>
         </div>
-        <div style="grid-column:1/-1;font-size:0.8rem;color:var(--text-muted);background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;">
-          💡 ${I18n.choose('No email verification needed. Staff can sign in immediately using this Username and Password.', 'لا حاجة للتحقق عبر البريد. يمكن للموظف الدخول فوراً باسم المستخدم وكلمة المرور هذه.', 'Aucune vérification d\'email requise. Le personnel peut se connecter immédiatement avec ce nom d\'utilisateur et ce mot de passe.')}
+        <div style="grid-column:1/-1;font-size:0.8rem;color:var(--text-muted);background:rgba(255,255,255,0.03);padding:10px;border-radius:8px;display:flex;align-items:center;gap:8px;">
+          ${UI.icon('info', '', 16)} ${I18n.choose('No email verification needed. Staff can sign in immediately using this Username and Password.', 'لا حاجة للتحقق عبر البريد. يمكن للموظف الدخول فوراً باسم المستخدم وكلمة المرور هذه.', 'Aucune vérification d\'email requise. Le personnel peut se connecter immédiatement avec ce nom d\'utilisateur et ce mot de passe.')}
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('addUserModal')">${t('btn_cancel') || I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
-       <button class="btn btn-primary" onclick="Users.saveNewUser()">💾 ${I18n.choose('Create Account', 'إنشاء الحساب', 'Créer un compte')}</button>`
+       <button class="btn btn-primary" onclick="Users.saveNewUser()">${UI.icon('save', '', 16)} ${I18n.choose('Create Account', 'إنشاء الحساب', 'Créer un compte')}</button>`
     );
   }
 
@@ -205,20 +205,20 @@ const Users = (() => {
     const u = DB.getById('users', id);
     if (!u) return;
 
-    UI.createModal('editRoleModal', `✏️ ${I18n.choose('Edit User Role', 'تعديل صلاحيات المستخدم', 'Modifier le rôle de l\'utilisateur')} — ${u.name}`,
+    UI.createModal('editRoleModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit User Role', 'تعديل صلاحيات المستخدم', 'Modifier le rôle de l\'utilisateur')} — ${u.name}`,
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('Select New Role', 'اختر الدور الجديد', 'Sélectionner un nouveau rôle')}</label>
           <select class="select" id="editUserRole">
-            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>🛡️ ${I18n.choose('Admin - Full Access', 'مسؤول (Admin) - صلاحية كاملة', 'Administrateur - Accès complet')}</option>
-            <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>👔 ${I18n.choose('Manager - Manage Inventory & Expenses', 'مدير (Manager) - إدارة المخزون والمصاريف', 'Responsable - Gestion du stock et des dépenses')}</option>
-            <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>👤 ${I18n.choose('Staff - Record Sales & Products', 'موظف (Staff) - تسجيل المبيعات والمنتجات', 'Personnel - Enregistrer les ventes et produits')}</option>
-            <option value="cashier" ${u.role === 'cashier' ? 'selected' : ''}>💵 ${I18n.choose('Cashier - Sales Only', 'كاشير (Cashier) - نقاط البيع فقط', 'Caissier - Ventes uniquement')}</option>
+            <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>${I18n.choose('Admin - Full Access', 'مسؤول (Admin) - صلاحية كاملة', 'Administrateur - Accès complet')}</option>
+            <option value="manager" ${u.role === 'manager' ? 'selected' : ''}>${I18n.choose('Manager - Manage Inventory & Expenses', 'مدير (Manager) - إدارة المخزون والمصاريف', 'Responsable - Gestion du stock et des dépenses')}</option>
+            <option value="staff" ${u.role === 'staff' ? 'selected' : ''}>${I18n.choose('Staff - Record Sales & Products', 'موظف (Staff) - تسجيل المبيعات والمنتجات', 'Personnel - Enregistrer les ventes et produits')}</option>
+            <option value="cashier" ${u.role === 'cashier' ? 'selected' : ''}>${I18n.choose('Cashier - Sales Only', 'كاشير (Cashier) - نقاط البيع فقط', 'Caissier - Ventes uniquement')}</option>
           </select>
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('editRoleModal')">${t('btn_cancel') || I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
-       <button class="btn btn-primary" onclick="Users.saveRole()">💾 ${I18n.choose('Save Role', 'حفظ الصلاحية', 'Enregistrer le rôle')}</button>`
+       <button class="btn btn-primary" onclick="Users.saveRole()">${UI.icon('save', '', 16)} ${I18n.choose('Save Role', 'حفظ الصلاحية', 'Enregistrer le rôle')}</button>`
     );
   }
 
@@ -242,7 +242,7 @@ const Users = (() => {
     const u = DB.getById('users', id);
     if (!u) return;
 
-    UI.createModal('resetPwdModal', `🔑 ${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')} — ${u.name}`,
+    UI.createModal('resetPwdModal', `${UI.icon('lock', '', 20)} ${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')} — ${u.name}`,
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('New Password', 'كلمة المرور الجديدة', 'Nouveau mot de passe')} <span class="req">*</span></label>
@@ -250,7 +250,7 @@ const Users = (() => {
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('resetPwdModal')">${t('btn_cancel') || I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
-       <button class="btn btn-primary" style="background:#3b82f6;" onclick="Users.saveResetPassword()">🔑 ${I18n.choose('Update Password', 'تحديث كلمة المرور', 'Mettre à jour le mot de passe')}</button>`
+       <button class="btn btn-primary" style="background:#3b82f6;" onclick="Users.saveResetPassword()">${UI.icon('lock', '', 16)} ${I18n.choose('Update Password', 'تحديث كلمة المرور', 'Mettre à jour le mot de passe')}</button>`
     );
   }
 

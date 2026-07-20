@@ -11,7 +11,7 @@ const Expenses = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title"><h2>💸 ${t('page_expenses')}</h2><p>${I18n.choose('Track all business and import expenses', 'تتبع مصاريف العمل والاستيراد', 'Suivre toutes les dépenses professionnelles et d\'importation')}</p></div>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${UI.icon('dollar-sign', '', 24)} ${t('page_expenses')}</h2><p>${I18n.choose('Track all business and import expenses', 'تتبع مصاريف العمل والاستيراد', 'Suivre toutes les dépenses professionnelles et d\'importation')}</p></div>
         <div class="page-actions">
           <button class="btn btn-primary" id="addExpBtn" onclick="Expenses.openAdd()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -22,16 +22,16 @@ const Expenses = (() => {
 
       <!-- Summary Cards -->
       <div class="kpi-grid stagger-children">
-        ${summaryCard(t('lbl_import_exp'), DB.sum('productExpenses','amount'), 'orange', '📦')}
-        ${summaryCard(I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles'), DB.sum('businessExpenses','amount'), 'red', '🏢')}
-        ${summaryCard(t('kpi_expenses'), DB.sum('productExpenses','amount') + DB.sum('businessExpenses','amount'), 'purple', '💰')}
-        ${summaryCard(I18n.choose('This Month', 'الشهر الحالي', 'Ce mois-ci'), monthlyExpenses(), 'blue', '📅')}
+        ${summaryCard(t('lbl_import_exp'), DB.sum('productExpenses','amount'), 'orange', UI.icon('package', '', 24))}
+        ${summaryCard(I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles'), DB.sum('businessExpenses','amount'), 'red', UI.icon('briefcase', '', 24))}
+        ${summaryCard(t('kpi_expenses'), DB.sum('productExpenses','amount') + DB.sum('businessExpenses','amount'), 'purple', UI.icon('wallet', '', 24))}
+        ${summaryCard(I18n.choose('This Month', 'الشهر الحالي', 'Ce mois-ci'), monthlyExpenses(), 'blue', UI.icon('calendar', '', 24))}
       </div>
 
       <!-- Tabs -->
       <div class="report-tabs">
-        <button class="report-tab ${_tab==='import'?'active':''}" onclick="Expenses.switchTab('import')">📦 ${t('lbl_import_exp')}</button>
-        <button class="report-tab ${_tab==='business'?'active':''}" onclick="Expenses.switchTab('business')">🏢 ${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')}</button>
+        <button class="report-tab ${_tab==='import'?'active':''}" onclick="Expenses.switchTab('import')">${UI.icon('package', '', 16)} ${t('lbl_import_exp')}</button>
+        <button class="report-tab ${_tab==='business'?'active':''}" onclick="Expenses.switchTab('business')">${UI.icon('briefcase', '', 16)} ${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')}</button>
       </div>
 
       <div id="expTabContent"></div>
@@ -81,7 +81,7 @@ const Expenses = (() => {
     }).filter(Boolean).sort((a,b) => b.total - a.total);
 
     if (!rows.length) {
-      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">📦</div><h3>${I18n.choose('No import expenses yet', 'لا توجد مصاريف استيراد بعد', 'Aucune dépense d\'importation')}</h3><p>${I18n.choose('Import expenses are added when creating products.', 'تتم إضافة مصاريف الاستيراد عند إنشاء المنتجات.', 'Les dépenses d\'importation sont ajoutées lors de la création de produits.')}</p><button class="btn btn-primary" onclick="UI.navigate('products')">${I18n.choose('Go to Products', 'اذهب للمنتجات', 'Aller aux produits')}</button></div></div>`;
+      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">${UI.icon('package', '', 32)}</div><h3>${I18n.choose('No import expenses yet', 'لا توجد مصاريف استيراد بعد', 'Aucune dépense d\'importation')}</h3><p>${I18n.choose('Import expenses are added when creating products.', 'تتم إضافة مصاريف الاستيراد عند إنشاء المنتجات.', 'Les dépenses d\'importation sont ajoutées lors de la création de produits.')}</p><button class="btn btn-primary" onclick="UI.navigate('products')">${I18n.choose('Go to Products', 'اذهب للمنتجات', 'Aller aux produits')}</button></div></div>`;
       return;
     }
 
@@ -105,8 +105,8 @@ const Expenses = (() => {
               <td class="td-muted">${UI.fmtDate(e.date)}</td>
               <td class="td-muted">${e.note||'—'}</td>
               <td><div class="actions">
-                <button class="act-btn edit" onclick="Expenses.editImport(${e.id})" title="${t('btn_edit')}">✏️</button>
-                <button class="act-btn del"  onclick="Expenses.deleteImport(${e.id})" title="${t('btn_delete')}">🗑️</button>
+                <button class="act-btn edit" onclick="Expenses.editImport(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
+                <button class="act-btn del"  onclick="Expenses.deleteImport(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
               </div></td>
             </tr>`).join('')}
           </tbody>
@@ -118,7 +118,7 @@ const Expenses = (() => {
   function renderBusiness(c) {
     const exps = DB.getAll('businessExpenses').sort((a,b) => new Date(b.expenseDate) - new Date(a.expenseDate));
     if (!exps.length) {
-      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">🏢</div><h3>${I18n.choose('No business expenses yet', 'لا توجد مصاريف عمل بعد', 'Aucune dépense professionnelle')}</h3><p>${I18n.choose('Track rent, salaries, utilities and more.', 'تتبع الإيجار، الرواتب، الخدمات، وغيرها.', 'Suivez le loyer, les salaires, les services et plus.')}</p><button class="btn btn-primary" onclick="Expenses.openAdd()">${t('btn_add_expense')}</button></div></div>`;
+      c.innerHTML = `<div class="card"><div class="empty-state"><div class="empty-icon">${UI.icon('briefcase', '', 32)}</div><h3>${I18n.choose('No business expenses yet', 'لا توجد مصاريف عمل بعد', 'Aucune dépense professionnelle')}</h3><p>${I18n.choose('Track rent, salaries, utilities and more.', 'تتبع الإيجار، الرواتب، الخدمات، وغيرها.', 'Suivez le loyer, les salaires, les services et plus.')}</p><button class="btn btn-primary" onclick="Expenses.openAdd()">${t('btn_add_expense')}</button></div></div>`;
       return;
     }
     c.innerHTML = `
@@ -133,8 +133,8 @@ const Expenses = (() => {
           <td class="td-muted">${UI.fmtDate(e.expenseDate)}</td>
           <td class="td-muted" style="max-width:200px">${e.note||'—'}</td>
           <td><div class="actions">
-            <button class="act-btn edit" onclick="Expenses.editBusiness(${e.id})" title="${t('btn_edit')}">✏️</button>
-            <button class="act-btn del"  onclick="Expenses.deleteBusiness(${e.id})" title="${t('btn_delete')}">🗑️</button>
+            <button class="act-btn edit" onclick="Expenses.editBusiness(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
+            <button class="act-btn del"  onclick="Expenses.deleteBusiness(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
           </div></td>
         </tr>`).join('')}
       </tbody>
@@ -182,9 +182,9 @@ const Expenses = (() => {
   }
 
   function openAddImport() {
-    UI.createModal('ieModal', `📦 ${I18n.choose('Add Import Expense', 'إضافة مصروف استيراد', 'Ajouter une dépense d\'importation')}`, importForm(),
+    UI.createModal('ieModal', `${UI.icon('package', '', 20)} ${I18n.choose('Add Import Expense', 'إضافة مصروف استيراد', 'Ajouter une dépense d\'importation')}`, importForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
+       <button class="btn btn-primary" onclick="Expenses.saveImport()">${UI.icon('save', '', 16)} ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
     );
   }
 
@@ -192,9 +192,9 @@ const Expenses = (() => {
     _editId = id;
     const e = DB.getById('productExpenses', id);
     if (!e) return;
-    UI.createModal('ieModal', `✏️ ${I18n.choose('Edit Import Expense', 'تعديل مصروف استيراد', 'Modifier la dépense d\'importation')}`, importForm(e),
+    UI.createModal('ieModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit Import Expense', 'تعديل مصروف استيراد', 'Modifier la dépense d\'importation')}`, importForm(e),
       `<button class="btn btn-ghost" onclick="UI.closeModal('ieModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Expenses.saveImport()">💾 ${t('btn_update')}</button>`
+       <button class="btn btn-primary" onclick="Expenses.saveImport()">${UI.icon('save', '', 16)} ${t('btn_update')}</button>`
     );
   }
 
@@ -269,9 +269,9 @@ const Expenses = (() => {
   }
 
   function openAddBusiness() {
-    UI.createModal('beModal', `💸 ${I18n.choose('Add Business Expense', 'إضافة مصروف عمل', 'Ajouter une dépense professionnelle')}`, bizForm(),
+    UI.createModal('beModal', `${UI.icon('dollar-sign', '', 20)} ${I18n.choose('Add Business Expense', 'إضافة مصروف عمل', 'Ajouter une dépense professionnelle')}`, bizForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
+       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">${UI.icon('save', '', 16)} ${I18n.choose('Save Expense', 'حفظ المصروف', 'Enregistrer la dépense')}</button>`
     );
   }
 
@@ -279,9 +279,9 @@ const Expenses = (() => {
     _editId = id;
     const e = DB.getById('businessExpenses', id);
     if (!e) return;
-    UI.createModal('beModal', `✏️ ${I18n.choose('Edit Business Expense', 'تعديل مصروف عمل', 'Modifier la dépense professionnelle')}`, bizForm(e),
+    UI.createModal('beModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit Business Expense', 'تعديل مصروف عمل', 'Modifier la dépense professionnelle')}`, bizForm(e),
       `<button class="btn btn-ghost" onclick="UI.closeModal('beModal')">${t('btn_cancel')}</button>
-       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">💾 ${t('btn_update')}</button>`
+       <button class="btn btn-primary" onclick="Expenses.saveBusiness()">${UI.icon('save', '', 16)} ${t('btn_update')}</button>`
     );
   }
 
