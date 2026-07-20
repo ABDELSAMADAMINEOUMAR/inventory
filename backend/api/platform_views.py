@@ -261,3 +261,64 @@ class PlatformResetPasswordView(views.APIView):
         )
         return Response({"detail": f"Password reset successfully for user {user.email}."}, status=status.HTTP_200_OK)
 
+
+import os
+from pathlib import Path
+from datetime import datetime
+from django.conf import settings
+from django.core.management import call_command
+from django.http import FileResponse
+
+class PlatformBackupView(views.APIView):
+    """
+    Allows Platform Owners to trigger, list, and download full database snapshot backups.
+    """
+    permission_classes = [IsPlatformOwner]
+
+    def get(self, request):
+        action_type = request.query_params.get('action', 'list')
+        backup_dir = Path(settings.BASE_DIR) / 'backups'
+        backup_dir.mkdir(parents=True, exist_ok=True)
+
+        if action_type == 'download':
+            filename = request.query_params.get('file', '')
+            # Prevent path traversal vulnerabilities
+            if not filename or '/' in filename or '\\' in filename or '..' in filename:
+                return Response({"detail": "Invalid backup filename."}, status=status.HTTP_400_BAD_REQUEST)
+            file_path = backup_dir / filename
+            if not file_path.exists():
+                return Response({"detail": "Backup file not found."}, status=status.HTTP_404_NOT_FOUND)
+            return FileResponse(open(file_path, 'rb'), as_attachment=True, filename=filename)
+
+        # List all available backups
+        backups = []
+        for f_path in sorted(backup_dir.glob('sims_backup_*.*'), key=os.path.getmtime, reverse=True):
+            try:
+                stat = f_path.stat()
+                backups.append({
+                    'filename': f_path.name,
+                    'size_bytes': stat.st_size,
+                    'size_human': f"{stat.st_size / 1024:.1f} KB" if stat.st_size < 1024*1024 else f"{stat.st_size / (1024*1024):.2f} MB",
+                    'created_at': datetime.fromtimestamp(stat.st_mtime).isoformat()
+                })
+            except Exception:
+                pass
+
+        return Response({"backups": backups, "backup_dir": str(backup_dir)}, status=status.HTTP_200_OK)
+
+    def post(self, request):
+        keep_days = int(request.data.get('keep', 14))
+        compress = bool(request.data.get('compress', False))
+        try:
+            call_command('backup_db', keep=keep_days, compress=compress)
+            AuditLog.objects.create(
+                actor=request.user,
+                action="create_backup",
+                target_type="System",
+                target_id="Database"
+            )
+            return Response({"detail": "Database backup created and pruned successfully."}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"detail": f"Backup failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+

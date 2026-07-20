@@ -14,3 +14,8 @@ db_backup_*.sqlite3
 .idea/
 .DS_Store
 Thumbs.db
+
+# Backups
+backups/
+backend/backups/
+sims_backup_*.json*

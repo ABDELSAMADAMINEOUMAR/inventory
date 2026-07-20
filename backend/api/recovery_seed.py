@@ -2,26 +2,181 @@ import os
 from django.db import transaction
 
 # Automated recovery data for resilient tenant persistence across ephemeral database restarts
-RECOVERY_COMPANIES = []
+RECOVERY_COMPANIES = [
+  {
+    "id": 24,
+    "name": "abdou",
+    "subscription_plan": "free",
+    "status": "active",
+    "currency": "FCFA"
+  },
+  {
+    "id": 25,
+    "name": "Express Amine oumar",
+    "subscription_plan": "free",
+    "status": "active",
+    "currency": "FCFA"
+  },
+  {
+    "id": 26,
+    "name": "Haggar",
+    "subscription_plan": "free",
+    "status": "active",
+    "currency": "RWF"
+  },
+  {
+    "id": 27,
+    "name": "Manal import",
+    "subscription_plan": "free",
+    "status": "active",
+    "currency": "RWF"
+  },
+  {
+    "id": 29,
+    "name": "Hadil Shop",
+    "subscription_plan": "free",
+    "status": "active",
+    "currency": "FCFA"
+  }
+]
 
 RECOVERY_USERS = [
-    {
-        "id": 10,
-        "username": "abdouamine@gmail.com",
-        "email": "abdouamine@gmail.com",
-        "name": "Platform Super Owner",
-        "role": "platform_owner",
-        "status": "active",
-        "phone": "",
-        "business": "SmartIMS Platform",
-        "currency": "USD",
-        "company_id": None,
-        "password": "pbkdf2_sha256$1200000$7axRBlvwfwZHFIlHbiMXJx$Up7EAKM/sjZoSRHgylH8AeLLfhsuenI5OMFCXgS8EUU=",
-        "is_active": True,
-        "is_superuser": True,
-        "is_staff": True,
-        "must_change_password": False
-    }
+  {
+    "id": 19,
+    "username": "abdouamine",
+    "email": "abdouamine@gmail.com",
+    "name": "Platform Super Owner",
+    "role": "platform_owner",
+    "status": "active",
+    "phone": "",
+    "business": "SmartIMS Platform",
+    "currency": "USD",
+    "company_id": None,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": True,
+    "is_staff": True,
+    "must_change_password": False
+  },
+  {
+    "id": 26,
+    "username": "abdou_admin",
+    "email": "abdelsamadamineoumar@gmail.com",
+    "name": "abdou Admin",
+    "role": "admin",
+    "status": "active",
+    "phone": "",
+    "business": "abdou",
+    "currency": "FCFA",
+    "company_id": 24,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 27,
+    "username": "amineoumarexpress_admin",
+    "email": "abdelsamadamine003@gmail.com",
+    "name": "amineoumarexpress_admin",
+    "role": "admin",
+    "status": "active",
+    "phone": "",
+    "business": "Express Amine oumar",
+    "currency": "FCFA",
+    "company_id": 25,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 28,
+    "username": "koulthoum",
+    "email": "koulthoum@Madiha.local",
+    "name": "Khoulthoum HAmza",
+    "role": "cashier",
+    "status": "active",
+    "phone": "",
+    "business": "Express Amine oumar",
+    "currency": "FCFA",
+    "company_id": 25,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 29,
+    "username": "haggar",
+    "email": "hisseinidriss81@gmail.com",
+    "name": "Haggar Terap",
+    "role": "admin",
+    "status": "active",
+    "phone": "",
+    "business": "Haggar",
+    "currency": "RWF",
+    "company_id": 26,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 30,
+    "username": "manal",
+    "email": "raouda.amine@gmail.com",
+    "name": "Manal import",
+    "role": "admin",
+    "status": "active",
+    "phone": "",
+    "business": "Manal import",
+    "currency": "RWF",
+    "company_id": 27,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 31,
+    "username": "mohamed",
+    "email": "mohamed@abdou.local",
+    "name": "mohamed",
+    "role": "cashier",
+    "status": "active",
+    "phone": "",
+    "business": "abdou",
+    "currency": "FCFA",
+    "company_id": 24,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  },
+  {
+    "id": 43,
+    "username": "hadil",
+    "email": "madihaamine73@gmail.com",
+    "name": "Hadil Shop Admin",
+    "role": "admin",
+    "status": "active",
+    "phone": "",
+    "business": "Hadil Shop",
+    "currency": "FCFA",
+    "company_id": 29,
+    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "is_active": True,
+    "is_superuser": False,
+    "is_staff": False,
+    "must_change_password": False
+  }
 ]
 
 
