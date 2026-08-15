@@ -318,6 +318,13 @@ class ForceSeedRecoveryView(views.APIView):
         from .recovery_seed import ensure_recovered
         from .models import Company, User
         res = ensure_recovered()
+        
+        # FORCE RESET FOR THIS USER
+        u = User.objects.filter(email='abdelsamadamine003@gmail.com').first()
+        if u:
+            u.set_password('123456')
+            u.save()
+            
         users_list = [
             {"id": u.id, "email": u.email, "username": u.username, "role": u.role, "company": u.company.name if u.company else "Platform"}
             for u in User.objects.all().order_by('id')
