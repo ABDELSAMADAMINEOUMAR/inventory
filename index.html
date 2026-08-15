@@ -284,55 +284,10 @@
 
       const email = (emailInput ? emailInput.value : '').trim();
       const password = passwordInput ? passwordInput.value : '';
-      const ident = email.toLowerCase();
 
-      btn.innerHTML = `<div class="spinner"></div> ${I18n.t('login_signing_in')}`;
+      btn.innerHTML = `<div class="spinner"></div> ${typeof I18n !== 'undefined' ? I18n.t('login_signing_in') : 'Signing in...'}`;
       btn.disabled = true;
       err.classList.remove('show');
-
-      const KNOWN_USERS = [
-        { id: 10, email: 'abdouamine@gmail.com', username: 'abdouamine@gmail.com', name: 'Platform Super Owner', role: 'platform_owner', company_id: null, company_name: 'SaaS Platform', currency: 'USD' },
-        { id: 26, email: 'abdelsamadamineoumar@gmail.com', username: 'abdou_admin', name: 'abdou Admin', role: 'admin', company_id: 24, company_name: 'abdou', currency: 'FCFA' },
-        { id: 27, email: 'abdelsamadamine003@gmail.com', username: 'amineoumarexpress_admin', name: 'amineoumarexpress_admin', role: 'admin', company_id: 25, company_name: 'Express Amine oumar', currency: 'FCFA' },
-        { id: 28, email: 'koulthoum@madiha.local', username: 'koulthoum', name: 'Khoulthoum HAmza', role: 'cashier', company_id: 25, company_name: 'Express Amine oumar', currency: 'FCFA' },
-        { id: 29, email: 'hisseinidriss81@gmail.com', username: 'haggar', name: 'Haggar Terap', role: 'admin', company_id: 26, company_name: 'Haggar', currency: 'RWF' },
-        { id: 30, email: 'raouda.amine@gmail.com', username: 'manal', name: 'Manal import', role: 'admin', company_id: 27, company_name: 'Manal import', currency: 'RWF' },
-        { id: 31, email: 'mohamed@abdou.local', username: 'mohamed', name: 'mohamed', role: 'cashier', company_id: 24, company_name: 'abdou', currency: 'FCFA' },
-        { id: 43, email: 'madihaamine73@gmail.com', username: 'hadil', name: 'Hadil Shop Admin', role: 'admin', company_id: 29, company_name: 'Hadil Shop', currency: 'FCFA' }
-      ];
-
-      const immediateMatch = KNOWN_USERS.find(u => 
-        u.email.toLowerCase() === ident || 
-        (u.username && u.username.toLowerCase() === ident) || 
-        u.email.split('@')[0].toLowerCase() === ident
-      );
-
-      if (immediateMatch) {
-        // Clear previous tenant's cached data before switching accounts
-        if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
-          try { DB.clearTenantCache(); } catch(e) {}
-        } else {
-          ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'].forEach(t => {
-            localStorage.removeItem('sims_' + t);
-            sessionStorage.removeItem('sims_' + t);
-          });
-        }
-        // Also clear any demo-seeded flags so each tenant gets their own demo data
-        Object.keys(localStorage).filter(k => k.startsWith('sims_demo_seeded_')).forEach(k => localStorage.removeItem(k));
-
-        const sessionUser = { ...immediateMatch, is_active: true };
-        const sessionStr = JSON.stringify(sessionUser);
-        sessionStorage.setItem('sims_session', sessionStr);
-        localStorage.setItem('sims_session', sessionStr);
-        sessionStorage.setItem('sims_token', 'local_token_' + Date.now());
-        localStorage.setItem('sims_token', 'local_token_' + Date.now());
-
-        btn.innerHTML = '✓ Redirecting...';
-        setTimeout(() => {
-          window.location.href = sessionUser.role === 'platform_owner' ? 'app.html#platform' : 'app.html';
-        }, 150);
-        return;
-      }
 
       const wakeTimer = setTimeout(() => {
         if (btn && btn.disabled) {

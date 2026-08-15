@@ -260,27 +260,11 @@ const DB = (() => {
     });
 
     if (table === 'categories' && filtered.length === 0) {
-      _seedTenantCategories(tenantId);
-      return _readTable('categories').filter(r => {
-        const rComp = Number(r.company_id || r.company || 0);
-        if (uCompany && rComp === uCompany) return true;
-        if (tenantId && rComp === tenantId) return true;
-        const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
-        if (rOwner === undefined || rOwner === null) return true;
-        return Number(rOwner) === tenantId;
-      });
+      return filtered;
     }
 
     if (table === 'products' && filtered.length === 0) {
-      _seedDemoData(tenantId);
-      return _readTable('products').filter(r => {
-        const rComp = Number(r.company_id || r.company || 0);
-        if (uCompany && rComp === uCompany) return true;
-        if (tenantId && rComp === tenantId) return true;
-        const rOwner = r.userId || r.user_id || r.adminId || r.ownerId || r.user;
-        if (rOwner === undefined || rOwner === null) return true;
-        return Number(rOwner) === tenantId;
-      });
+      return filtered;
     }
 
     return filtered;
