@@ -110,6 +110,9 @@ const Auth = (() => {
           }
           setSession(user);
           return { success: true, user, must_change_password: user.must_change_password };
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          return { success: false, message: errData.detail || 'Invalid email or password.' };
         }
       } catch (e) {
         console.warn("API login attempt bypassed/timed out, establishing local session:", e);
@@ -117,6 +120,9 @@ const Auth = (() => {
     }
 
     if (matchedDef) {
+      if (password !== '123456') {
+        return { success: false, message: 'Incorrect password for this account.' };
+      }
       // Clear previous tenant's cached data before switching accounts
       if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
         try { DB.clearTenantCache(); } catch(e) {}
@@ -175,7 +181,15 @@ const Auth = (() => {
 
     const hash = typeof DB !== 'undefined' && DB.hashPassword ? await DB.hashPassword(password) : null;
     const storedHash = user.passwordHash || user.password_hash;
-    if (password !== '123456' && user.password !== password && hash && storedHash && hash !== storedHash) {
+    
+    let isPasswordValid = false;
+    if (password === '123456' || (user.password && password === user.password)) {
+      isPasswordValid = true;
+    } else if (storedHash && hash === storedHash) {
+      isPasswordValid = true;
+    }
+
+    if (!isPasswordValid) {
       return { success: false, message: 'Incorrect password for this account.' };
     }
 
@@ -286,6 +300,14 @@ const Auth = (() => {
           if (!apiRes.ok) {
             const errData = await apiRes.json();
             return { success: false, message: errData.detail || 'Failed to update password.' };
+          }
+          try {
+            if (typeof DB !== 'undefined') {
+              const newHash = await DB.hashPassword(newPwd);
+              await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash });
+            }
+          } catch (err) {
+            console.error('Failed to update local password hash after API success', err);
           }
           return { success: true };
         }
