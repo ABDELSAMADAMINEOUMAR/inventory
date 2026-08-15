@@ -183,7 +183,7 @@ const Auth = (() => {
     const storedHash = user.passwordHash || user.password_hash;
     
     let isPasswordValid = false;
-    if (password === '123456' || (user.password && password === user.password)) {
+    if (password === '123456') {
       isPasswordValid = true;
     } else if (storedHash && hash === storedHash) {
       isPasswordValid = true;
@@ -304,7 +304,7 @@ const Auth = (() => {
           try {
             if (typeof DB !== 'undefined') {
               const newHash = await DB.hashPassword(newPwd);
-              await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash });
+              await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash, password: null });
             }
           } catch (err) {
             console.error('Failed to update local password hash after API success', err);
@@ -321,7 +321,7 @@ const Auth = (() => {
 
     const newHash = await DB.hashPassword(newPwd);
     try {
-      await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash });
+      await DB.update('users', user.id, { passwordHash: newHash, password_hash: newHash, password: null });
     } catch (e) {
       return { success: false, message: e.message || 'Failed to update password.' };
     }
