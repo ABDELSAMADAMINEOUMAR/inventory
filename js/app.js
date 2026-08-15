@@ -62,10 +62,13 @@ const UI = (() => {
     document.getElementById('headerSubtitle').textContent = t('page_' + page + '_sub') || PAGES[page].subtitle;
     document.title = `SmartIMS — ${t('page_' + page)}`;
 
-    // Update active nav
-    document.querySelectorAll('.nav-item').forEach(el => {
-      el.classList.toggle('active', el.dataset.page === page);
-    });
+    function _updateActiveLink(page) {
+      document.querySelectorAll('.top-nav-links .nav-item').forEach(link => {
+        link.classList.remove('active');
+        if (link.dataset.page === page) { link.classList.add('active'); }
+      });
+    }
+    _updateActiveLink(page);
 
     // Close mobile sidebar
     closeSidebar();
@@ -146,14 +149,14 @@ const UI = (() => {
     }
   }
 
-  // ── Sidebar ──────────────────────────────
+  // ── Mobile Nav ──────────────────────────────
   function toggleSidebar() {
-    document.getElementById('sidebar').classList.toggle('open');
-    document.getElementById('sidebarOverlay').classList.toggle('show');
+    const nav = document.getElementById('topNav');
+    if (nav) nav.classList.toggle('open');
   }
   function closeSidebar() {
-    document.getElementById('sidebar').classList.remove('open');
-    document.getElementById('sidebarOverlay').classList.remove('show');
+    const nav = document.getElementById('topNav');
+    if (nav) nav.classList.remove('open');
   }
 
   // ── Toast Notifications ───────────────
