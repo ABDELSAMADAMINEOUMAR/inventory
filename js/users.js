@@ -18,21 +18,22 @@ const Users = (() => {
       return;
     }
 
-    let users = [];
+    let isBackendFetch = false;
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
       try {
         users = await ApiClient.getAll('users');
+        isBackendFetch = true;
       } catch (e) {
         users = DB.getAll('users');
       }
     } else {
       users = DB.getAll('users');
     }
-    const isBackend = typeof ApiClient !== 'undefined' && sessionStorage.getItem('sims_token');
-    if (!isBackend) {
+    
+    if (!isBackendFetch) {
       const tenantId = typeof DB !== 'undefined' && DB.getTenantId ? DB.getTenantId() : null;
       if (tenantId && Array.isArray(users)) {
-        users = users.filter(u => Number(u.id) === tenantId || Number(u.userId || u.user_id || u.adminId || u.ownerId) === tenantId);
+        users = users.filter(u => Number(u.id) === tenantId || Number(u.company_id || u.company || u.userId || u.user_id || u.adminId || u.ownerId) === tenantId);
       }
     }
 

@@ -74,7 +74,7 @@ const Auth = (() => {
     if (typeof ApiClient !== 'undefined') {
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000);
+        const timeoutId = setTimeout(() => controller.abort(), 15000);
         const res = await fetch(`${ApiClient.BASE_URL}auth/login/`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -146,7 +146,7 @@ const Auth = (() => {
       return { success: true, user, must_change_password: false };
     }
 
-    const ident = email.toLowerCase().trim();
+
     let users = typeof DB !== 'undefined' && DB.getRawAll ? DB.getRawAll('users') : (typeof DB !== 'undefined' ? DB.getAll('users') : []);
     const roleWeight = { platform_owner: 1, owner: 2, admin: 2, manager: 3, cashier: 4, staff: 5 };
     let matchingUsers = users.filter(u => 
@@ -157,47 +157,7 @@ const Auth = (() => {
     ).sort((a, b) => (roleWeight[a.role] || 10) - (roleWeight[b.role] || 10));
     let user = matchingUsers[0];
     
-    // Default system accounts auto-resolver for seamless offline resilience
-    const KNOWN_DEFAULT_USERS = [
-      { id: 10, name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', role: 'platform_owner', company_id: null, business: 'SmartIMS Platform', currency: 'USD' },
-      { id: 26, name: 'abdou Admin', username: 'abdou_admin', email: 'abdelsamadamineoumar@gmail.com', role: 'admin', company_id: 24, business: 'abdou', currency: 'FCFA' },
-      { id: 27, name: 'amineoumarexpress_admin', username: 'amineoumarexpress_admin', email: 'abdelsamadamine003@gmail.com', role: 'admin', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA' },
-      { id: 28, name: 'Khoulthoum HAmza', username: 'koulthoum', email: 'koulthoum@madiha.local', role: 'cashier', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA' },
-      { id: 29, name: 'Haggar Terap', username: 'haggar', email: 'hisseinidriss81@gmail.com', role: 'admin', company_id: 26, business: 'Haggar', currency: 'RWF' },
-      { id: 30, name: 'Manal import', username: 'manal', email: 'raouda.amine@gmail.com', role: 'admin', company_id: 27, business: 'Manal import', currency: 'RWF' },
-      { id: 31, name: 'mohamed', username: 'mohamed', email: 'mohamed@abdou.local', role: 'cashier', company_id: 24, business: 'abdou', currency: 'FCFA' },
-      { id: 43, name: 'Hadil Shop Admin', username: 'hadil', email: 'madihaamine73@gmail.com', role: 'admin', company_id: 29, business: 'Hadil Shop', currency: 'FCFA' }
-    ];
 
-    const matchedDef = KNOWN_DEFAULT_USERS.find(defU => 
-      defU.email.toLowerCase() === ident ||
-      defU.username.toLowerCase() === ident ||
-      defU.email.split('@')[0].toLowerCase() === ident
-    );
-
-    if (matchedDef) {
-      const h = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
-      user = {
-        id: matchedDef.id,
-        name: matchedDef.name,
-        username: matchedDef.username,
-        email: matchedDef.email,
-        role: matchedDef.role,
-        company_id: matchedDef.company_id,
-        company_name: matchedDef.business,
-        business: matchedDef.business,
-        currency: matchedDef.currency,
-        is_active: true,
-        passwordHash: h,
-        password_hash: h,
-        password: '123456'
-      };
-      if (typeof DB !== 'undefined') {
-        try { await DB.update('users', user.id, user); } catch {
-          try { await DB.insert('users', user); } catch {}
-        }
-      }
-    }
 
     if (!user) return { success: false, message: 'No account found with this username or email address.' };
 
