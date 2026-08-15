@@ -308,6 +308,18 @@
       );
 
       if (immediateMatch) {
+        // Clear previous tenant's cached data before switching accounts
+        if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
+          try { DB.clearTenantCache(); } catch(e) {}
+        } else {
+          ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'].forEach(t => {
+            localStorage.removeItem('sims_' + t);
+            sessionStorage.removeItem('sims_' + t);
+          });
+        }
+        // Also clear any demo-seeded flags so each tenant gets their own demo data
+        Object.keys(localStorage).filter(k => k.startsWith('sims_demo_seeded_')).forEach(k => localStorage.removeItem(k));
+
         const sessionUser = { ...immediateMatch, is_active: true };
         const sessionStr = JSON.stringify(sessionUser);
         sessionStorage.setItem('sims_session', sessionStr);

@@ -117,6 +117,10 @@ const Auth = (() => {
     }
 
     if (matchedDef) {
+      // Clear previous tenant's cached data before switching accounts
+      if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
+        try { DB.clearTenantCache(); } catch(e) {}
+      }
       const h = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
       const user = {
         id: matchedDef.id,
