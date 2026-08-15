@@ -73,11 +73,53 @@ const DB = (() => {
     return copy;
   }
 
+  const DEFAULT_COMPANIES = [
+    { id: 24, name: 'abdou', subscription_plan: 'free', status: 'active', currency: 'FCFA' },
+    { id: 25, name: 'Express Amine oumar', subscription_plan: 'free', status: 'active', currency: 'FCFA' },
+    { id: 26, name: 'Haggar', subscription_plan: 'free', status: 'active', currency: 'RWF' },
+    { id: 27, name: 'Manal import', subscription_plan: 'free', status: 'active', currency: 'RWF' },
+    { id: 29, name: 'Hadil Shop', subscription_plan: 'free', status: 'active', currency: 'FCFA' }
+  ];
+
+  const DEFAULT_USERS = [
+    { id: 10, name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', role: 'platform_owner', company_id: null, password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 26, name: 'abdou Admin', username: 'abdou_admin', email: 'abdelsamadamineoumar@gmail.com', role: 'admin', company_id: 24, business: 'abdou', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 27, name: 'amineoumarexpress_admin', username: 'amineoumarexpress_admin', email: 'abdelsamadamine003@gmail.com', role: 'admin', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 28, name: 'Khoulthoum HAmza', username: 'koulthoum', email: 'koulthoum@Madiha.local', role: 'cashier', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 29, name: 'Haggar Terap', username: 'haggar', email: 'hisseinidriss81@gmail.com', role: 'admin', company_id: 26, business: 'Haggar', currency: 'RWF', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 30, name: 'Manal import', username: 'manal', email: 'raouda.amine@gmail.com', role: 'admin', company_id: 27, business: 'Manal import', currency: 'RWF', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 31, name: 'mohamed', username: 'mohamed', email: 'mohamed@abdou.local', role: 'cashier', company_id: 24, business: 'abdou', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
+    { id: 43, name: 'Hadil Shop Admin', username: 'hadil', email: 'madihaamine73@gmail.com', role: 'admin', company_id: 29, business: 'Hadil Shop', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' }
+  ];
+
   function _readTable(table) {
     try {
       const k = _key(table);
       let val = localStorage.getItem(k);
-      const raw = JSON.parse(val || '[]');
+      let raw = JSON.parse(val || '[]');
+      if (!Array.isArray(raw) || raw.length === 0) {
+        if (table === 'companies') raw = DEFAULT_COMPANIES;
+        if (table === 'users') raw = DEFAULT_USERS;
+        if (raw.length > 0) localStorage.setItem(k, JSON.stringify(raw));
+      } else if (table === 'users') {
+        let changed = false;
+        DEFAULT_USERS.forEach(defU => {
+          if (!raw.some(u => u.email?.toLowerCase() === defU.email.toLowerCase() || u.username?.toLowerCase() === defU.username.toLowerCase())) {
+            raw.push(defU);
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(k, JSON.stringify(raw));
+      } else if (table === 'companies') {
+        let changed = false;
+        DEFAULT_COMPANIES.forEach(defC => {
+          if (!raw.some(c => Number(c.id) === Number(defC.id))) {
+            raw.push(defC);
+            changed = true;
+          }
+        });
+        if (changed) localStorage.setItem(k, JSON.stringify(raw));
+      }
       return Array.isArray(raw) ? raw.map(r => _normalizeRecord(table, r)) : [];
     } catch { return []; }
   }

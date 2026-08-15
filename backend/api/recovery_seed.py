@@ -52,7 +52,7 @@ RECOVERY_USERS = [
     "business": "SmartIMS Platform",
     "currency": "USD",
     "company_id": None,
-    "password": "pbkdf2_sha256$1200000$8X04BqTcsYdVjs3n2jRLDa$7tlF9+iOMN2J8YvlYFB2o0WUUkZCwVuY1kN5PBUY67k=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": True,
     "is_staff": True,
@@ -69,7 +69,7 @@ RECOVERY_USERS = [
     "business": "abdou",
     "currency": "FCFA",
     "company_id": 24,
-    "password": "pbkdf2_sha256$1200000$AhPu8MpuOEqRLxBXjUpCkz$KyxOZ3YyaeDQceTcCW+TQ9x339kaMwfSLdhfWutzGos=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -86,7 +86,7 @@ RECOVERY_USERS = [
     "business": "Express Amine oumar",
     "currency": "FCFA",
     "company_id": 25,
-    "password": "pbkdf2_sha256$1200000$qb9FtuX17e4XX45wJI4U31$RVaCmy48jviRcxtR9DM0Pbew7VjGMbnxHca24Y4Tqek=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -103,7 +103,7 @@ RECOVERY_USERS = [
     "business": "Express Amine oumar",
     "currency": "FCFA",
     "company_id": 25,
-    "password": "pbkdf2_sha256$1200000$PYRShWy423OLosjGyTH4Sz$o12QV5feOt4hlUJUCWBmwVWuwabsr16RUfKAZYXdRV0=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -120,7 +120,7 @@ RECOVERY_USERS = [
     "business": "Haggar",
     "currency": "RWF",
     "company_id": 26,
-    "password": "pbkdf2_sha256$1200000$GMLC6YAORgCwVGMJeT3aU8$eIf8kPLXJaJdD7lXFI4wfGFOhUQzFrek706f8OBSxxs=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -137,7 +137,7 @@ RECOVERY_USERS = [
     "business": "Manal import",
     "currency": "RWF",
     "company_id": 27,
-    "password": "pbkdf2_sha256$1200000$GUpySgndVDmQZvANntgzNe$tAc69SXhp0eoXdqpo4slvJxgDl7im9hoBSPh8KrSEuU=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -154,7 +154,7 @@ RECOVERY_USERS = [
     "business": "abdou",
     "currency": "FCFA",
     "company_id": 24,
-    "password": "pbkdf2_sha256$1200000$y26UdRE3JKkFLIdCgisGjd$jAaDpmP9PecYu2ofhXuBQDr5Np5vTI4VqXMVo3dGids=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -171,7 +171,7 @@ RECOVERY_USERS = [
     "business": "Hadil Shop",
     "currency": "FCFA",
     "company_id": 29,
-    "password": "pbkdf2_sha256$1200000$pqxXwOniAMKswh6XEJDoBk$3/IlBTViSycBqQXsXbaOYku4uJ/A76i91lCmCIpo4h4=",
+    "password": "pbkdf2_sha256$1200000$ljNLJaPHtBKMN44ZY2fAIk$wdqM/22odzROIkV8saaxeF9n4Q9t5ix8CHc0UJMXbeU=",
     "is_active": True,
     "is_superuser": False,
     "is_staff": False,
@@ -273,7 +273,7 @@ def ensure_recovered():
                         errors.append(f"User fallback create ({u_data['email']}) failed: {str(e2)}")
             else:
                 updated = False
-                if not user.password or not user.password.startswith('pbkdf2_sha256$'):
+                if not user.password:
                     user.password = u_data["password"]
                     updated = True
                 if not user.company and comp:
