@@ -31,23 +31,7 @@ const Dashboard = (() => {
 
     container.innerHTML = `
     <div class="fade-in" style="padding-bottom:32px;">
-      <!-- NexaDash Command Header -->
-      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:16px;margin-bottom:24px;background:var(--surface);padding:20px 24px;border-radius:16px;border:1px solid var(--border);box-shadow:0 4px 12px rgba(0,0,0,0.02);">
-        <div>
-          <div style="display:flex;align-items:center;gap:10px;">
-            <h2 style="margin:0;font-size:22px;font-weight:800;letter-spacing:-0.5px;color:var(--text-main);">${ch('Sales Analytics & Revenue Dashboard', 'تحليلات المبيعات ولوحة الإيرادات', 'Analyses des Ventes & Tableau de Bord')}</h2>
-            <span class="badge" style="background:rgba(16,185,129,0.12);color:#10b981;border:1px solid rgba(16,185,129,0.3);padding:4px 10px;border-radius:20px;font-size:11px;font-weight:700;">${ch('● LIVE TELEMETRY', '● بث مباشر للإحصائيات', '● TÉLÉMÉTRIE EN DIRECT')}</span>
-          </div>
-          <p style="margin:4px 0 0;font-size:13.5px;color:var(--text-muted);">${ch('Real-time gross revenue, profit margins, inventory asset valuation, and transaction velocity', 'نظرة لحظية على الإيرادات والأرباح وتقييم أصول المخزون وسرعة العمليات', 'Aperçu en temps réel des revenus, marges, valorisation du stock et vitesse des transactions')}</p>
-        </div>
-        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
-          <div style="display:flex;background:var(--bg-main);border:1px solid var(--border);border-radius:10px;padding:3px;gap:2px;">
-            <button class="btn btn-sm" style="background:var(--primary);color:#fff;border:none;border-radius:8px;font-size:12px;padding:6px 14px;font-weight:600;">${ch('30 Days', '٣٠ يوماً', '30 Jours')}</button>
-            <button class="btn btn-sm btn-ghost" style="font-size:12px;padding:6px 14px;color:var(--text-muted);font-weight:600;" onclick="UI.navigate('sales')">${ch('All Time', 'كل الأوقات', 'Tout le temps')}</button>
-          </div>
-          <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.navigate('sales')">${ch('+ Record Sale', '+ تسجيل بيع', '+ Enregistrer une vente')}</button>
-        </div>
-      </div>
+      <!-- NexaDash Command Header Removed -->
 
       <!-- Alerts Section -->
       ${s.outOfStock > 0 && unread.some(p => p.stockStatus === 'out') && !isAlertDismissed('out_of_stock', s.outOfStock) ? `
