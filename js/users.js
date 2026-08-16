@@ -41,7 +41,7 @@ const Users = (() => {
     <div class="fade-in">
       <div class="page-header">
         <div class="page-title" style="display:flex;align-items:center;gap:10px;">
-          <h2>${UI.icon('users', '', 24)} ${I18n.choose('User & Role Management', 'إدارة المستخدمين والصلاحيات', 'Gestion des utilisateurs et des rôles')}</h2>
+          <h2>${I18n.choose('User & Role Management', 'إدارة المستخدمين والصلاحيات', 'Gestion des utilisateurs et des rôles')}</h2>
           <p>${users.length} ${I18n.choose('registered account(s) in system', 'حساب مسجل في النظام', 'compte(s) enregistré(s) dans le système')}</p>
         </div>
         <div class="page-actions">

@@ -17,7 +17,7 @@ const Inventory = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${UI.icon('home', '', 24)} ${t('page_inventory')}</h2><p>${I18n.choose('Real-time stock levels and alerts', 'مستويات المخزون والتنبيهات الحية', 'Niveaux de stock en temps réel et alertes')}</p></div>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${t('page_inventory')}</h2><p>${I18n.choose('Real-time stock levels and alerts', 'مستويات المخزون والتنبيهات الحية', 'Niveaux de stock en temps réel et alertes')}</p></div>
         <div class="page-actions">
           ${UI.canEditProducts() ? `<button class="btn btn-ghost" onclick="UI.navigate('products')">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

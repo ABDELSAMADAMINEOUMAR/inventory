@@ -37,7 +37,7 @@ const Sales = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${UI.icon('shopping-cart', '', 24)} ${t('page_sales')}</h2><p>${sales.length} ${I18n.choose('sales records', 'سجلات المبيعات', 'enregistrements de vente')}</p></div>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${t('page_sales')}</h2><p>${sales.length} ${I18n.choose('sales records', 'سجلات المبيعات', 'enregistrements de vente')}</p></div>
         <div class="page-actions">
           <button class="btn btn-primary" onclick="Sales.openAdd()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>

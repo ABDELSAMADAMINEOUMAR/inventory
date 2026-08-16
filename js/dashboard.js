@@ -34,7 +34,7 @@ const Dashboard = (() => {
       <!-- Dashboard Header -->
       <div class="page-header">
         <div class="page-title" style="display:flex;align-items:center;gap:10px;">
-          <h2>${UI.icon('layout', '', 24)} ${t('page_dashboard')}</h2>
+          <h2>${t('page_dashboard')}</h2>
           <p>${t('page_dashboard_sub') || 'Business Overview'}</p>
         </div>
         <div class="page-actions">

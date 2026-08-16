@@ -16,7 +16,7 @@ const Products = (() => {
     <div class="fade-in">
       <div class="page-header">
         <div class="page-title" style="display:flex;align-items:center;gap:10px;">
-          <h2>${UI.icon('package', '', 24)} ${t('page_products')}</h2>
+          <h2>${t('page_products')}</h2>
           <p>${products.length} ${I18n.choose('products in catalogue', 'منتجات في الكتالوج', 'produits dans le catalogue')}</p>
         </div>
         <div class="page-actions">
