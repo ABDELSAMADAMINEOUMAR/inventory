@@ -616,7 +616,12 @@ textarea {
 .top-nav-links {
   display: flex;
   align-items: center;
-  gap: 24px;
+  gap: 14px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.top-nav-links::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-item {
@@ -627,6 +632,7 @@ textarea {
   transition: color 0.2s;
   padding: 8px 0;
   position: relative;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
