@@ -92,7 +92,7 @@ const Expenses = (() => {
         </div>
         <div style="font-weight:700;color:var(--warning);font-family:monospace;">${UI.fmtCurrency(r.total)}</div>
       </div>
-      <div class="table-responsive">
+      <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;"><div class="table-wrap">
         <table class="table" style="width:100%;border-collapse:collapse;">
           <thead>
             <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
@@ -117,7 +117,7 @@ const Expenses = (() => {
             </tr>`).join('')}
           </tbody>
         </table>
-      </div>
+      </div></div>
     </div>`).join('');
   }
 
@@ -128,7 +128,7 @@ const Expenses = (() => {
       return;
     }
     c.innerHTML = `
-    <div class="table-responsive">
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;"><div class="table-wrap">
       <table class="table" style="width:100%;border-collapse:collapse;">
         <thead>
           <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
@@ -155,7 +155,7 @@ const Expenses = (() => {
           </tr>`).join('')}
         </tbody>
       </table>
-    </div>`;
+    </div></div>`
   }
 
   function openAdd() {
@@ -343,3 +343,4 @@ const Expenses = (() => {
 
   return { render, switchTab, openAdd, openAddImport, editImport, saveImport, deleteImport, openAddBusiness, editBusiness, saveBusiness, deleteBusiness };
 })();
+

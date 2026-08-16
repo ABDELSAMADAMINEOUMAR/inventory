@@ -85,7 +85,7 @@ const Inventory = (() => {
 
       <!-- Inventory Table -->
       <!-- Inventory Table -->
-      <div class="table-responsive">
+      <div class="card" style="padding:0;overflow:hidden;"><div class="table-wrap">
         <table class="table" style="width:100%;border-collapse:collapse;">
           <thead>
             <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
@@ -105,7 +105,7 @@ const Inventory = (() => {
           </thead>
           <tbody id="inventoryTbody"></tbody>
         </table>
-      </div>
+      </div></div>
     </div>`;
     renderTable();
   }
@@ -176,3 +176,4 @@ const Inventory = (() => {
 
   return { render, setFilter };
 })();
+
