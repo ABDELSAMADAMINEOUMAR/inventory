@@ -57,9 +57,11 @@ const UI = (() => {
     }
     _currentPage = page;
 
-    // Update header
-    document.getElementById('headerTitle').textContent = t('page_' + page);
-    document.getElementById('headerSubtitle').textContent = t('page_' + page + '_sub') || PAGES[page].subtitle;
+    // Update header (safely, as outer header may be removed)
+    const titleEl = document.getElementById('headerTitle');
+    const subEl = document.getElementById('headerSubtitle');
+    if (titleEl) titleEl.textContent = t('page_' + page);
+    if (subEl) subEl.textContent = t('page_' + page + '_sub') || PAGES[page].subtitle;
     document.title = `SmartIMS — ${t('page_' + page)}`;
 
     function _updateActiveLink(page) {

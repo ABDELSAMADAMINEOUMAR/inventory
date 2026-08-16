@@ -31,6 +31,18 @@ const Dashboard = (() => {
 
     container.innerHTML = `
     <div class="fade-in" style="padding: 10px 0 32px 0;">
+      <!-- Dashboard Header -->
+      <div class="page-header">
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;">
+          <h2>${UI.icon('layout', '', 24)} ${t('page_dashboard')}</h2>
+          <p>${t('page_dashboard_sub') || 'Business Overview'}</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary">30 days</button>
+          <button class="btn btn-secondary">All time</button>
+        </div>
+      </div>
+
       <!-- Alerts Section -->
       ${s.outOfStock > 0 && unread.some(p => p.stockStatus === 'out') && !isAlertDismissed('out_of_stock', s.outOfStock) ? `
       <div class="alert alert-danger alert-dismissible mb-16" style="display:flex;align-items:center;justify-content:space-between;border-radius:8px;padding:12px 16px;background:rgba(239,68,68,0.1);color:#ef4444;border:1px solid rgba(239,68,68,0.2);">
