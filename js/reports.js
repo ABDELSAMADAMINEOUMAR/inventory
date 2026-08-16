@@ -1,5 +1,5 @@
-﻿/* =============================================
-   REPORTS.JS ΓÇö Reports & Export Module
+/* =============================================
+   REPORTS.JS — Reports & Export Module
    Smart Import & Sales Management System
    ============================================= */
 
@@ -10,7 +10,7 @@ const Reports = (() => {
     container.innerHTML = `
     <div class="fade-in">
       <div class="page-header">
-        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${t('page_reports')}</h2><p>${I18n.choose('Financial reports and business analytics', '╪º┘ä╪¬┘é╪º╪▒┘è╪▒ ╪º┘ä┘à╪º┘ä┘è╪⌐ ┘ê╪º┘ä╪¬╪¡┘ä┘è┘ä╪º╪¬ ╪º┘ä╪¬╪¼╪º╪▒┘è╪⌐', 'Rapports financiers et analyses commerciales')}</p></div>
+        <div class="page-title" style="display:flex;align-items:center;gap:10px;"><h2>${t('page_reports')}</h2><p>${I18n.choose('Financial reports and business analytics', 'التقارير المالية والتحليلات التجارية', 'Rapports financiers et analyses commerciales')}</p></div>
         <div class="page-actions">
           <button class="btn btn-ghost" onclick="Reports.exportExcel()">
             <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
@@ -30,7 +30,7 @@ const Reports = (() => {
         <button class="report-tab ${_period === 'weekly' ? 'active' : ''}"  onclick="Reports.setPeriod('weekly')">${t('rep_weekly')}</button>
         <button class="report-tab ${_period === 'monthly' ? 'active' : ''}" onclick="Reports.setPeriod('monthly')">${t('rep_monthly')}</button>
         <button class="report-tab ${_period === 'annual' ? 'active' : ''}"  onclick="Reports.setPeriod('annual')">${t('rep_annual')}</button>
-        <button class="report-tab ${_period === 'all' ? 'active' : ''}"     onclick="Reports.setPeriod('all')">${I18n.choose('All Time', '┘â┘ä ╪º┘ä╪ú┘ê┘é╪º╪¬', 'De tous les temps')}</button>
+        <button class="report-tab ${_period === 'all' ? 'active' : ''}"     onclick="Reports.setPeriod('all')">${I18n.choose('All Time', 'كل الأوقات', 'De tous les temps')}</button>
       </div>
 
       <div id="reportContent"></div>
@@ -107,13 +107,13 @@ const Reports = (() => {
 
   function getPeriodLabel() {
     const labels = {
-      daily: I18n.choose("Today's Report", '╪¬┘é╪▒┘è╪▒ ╪º┘ä┘è┘ê┘à', "Rapport d'aujourd'hui"),
-      weekly: I18n.choose("This Week's Report", '╪¬┘é╪▒┘è╪▒ ┘ç╪░╪º ╪º┘ä╪ú╪│╪¿┘ê╪╣', "Rapport de cette semaine"),
-      monthly: I18n.choose("This Month's Report", '╪¬┘é╪▒┘è╪▒ ┘ç╪░╪º ╪º┘ä╪┤┘ç╪▒', "Rapport de ce mois"),
-      annual: I18n.choose("Annual Report", '╪º┘ä╪¬┘é╪▒┘è╪▒ ╪º┘ä╪│┘å┘ê┘è', "Rapport annuel"),
-      all: I18n.choose("All Time Report (Complete History)", '╪¬┘é╪▒┘è╪▒ ┘â┘ä ╪º┘ä╪ú┘ê┘é╪º╪¬ (╪┤╪º┘à┘ä)', "Rapport global (Historique complet)")
+      daily: I18n.choose("Today's Report", 'تقرير اليوم', "Rapport d'aujourd'hui"),
+      weekly: I18n.choose("This Week's Report", 'تقرير هذا الأسبوع', "Rapport de cette semaine"),
+      monthly: I18n.choose("This Month's Report", 'تقرير هذا الشهر', "Rapport de ce mois"),
+      annual: I18n.choose("Annual Report", 'التقرير السنوي', "Rapport annuel"),
+      all: I18n.choose("All Time Report (Complete History)", 'تقرير كل الأوقات (شامل)', "Rapport global (Historique complet)")
     };
-    return labels[_period] || I18n.choose('Report', '╪¬┘é╪▒┘è╪▒', 'Rapport');
+    return labels[_period] || I18n.choose('Report', 'تقرير', 'Rapport');
   }
 
   function renderReport() {
@@ -129,39 +129,39 @@ const Reports = (() => {
     <div style="margin-bottom: 24px;">
       <!-- Key Metrics List -->
       <div style="margin-bottom: 32px;">
-        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${getPeriodLabel()} ΓÇö <span style="font-size:0.85rem;color:var(--text-muted);font-weight:400">${ch('Generated:', '╪¬┘à ╪º┘ä╪¬┘ê┘ä┘è╪» ┘ü┘è:', 'G├⌐n├⌐r├⌐ :')} ${new Date().toLocaleString()}</span></h3>
+        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${getPeriodLabel()} — <span style="font-size:0.85rem;color:var(--text-muted);font-weight:400">${ch('Generated:', 'تم التوليد في:', 'Généré :')} ${new Date().toLocaleString()}</span></h3>
         
         <!-- Revenue -->
         <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
-          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Revenue', '╪Ñ╪¼┘à╪º┘ä┘è ╪º┘ä╪Ñ┘è╪▒╪º╪»╪º╪¬', 'Revenu total')}</div>
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Revenue', 'إجمالي الإيرادات', 'Revenu total')}</div>
           <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.revenue)}</div>
-          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${d.sales.length} ${ch('sales', '┘à╪¿┘è╪╣╪º╪¬', 'ventes')}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${d.sales.length} ${ch('sales', 'مبيعات', 'ventes')}</div>
         </div>
 
         <!-- Profit -->
         <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
-          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Profit', '╪Ñ╪¼┘à╪º┘ä┘è ╪º┘ä╪▒╪¿╪¡', 'Profit total')}</div>
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Profit', 'إجمالي الربح', 'Profit total')}</div>
           <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.profit)}</div>
-          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${UI.fmtPct(d.margin)} ${ch('margin', '┘ç╪º┘à╪┤', 'marge')}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${UI.fmtPct(d.margin)} ${ch('margin', 'هامش', 'marge')}</div>
         </div>
 
         <!-- Net Profit -->
         <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
-          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Net Profit', '╪╡╪º┘ü┘è ╪º┘ä╪▒╪¿╪¡', 'B├⌐n├⌐fice net')}</div>
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Net Profit', 'صافي الربح', 'Bénéfice net')}</div>
           <div style="font-size:15px;font-weight:700;color:${d.netProfit >= 0 ? '#10b981' : '#ef4444'};font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.netProfit)}</div>
           <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
         </div>
 
         <!-- Biz Expenses -->
         <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
-          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Business Expenses', '┘à╪╡╪º╪▒┘è┘ü ╪º┘ä╪╣┘à┘ä', 'D├⌐penses commerciales')}</div>
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Business Expenses', 'مصاريف العمل', 'Dépenses commerciales')}</div>
           <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.bizExpTotal)}</div>
           <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
         </div>
 
         <!-- Import Costs -->
         <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
-          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Import Costs', '╪¬┘â╪º┘ä┘è┘ü ╪º┘ä╪º╪│╪¬┘è╪▒╪º╪»', 'Co├╗ts d\'importation')}</div>
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation')}</div>
           <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.impExpTotal)}</div>
           <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
         </div>
@@ -175,9 +175,9 @@ const Reports = (() => {
               <span class="rpt-card-icon rpt-icon-blue">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               </span>
-              <span class="rpt-card-title">${ch('Sales Breakdown', '\u062a\u0641\u0627\u0635\u064a\u0644 \u0627\u0644\u0645\u0628\u064a\u0639\u0627\u062a', 'D\u00e9tails des ventes')}</span>
+              <span class="rpt-card-title">${ch('Sales Breakdown', 'تفاصيل المبيعات', 'Détails des ventes')}</span>
             </div>
-            <span class="rpt-card-badge">${d.sales.length} ${ch('records','\u0633\u062c\u0644','enreg.')}</span>
+            <span class="rpt-card-badge">${d.sales.length} ${ch('records','سجل','enreg.')}</span>
           </div>
           ${d.sales.length ? `
           <div class="rpt-table-scroll">
@@ -205,14 +205,14 @@ const Reports = (() => {
               </tbody>
               <tfoot>
                 <tr class="rpt-total-row">
-                  <td colspan="3">${ch('TOTAL', '\u0627\u0644\u0625\u062c\u0645\u0627\u0644\u064a', 'TOTAL')}</td>
+                  <td colspan="3">${ch('TOTAL', 'الإجمالي', 'TOTAL')}</td>
                   <td class="rpt-cell-revenue">${UI.fmtCurrency(d.revenue)}</td>
                   <td class="${d.profit >= 0 ? 'rpt-cell-profit' : 'rpt-cell-loss'}">${UI.fmtCurrency(d.profit)}</td>
                   <td colspan="2"></td>
                 </tr>
               </tfoot>
             </table>
-          </div>` : `<div class="rpt-empty">${ch('No sales in this period', '\u0644\u0627 \u062a\u0648\u062c\u062f \u0645\u0628\u064a\u0639\u0627\u062a \u0641\u064a \u0647\u0630\u0647 \u0627\u0644\u0641\u062a\u0631\u0629', 'Aucune vente au cours de cette p\u00e9riode')}</div>`}
+          </div>` : `<div class="rpt-empty">${ch('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</div>`}
         </div>
       </div>
 
@@ -227,14 +227,14 @@ const Reports = (() => {
               </span>
               <span class="rpt-card-title">${t('chart_top_selling')}</span>
             </div>
-            <span class="rpt-card-badge">${d.bestProducts.length} ${ch('products','\u0645\u0646\u062a\u062c','produits')}</span>
+            <span class="rpt-card-badge">${d.bestProducts.length} ${ch('products','منتج','produits')}</span>
           </div>
           <div class="rpt-table-scroll">
             <table class="rpt-table">
               <thead><tr>
                 <th style="width:52px">#</th>
                 <th>${t('th_product')}</th>
-                <th>${ch('Units Sold','\u0627\u0644\u0648\u062d\u062f\u0627\u062a \u0627\u0644\u0645\u0628\u0627\u0639\u0629','Unit\u00e9s vendues')}</th>
+                <th>${ch('Units Sold','الوحدات المباعة','Unités vendues')}</th>
                 <th>${t('th_revenue')}</th>
                 <th>${t('th_profit')}</th>
               </tr></thead>
@@ -261,7 +261,7 @@ const Reports = (() => {
               <span class="rpt-card-icon rpt-icon-teal">
                 <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
               </span>
-              <span class="rpt-card-title">${ch('Current Inventory Snapshot', '\u0644\u0645\u062d\u0629 \u0639\u0646 \u0627\u0644\u0645\u062e\u0632\u0648\u0646 \u0627\u0644\u062d\u0627\u0644\u064a', 'Aper\u00e7u du stock actuel')}</span>
+              <span class="rpt-card-title">${ch('Current Inventory Snapshot', 'نظرة على المخزون الحالي', 'Aperçu du stock actuel')}</span>
             </div>
             <span class="rpt-cell-revenue" style="font-weight:700;font-size:0.9rem;">${UI.fmtCurrency(inventoryValue)}</span>
           </div>
@@ -270,9 +270,9 @@ const Reports = (() => {
               <thead><tr>
                 <th>${t('th_product')}</th>
                 <th>${t('th_code')}</th>
-                <th>${ch('In Stock','\u0641\u064a \u0627\u0644\u0645\u062e\u0632\u0648\u0646','En stock')}</th>
+                <th>${ch('In Stock','في المخزون','En stock')}</th>
                 <th>${t('th_cpu')}</th>
-                <th>${ch('Stock Value','\u0642\u064a\u0645\u0629 \u0627\u0644\u0645\u062e\u0632\u0648\u0646','Valeur stock')}</th>
+                <th>${ch('Stock Value','قيمة المخزون','Valeur stock')}</th>
                 <th>${t('th_status')}</th>
               </tr></thead>
               <tbody>
@@ -288,7 +288,7 @@ const Reports = (() => {
               </tbody>
               <tfoot>
                 <tr class="rpt-total-row">
-                  <td colspan="4">${ch('TOTAL INVENTORY VALUE','\u0625\u062c\u0645\u0627\u0644\u064a \u0642\u064a\u0645\u0629 \u0627\u0644\u0645\u062e\u0632\u0648\u0646','VALEUR TOTALE DU STOCK')}</td>
+                  <td colspan="4">${ch('TOTAL INVENTORY VALUE','إجمالي قيمة المخزون','VALEUR TOTALE DU STOCK')}</td>
                   <td class="rpt-cell-revenue">${UI.fmtCurrency(inventoryValue)}</td>
                   <td></td>
                 </tr>
@@ -297,16 +297,16 @@ const Reports = (() => {
           </div>
         </div>
       </div>
-
     </div>`;
   }
+
   function stockBadge(s) {
     const m = { available: 'badge-success', low: 'badge-warning', out: 'badge-danger' };
     const labelKey = 'status_' + s;
     return `<span class="badge ${m[s] || 'badge-muted'}">${t(labelKey) || s}</span>`;
   }
 
-  // ΓöÇΓöÇ PDF Export ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── PDF Export ────────────────────────────
   function exportPDF() {
     const jsPDF = (window.jspdf && window.jspdf.jsPDF) ? window.jspdf.jsPDF : (window.jsPDF || null);
     if (!jsPDF) { window.print(); return; }
@@ -321,7 +321,7 @@ const Reports = (() => {
     doc.rect(0, 0, 210, 30, 'F');
     doc.setTextColor(255, 255, 255);
     doc.setFontSize(16); doc.setFont('helvetica', 'bold');
-    doc.text('SmartIMS ΓÇö ' + label, 14, 14);
+    doc.text('SmartIMS — ' + label, 14, 14);
     doc.setFontSize(10); doc.setFont('helvetica', 'normal');
     doc.text('Generated: ' + now, 14, 22);
 
@@ -375,10 +375,10 @@ const Reports = (() => {
     }
 
     doc.save(`SmartIMS-${_period}-report-${now.replace(/\//g, '-')}.pdf`);
-    UI.toast('success', I18n.choose('PDF Exported', '╪¬┘à ╪¬╪╡╪»┘è╪▒ PDF', 'PDF export├⌐'), I18n.choose('Report downloaded successfully.', '╪¬┘à ╪¬┘å╪▓┘è┘ä ╪º┘ä╪¬┘é╪▒┘è╪▒ ╪¿┘å╪¼╪º╪¡.', 'Rapport t├⌐l├⌐charg├⌐ avec succ├¿s.'));
+    UI.toast('success', I18n.choose('PDF Exported', 'تم تصدير PDF', 'PDF exporté'), I18n.choose('Report downloaded successfully.', 'تم تنزيل التقرير بنجاح.', 'Rapport téléchargé avec succès.'));
   }
 
-  // ΓöÇΓöÇ Excel Export ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Excel Export ──────────────────────────
   function exportExcel() {
     const d = getPeriodData(_period);
     const nowStr = new Date().toISOString().split('T')[0];
@@ -418,7 +418,7 @@ const Reports = (() => {
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(invRows), 'Inventory');
 
         const summary = [
-          ['SmartIMS ΓÇö ' + getPeriodLabel()],
+          ['SmartIMS — ' + getPeriodLabel()],
           ['Generated', new Date().toLocaleString()],
           [],
           ['METRIC', 'VALUE'],
@@ -434,7 +434,7 @@ const Reports = (() => {
         XLSX.utils.book_append_sheet(wb, XLSX.utils.aoa_to_sheet(summary), 'Summary');
 
         XLSX.writeFile(wb, `${filename}.xlsx`);
-        UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', '╪¬┘à ╪¬╪╡╪»┘è╪▒ ╪º┘ä╪Ñ┘â╪│┘ä', 'Excel export├⌐'), I18n.choose('Spreadsheet downloaded successfully.', '╪¬┘à ╪¬┘å╪▓┘è┘ä ╪¼╪»┘ê┘ä ╪º┘ä╪¿┘è╪º┘å╪º╪¬ ╪¿┘å╪¼╪º╪¡.', 'Tableau t├⌐l├⌐charg├⌐ avec succ├¿s.'));
+        UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', 'تم تصدير الإكسل', 'Excel exporté'), I18n.choose('Spreadsheet downloaded successfully.', 'تم تنزيل جدول البيانات بنجاح.', 'Tableau téléchargé avec succès.'));
         return;
       } catch (err) {
         console.warn('XLSX export failed, falling back to CSV:', err);
@@ -453,7 +453,7 @@ const Reports = (() => {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', '╪¬┘à ╪¬╪╡╪»┘è╪▒ ╪º┘ä╪Ñ┘â╪│┘ä', 'Excel export├⌐'), I18n.choose('Spreadsheet downloaded successfully.', '╪¬┘à ╪¬┘å╪▓┘è┘ä ╪¼╪»┘ê┘ä ╪º┘ä╪¿┘è╪º┘å╪º╪¬ ╪¿┘å╪¼╪º╪¡.', 'Tableau t├⌐l├⌐charg├⌐ avec succ├¿s.'));
+    UI.toast('success', t('btn_export_excel') || I18n.choose('Excel Exported', 'تم تصدير الإكسل', 'Excel exporté'), I18n.choose('Spreadsheet downloaded successfully.', 'تم تنزيل جدول البيانات بنجاح.', 'Tableau téléchargé avec succès.'));
   }
 
   return { render, setPeriod, exportPDF, exportExcel };
