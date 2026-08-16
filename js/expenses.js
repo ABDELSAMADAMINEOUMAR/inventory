@@ -21,11 +21,11 @@ const Expenses = (() => {
       </div>
 
       <!-- Summary Cards -->
-      <div class="kpi-grid stagger-children">
-        ${summaryCard(t('lbl_import_exp'), DB.sum('productExpenses','amount'), 'orange', UI.icon('package', '', 24))}
-        ${summaryCard(I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles'), DB.sum('businessExpenses','amount'), 'red', UI.icon('briefcase', '', 24))}
-        ${summaryCard(t('kpi_expenses'), DB.sum('productExpenses','amount') + DB.sum('businessExpenses','amount'), 'purple', UI.icon('wallet', '', 24))}
-        ${summaryCard(I18n.choose('This Month', 'الشهر الحالي', 'Ce mois-ci'), monthlyExpenses(), 'blue', UI.icon('calendar', '', 24))}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;padding:16px 0 24px 0;border-bottom:1px solid var(--border);margin-bottom:24px;">
+        ${summaryCard(t('lbl_import_exp'), DB.sum('productExpenses','amount'), 'orange', UI.icon('package', '', 20))}
+        ${summaryCard(I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles'), DB.sum('businessExpenses','amount'), 'red', UI.icon('briefcase', '', 20))}
+        ${summaryCard(t('kpi_expenses'), DB.sum('productExpenses','amount') + DB.sum('businessExpenses','amount'), 'purple', UI.icon('wallet', '', 20))}
+        ${summaryCard(I18n.choose('This Month', 'الشهر الحالي', 'Ce mois-ci'), monthlyExpenses(), 'blue', UI.icon('calendar', '', 20))}
       </div>
 
       <!-- Tabs -->
@@ -46,13 +46,11 @@ const Expenses = (() => {
   }
 
   function summaryCard(label, value, color, icon) {
-    const colors = { orange:'rgba(245,158,11,0.1)', red:'rgba(239,68,68,0.1)', purple:'rgba(124,58,237,0.1)', blue:'rgba(59,130,246,0.1)' };
-    const tc = { orange:'var(--warning)', red:'var(--danger)', purple:'var(--primary-light)', blue:'#60A5FA' };
+    const tc = { orange:'#f59e0b', red:'#ef4444', purple:'#6366f1', blue:'#0ea5e9' };
     return `
-    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
-      <div style="font-size:24px;margin-bottom:8px">${icon}</div>
-      <div style="font-size:1.3rem;font-weight:700;color:${tc[color]}">${UI.fmtCurrency(value)}</div>
-      <div style="font-size:0.8rem;color:var(--text-muted)">${label}</div>
+    <div>
+      <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px">${label}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;">${UI.fmtCurrency(value)}</div>
     </div>`;
   }
 
@@ -86,25 +84,33 @@ const Expenses = (() => {
     }
 
     c.innerHTML = rows.map(r => `
-    <div class="card" style="margin-bottom:14px">
-      <div class="card-header">
+    <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
-          <div style="font-weight:600">${r.product.name} <span class="badge badge-purple" style="font-family:monospace;margin-left:6px">${r.product.code}</span></div>
-          <div style="font-size:0.8rem;color:var(--text-muted)">${I18n.choose('Total:', 'الإجمالي:', 'Total :')} ${UI.fmtCurrency(r.total)} | ${r.product.quantity} ${I18n.choose('units', 'وحدات', 'unités')} | ${I18n.choose('CPUnit:', 'التكلفة للوحدة:', 'Coût/Unité :')} ${UI.fmtCurrency(r.total/r.product.quantity)}</div>
+          <div style="font-weight:600;color:var(--text-main);font-size:14px;">${r.product.name} <span style="color:#9ca3af;font-family:monospace;margin-left:6px;font-size:12px;">${r.product.code}</span></div>
+          <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${I18n.choose('Total:', 'الإجمالي:', 'Total :')} ${UI.fmtCurrency(r.total)} | ${r.product.quantity} ${I18n.choose('units', 'وحدات', 'unités')} | ${I18n.choose('CPUnit:', 'التكلفة للوحدة:', 'Coût/Unité :')} ${UI.fmtCurrency(r.total/r.product.quantity)}</div>
         </div>
-        <span class="badge badge-warning">${UI.fmtCurrency(r.total)}</span>
+        <div style="font-weight:700;color:var(--warning);font-family:monospace;">${UI.fmtCurrency(r.total)}</div>
       </div>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>${I18n.choose('Expense Type', 'نوع المصروف', 'Type de dépense')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
+      <div class="table-responsive">
+        <table class="table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
+              <th style="padding:12px 10px;">${I18n.choose('Expense Type', 'نوع المصروف', 'Type de dépense')}</th>
+              <th style="padding:12px 10px;">${t('th_cost')}</th>
+              <th style="padding:12px 10px;">${t('th_date')}</th>
+              <th style="padding:12px 10px;">${t('lbl_note')}</th>
+              <th style="padding:12px 10px;">${t('th_actions')}</th>
+            </tr>
+          </thead>
           <tbody>
             ${r.exps.map(e => `
-            <tr>
-              <td><span class="badge badge-muted">${e.expenseType}</span></td>
-              <td class="text-accent fw-600">${UI.fmtCurrency(e.amount)}</td>
-              <td class="td-muted">${UI.fmtDate(e.date)}</td>
-              <td class="td-muted">${e.note||'—'}</td>
-              <td><div class="actions">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:12px 10px;"><span class="badge badge-muted">${e.expenseType}</span></td>
+              <td class="text-accent fw-600" style="padding:12px 10px;">${UI.fmtCurrency(e.amount)}</td>
+              <td class="td-muted" style="padding:12px 10px;">${UI.fmtDate(e.date)}</td>
+              <td class="td-muted" style="padding:12px 10px;">${e.note||'—'}</td>
+              <td style="padding:12px 10px;"><div class="actions">
                 <button class="act-btn edit" onclick="Expenses.editImport(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
                 <button class="act-btn del"  onclick="Expenses.deleteImport(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
               </div></td>
@@ -122,23 +128,34 @@ const Expenses = (() => {
       return;
     }
     c.innerHTML = `
-    <div class="card"><div class="table-wrap"><table>
-      <thead><tr><th>${I18n.choose('Title', 'العنوان', 'Titre')}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th><th>${t('th_actions')}</th></tr></thead>
-      <tbody>
-        ${exps.map(e => `
-        <tr>
-          <td style="font-weight:500">${e.title}</td>
-          <td><span class="badge badge-info">${e.category||'—'}</span></td>
-          <td class="text-accent fw-600">${UI.fmtCurrency(e.amount)}</td>
-          <td class="td-muted">${UI.fmtDate(e.expenseDate)}</td>
-          <td class="td-muted" style="max-width:200px">${e.note||'—'}</td>
-          <td><div class="actions">
-            <button class="act-btn edit" onclick="Expenses.editBusiness(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
-            <button class="act-btn del"  onclick="Expenses.deleteBusiness(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
-          </div></td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div></div>`;
+    <div class="table-responsive">
+      <table class="table" style="width:100%;border-collapse:collapse;">
+        <thead>
+          <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
+            <th style="padding:12px 10px;">${I18n.choose('Title', 'العنوان', 'Titre')}</th>
+            <th style="padding:12px 10px;">${t('th_category')}</th>
+            <th style="padding:12px 10px;">${t('th_cost')}</th>
+            <th style="padding:12px 10px;">${t('th_date')}</th>
+            <th style="padding:12px 10px;">${t('lbl_note')}</th>
+            <th style="padding:12px 10px;">${t('th_actions')}</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${exps.map(e => `
+          <tr style="border-bottom:1px solid var(--border);">
+            <td style="padding:12px 10px;font-weight:500">${e.title}</td>
+            <td style="padding:12px 10px;"><span class="badge badge-info">${e.category||'—'}</span></td>
+            <td class="text-accent fw-600" style="padding:12px 10px;">${UI.fmtCurrency(e.amount)}</td>
+            <td class="td-muted" style="padding:12px 10px;">${UI.fmtDate(e.expenseDate)}</td>
+            <td class="td-muted" style="max-width:200px;padding:12px 10px;">${e.note||'—'}</td>
+            <td style="padding:12px 10px;"><div class="actions">
+              <button class="act-btn edit" onclick="Expenses.editBusiness(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
+              <button class="act-btn del"  onclick="Expenses.deleteBusiness(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
+            </div></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
   }
 
   function openAdd() {

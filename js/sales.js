@@ -46,13 +46,13 @@ const Sales = (() => {
         </div>
       </div>
 
-      <div class="kpi-grid stagger-children">
-        ${statCard(UI.icon('dollar-sign', '', 20), t('th_revenue'), UI.fmtCurrency(totalRevenue), 'green')}
-        ${showProfit ? statCard(UI.icon('trending-up', '', 20), t('th_profit'), UI.fmtCurrency(totalProfit), 'purple') : ''}
-        ${showProfit ? statCard(UI.icon('briefcase', '', 20), t('th_cost'), UI.fmtCurrency(totalCost), 'orange') : ''}
-        ${showProfit ? statCard(UI.icon('percent', '', 20), t('th_margin'), UI.fmtPct(avgMargin), 'blue') : ''}
-        ${statCard(UI.icon('shopping-cart', '', 20), t('nav_sales'), sales.length, 'teal')}
-        ${statCard(UI.icon('credit-card', '', 20), t('kpi_credit'), UI.fmtCurrency(outstanding), 'red', creditSales.length + ' ' + I18n.choose('unpaid', 'متبقية', 'impayé(s)'))}
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;padding:16px 0 24px 0;border-bottom:1px solid var(--border);margin-bottom:24px;">
+        ${statCard(t('th_revenue'), UI.fmtCurrency(totalRevenue), 'green')}
+        ${showProfit ? statCard(t('th_profit'), UI.fmtCurrency(totalProfit), 'purple') : ''}
+        ${showProfit ? statCard(t('th_cost'), UI.fmtCurrency(totalCost), 'orange') : ''}
+        ${showProfit ? statCard(t('th_margin'), UI.fmtPct(avgMargin), 'blue') : ''}
+        ${statCard(t('nav_sales'), sales.length, 'teal')}
+        ${statCard(t('kpi_credit'), UI.fmtCurrency(outstanding), 'red', creditSales.length + ' ' + I18n.choose('unpaid', 'متبقية', 'impayé(s)'))}
       </div>
 
       ${creditSales.length ? `
@@ -90,40 +90,37 @@ const Sales = (() => {
       </div>
 
       <!-- Sales Table -->
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>${t('th_product')}</th>
-                <th>${t('th_qty')}</th>
-                <th>${t('th_unit_price')}</th>
-                <th>${t('th_revenue')}</th>
-                ${showProfit ? `<th>${t('th_profit')}</th><th>${t('th_margin')}</th>` : ''}
-                <th>${t('th_customer')}</th>
-                <th>${t('th_date')}</th>
-                <th>${t('th_payment')}</th>
-                <th>${I18n.choose('Paid / Remaining', 'المدفوع / المتبقي', 'Payé / Restant')}</th>
-                <th>${t('th_actions')}</th>
-              </tr>
-            </thead>
-            <tbody id="salesTbody"></tbody>
-          </table>
-        </div>
+      <div class="table-responsive">
+        <table class="table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
+              <th style="padding:12px 10px;">#</th>
+              <th style="padding:12px 10px;">${t('th_product')}</th>
+              <th style="padding:12px 10px;">${t('th_qty')}</th>
+              <th style="padding:12px 10px;">${t('th_unit_price')}</th>
+              <th style="padding:12px 10px;">${t('th_revenue')}</th>
+              ${showProfit ? `<th style="padding:12px 10px;">${t('th_profit')}</th><th style="padding:12px 10px;">${t('th_margin')}</th>` : ''}
+              <th style="padding:12px 10px;">${t('th_customer')}</th>
+              <th style="padding:12px 10px;">${t('th_date')}</th>
+              <th style="padding:12px 10px;">${t('th_payment')}</th>
+              <th style="padding:12px 10px;">${I18n.choose('Paid / Remaining', 'المدفوع / المتبقي', 'Payé / Restant')}</th>
+              <th style="padding:12px 10px;">${t('th_actions')}</th>
+            </tr>
+          </thead>
+          <tbody id="salesTbody"></tbody>
+        </table>
       </div>
     </div>`;
     renderTable();
   }
 
-  function statCard(icon, label, value, color, sub = '') {
-    const tc = { green:'var(--accent)', purple:'var(--primary-light)', orange:'var(--warning)', blue:'#60A5FA', teal:'#2DD4BF', red:'var(--danger)' };
+  function statCard(label, value, color, sub = '') {
+    const tc = { green:'#10b981', purple:'#6366f1', orange:'#f59e0b', blue:'#0ea5e9', teal:'#0d9488', red:'#ef4444' };
     return `
-    <div style="background:var(--bg-card);border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:18px;">
-      <div style="font-size:20px;margin-bottom:6px">${icon}</div>
-      <div style="font-size:1.2rem;font-weight:700;color:${tc[color]}">${value}</div>
-      <div style="font-size:0.78rem;color:var(--text-muted)">${label}</div>
-      ${sub ? `<div style="font-size:0.72rem;color:var(--danger);margin-top:3px">${sub}</div>` : ''}
+    <div>
+      <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;display:flex;align-items:center;gap:6px">${label}</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;">${value}</div>
+      ${sub ? `<div style="font-size:11px;color:${tc[color]};font-weight:500;margin-top:4px">${sub}</div>` : ''}
     </div>`;
   }
 
@@ -173,26 +170,26 @@ const Sales = (() => {
       const rowStyle  = isOverdue ? 'background:rgba(239,68,68,0.04);' : isCredit ? 'background:rgba(245,158,11,0.03);' : '';
 
       return `
-      <tr style="${rowStyle}">
-        <td class="td-muted" style="font-size:0.8rem">#${s.id}</td>
-        <td>
+      <tr style="border-bottom:1px solid var(--border);${rowStyle}">
+        <td class="td-muted" style="padding:14px 10px;font-size:0.8rem">#${s.id}</td>
+        <td style="padding:14px 10px;">
           <div style="font-weight:600;font-size:0.875rem">${s.productName}</div>
           <div style="font-size:0.72rem;color:var(--text-muted)">${s.productCode}</div>
         </td>
-        <td class="text-center">${s.quantity}</td>
-        <td>${UI.fmtCurrency(s.sellingPrice)}</td>
-        <td class="text-accent fw-600">${UI.fmtCurrency(s.revenue)}</td>
+        <td class="text-center" style="padding:14px 10px;">${s.quantity}</td>
+        <td style="padding:14px 10px;">${UI.fmtCurrency(s.sellingPrice)}</td>
+        <td class="text-accent fw-600" style="padding:14px 10px;">${UI.fmtCurrency(s.revenue)}</td>
         ${showProfit ? `
-        <td class="${s.profit >= 0 ? 'text-success' : 'text-danger'} fw-600">${UI.fmtCurrency(s.profit)}</td>
-        <td>
+        <td class="${s.profit >= 0 ? 'text-success' : 'text-danger'} fw-600" style="padding:14px 10px;">${UI.fmtCurrency(s.profit)}</td>
+        <td style="padding:14px 10px;">
           <span class="badge ${s.profitMargin >= 20 ? 'badge-success' : s.profitMargin >= 10 ? 'badge-warning' : 'badge-danger'}">
             ${UI.fmtPct(s.profitMargin)}
           </span>
         </td>` : ''}
-        <td style="font-weight:500">${s.customer || '—'}</td>
-        <td class="td-muted">${UI.fmtDate(s.saleDate)}</td>
-        <td>${paymentBadge(isCredit ? 'credit' : 'paid', isOverdue)}</td>
-        <td>
+        <td style="padding:14px 10px;font-weight:500">${s.customer || '—'}</td>
+        <td class="td-muted" style="padding:14px 10px;">${UI.fmtDate(s.saleDate)}</td>
+        <td style="padding:14px 10px;">${paymentBadge(isCredit ? 'credit' : 'paid', isOverdue)}</td>
+        <td style="padding:14px 10px;">
           ${isCredit
             ? `<div style="line-height:1.35;white-space:nowrap">
                  <div style="font-size:0.78rem;color:var(--success);font-weight:600">✓ ${I18n.choose('Paid:', 'مدفوع:', 'Payé :')} ${UI.fmtCurrency(paidAmt)}</div>
@@ -201,7 +198,7 @@ const Sales = (() => {
                </div>`
             : `<span class="badge badge-success" style="font-size:0.75rem;white-space:nowrap">${I18n.choose('Paid Full', 'مدفوع كلياً', 'Payé en totalité')}</span>`}
         </td>
-        <td>
+        <td style="padding:14px 10px;">
           <div class="actions">
             ${isCredit
               ? `<button class="act-btn" onclick="Sales.openPaymentModal(${s.id})" title="${I18n.choose('Add Payment / Settle', 'إضافة دفعة / سداد', 'Ajouter un paiement / Régler')}" style="background:rgba(16,185,129,0.15);color:var(--success);font-weight:700;padding:4px 8px;border-radius:6px;width:auto;display:inline-flex;align-items:center;gap:4px;font-size:0.75rem;">${UI.icon('dollar-sign', '', 12)} ${I18n.choose('Pay', 'سداد', 'Régler')}</button>`

@@ -27,26 +27,27 @@ const Inventory = (() => {
       </div>
 
       <!-- Stock Summary Cards -->
-      <div class="inventory-summary">
-        <div class="inv-summary-card all">
-          <div class="val">${products.length}</div>
-          <div class="lbl">${t('kpi_products')}</div>
+      <!-- Stock Summary -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;padding:16px 0 24px 0;border-bottom:1px solid var(--border);margin-bottom:24px;">
+        <div>
+          <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('kpi_products')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;">${products.length}</div>
         </div>
-        <div class="inv-summary-card ok">
-          <div class="val">${available.length}</div>
-          <div class="lbl">${t('status_available')}</div>
+        <div>
+          <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('status_available')}</div>
+          <div style="font-size:15px;font-weight:700;color:#10b981;font-family:monospace;">${available.length}</div>
         </div>
-        <div class="inv-summary-card low">
-          <div class="val">${low.length}</div>
-          <div class="lbl">${t('kpi_low_stock')}</div>
+        <div>
+          <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('kpi_low_stock')}</div>
+          <div style="font-size:15px;font-weight:700;color:#f59e0b;font-family:monospace;">${low.length}</div>
         </div>
-        <div class="inv-summary-card out">
-          <div class="val">${out.length}</div>
-          <div class="lbl">${t('kpi_out_stock')}</div>
+        <div>
+          <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('kpi_out_stock')}</div>
+          <div style="font-size:15px;font-weight:700;color:#ef4444;font-family:monospace;">${out.length}</div>
         </div>
-        <div class="inv-summary-card all" style="background:rgba(124,58,237,0.08)">
-          <div class="val" style="color:var(--primary-light)">${UI.fmtCurrency(totalValue)}</div>
-          <div class="lbl">${t('kpi_inv_value')}</div>
+        <div>
+          <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('kpi_inv_value')}</div>
+          <div style="font-size:15px;font-weight:700;color:#6366f1;font-family:monospace;">${UI.fmtCurrency(totalValue)}</div>
         </div>
       </div>
 
@@ -83,28 +84,27 @@ const Inventory = (() => {
       </div>
 
       <!-- Inventory Table -->
-      <div class="card">
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>${t('th_product')}</th>
-                <th>${t('th_code')}</th>
-                <th>${t('th_category')}</th>
-                <th>${t('th_supplier')}</th>
-                <th>${t('th_bought')}</th>
-                <th>${t('th_sold')}</th>
-                <th>${t('th_in_stock')}</th>
-                <th>${t('th_stock_level')}</th>
-                <th>${t('th_cpu')}</th>
-                <th>${t('th_stock_value')}</th>
-                <th>${t('th_status')}</th>
-                <th>${t('th_actions')}</th>
-              </tr>
-            </thead>
-            <tbody id="inventoryTbody"></tbody>
-          </table>
-        </div>
+      <!-- Inventory Table -->
+      <div class="table-responsive">
+        <table class="table" style="width:100%;border-collapse:collapse;">
+          <thead>
+            <tr style="text-align:left;border-bottom:2px solid var(--border);color:var(--text-muted);font-size:12px;text-transform:uppercase;">
+              <th style="padding:12px 10px;">${t('th_product')}</th>
+              <th style="padding:12px 10px;">${t('th_code')}</th>
+              <th style="padding:12px 10px;">${t('th_category')}</th>
+              <th style="padding:12px 10px;">${t('th_supplier')}</th>
+              <th style="padding:12px 10px;">${t('th_bought')}</th>
+              <th style="padding:12px 10px;">${t('th_sold')}</th>
+              <th style="padding:12px 10px;">${t('th_in_stock')}</th>
+              <th style="padding:12px 10px;">${t('th_stock_level')}</th>
+              <th style="padding:12px 10px;">${t('th_cpu')}</th>
+              <th style="padding:12px 10px;">${t('th_stock_value')}</th>
+              <th style="padding:12px 10px;">${t('th_status')}</th>
+              <th style="padding:12px 10px;">${t('th_actions')}</th>
+            </tr>
+          </thead>
+          <tbody id="inventoryTbody"></tbody>
+        </table>
       </div>
     </div>`;
     renderTable();
@@ -137,20 +137,20 @@ const Inventory = (() => {
       const barColor = pct > 50 ? 'var(--accent)' : pct > 20 ? 'var(--warning)' : 'var(--danger)';
 
       return `
-      <tr>
-        <td>
+      <tr style="border-bottom:1px solid var(--border);">
+        <td style="padding:12px 10px;">
           <div style="display:flex;align-items:center;gap:8px">
-            ${p.image ? `<img src="${p.image}" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0">` : `<div style="width:28px;height:28px;border-radius:6px;background:rgba(124,58,237,0.1);color:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">${UI.icon('package', '', 14)}</div>`}
+            ${p.image ? '<img src="' + p.image + '" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0">' : '<div style="width:28px;height:28px;border-radius:6px;background:rgba(124,58,237,0.1);color:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + UI.icon('package', '', 14) + '</div>'}
             <div style="font-weight:600;font-size:0.83rem;line-height:1.2;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.name}">${p.name}</div>
           </div>
         </td>
-        <td><span class="badge badge-purple" style="font-family:monospace;font-size:0.70rem;padding:2px 6px">${p.code}</span></td>
-        <td class="td-muted" style="max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.categoryName}">${p.categoryName}</td>
-        <td class="td-muted" style="max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.supplierName}">${p.supplierName}</td>
-        <td class="text-center">${p.quantity}</td>
-        <td class="text-center td-muted">${sold}</td>
-        <td style="font-weight:700;font-size:0.95rem;text-align:center;color:${p.currentStock === 0 ? 'var(--danger)' : p.currentStock <= 5 ? 'var(--warning)' : 'var(--accent)'}">${p.currentStock}</td>
-        <td style="min-width:70px;max-width:90px">
+        <td style="padding:12px 10px;"><span class="badge badge-purple" style="font-family:monospace;font-size:0.70rem;padding:2px 6px">${p.code}</span></td>
+        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.categoryName}">${p.categoryName}</td>
+        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.supplierName}">${p.supplierName}</td>
+        <td class="text-center" style="padding:12px 10px;">${p.quantity}</td>
+        <td class="text-center td-muted" style="padding:12px 10px;">${sold}</td>
+        <td style="padding:12px 10px;font-weight:700;font-size:0.95rem;text-align:center;color:${p.currentStock === 0 ? 'var(--danger)' : p.currentStock <= 5 ? 'var(--warning)' : 'var(--accent)'}">${p.currentStock}</td>
+        <td style="padding:12px 10px;min-width:70px;max-width:90px">
           <div style="display:flex;align-items:center;gap:6px">
             <div class="progress-bar" style="flex:1">
               <div class="progress-fill" style="width:${pct}%;background:${barColor}"></div>
@@ -158,10 +158,10 @@ const Inventory = (() => {
             <span style="font-size:0.72rem;color:var(--text-muted);white-space:nowrap">${Math.round(pct)}%</span>
           </div>
         </td>
-        <td class="fw-600 text-accent" style="white-space:nowrap;font-size:0.80rem">${UI.fmtCurrency(p.costPerUnit)}</td>
-        <td class="fw-600" style="white-space:nowrap;font-size:0.80rem">${UI.fmtCurrency(stockValue)}</td>
-        <td style="white-space:nowrap">${stockBadge(p.stockStatus)}</td>
-        <td style="white-space:nowrap">
+        <td class="fw-600 text-accent" style="padding:12px 10px;white-space:nowrap;font-size:0.80rem">${UI.fmtCurrency(p.costPerUnit)}</td>
+        <td class="fw-600" style="padding:12px 10px;white-space:nowrap;font-size:0.80rem">${UI.fmtCurrency(stockValue)}</td>
+        <td style="padding:12px 10px;white-space:nowrap">${stockBadge(p.stockStatus)}</td>
+        <td style="padding:12px 10px;white-space:nowrap">
           ${UI.canEditProducts() ? `<button class="btn btn-sm btn-outline-primary" style="padding:4px 10px;font-size:0.75rem;white-space:nowrap" onclick="Products.openEdit(${p.id})">${t('btn_restock')}</button>` : `<span class="td-muted" style="font-size:0.75rem">${I18n.choose('Read Only', 'للعرض فقط', 'Lecture seule')}</span>`}
         </td>
       </tr>`;
