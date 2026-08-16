@@ -123,138 +123,103 @@ const Reports = (() => {
     const products = DB.getAllEnrichedProducts();
     const inventoryValue = products.reduce((a, p) => a + p.costPerUnit * p.currentStock, 0);
 
+    const ch = (en, ar, fr) => (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose(en, ar, fr) : (I18n.getLang() === 'ar' ? ar : en);
+
     c.innerHTML = `
-    <!-- Key Metrics -->
-    <div class="report-section">
-      <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(6,214,160,0.1);color:var(--accent);display:flex;align-items:center;justify-content:center;">${UI.icon('bar-chart-2', '', 20)}</div>
-        <div>
-          <div style="font-weight:600">${getPeriodLabel()}</div>
-          <div style="font-size:0.78rem;color:var(--text-muted)">${I18n.choose('Generated:', 'تم التوليد في:', 'Généré :')} ${new Date().toLocaleString()}</div>
+    <div style="margin-bottom: 24px;">
+      <!-- Key Metrics List -->
+      <div style="margin-bottom: 32px;">
+        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${getPeriodLabel()} — <span style="font-size:0.85rem;color:var(--text-muted);font-weight:400">${ch('Generated:', 'تم التوليد في:', 'Généré :')} ${new Date().toLocaleString()}</span></h3>
+        
+        <!-- Revenue -->
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Revenue', 'إجمالي الإيرادات', 'Revenu total')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.revenue)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${d.sales.length} ${ch('sales', 'مبيعات', 'ventes')}</div>
+        </div>
+
+        <!-- Profit -->
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Profit', 'إجمالي الربح', 'Profit total')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.profit)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${UI.fmtPct(d.margin)} ${ch('margin', 'هامش', 'marge')}</div>
+        </div>
+
+        <!-- Net Profit -->
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Net Profit', 'صافي الربح', 'Bénéfice net')}</div>
+          <div style="font-size:15px;font-weight:700;color:${d.netProfit >= 0 ? '#10b981' : '#ef4444'};font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.netProfit)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
+        </div>
+
+        <!-- Biz Expenses -->
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Business Expenses', 'مصاريف العمل', 'Dépenses commerciales')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.bizExpTotal)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
+        </div>
+
+        <!-- Import Costs -->
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(d.impExpTotal)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;"></div>
         </div>
       </div>
-      <div class="kpi-grid" style="padding:20px;margin-bottom:0">
-        ${metricBox(UI.icon('dollar-sign', '', 20), t('th_revenue'), UI.fmtCurrency(d.revenue), 'green')}
-        ${metricBox(UI.icon('trending-up', '', 20), t('kpi_profit'), UI.fmtCurrency(d.profit), 'purple')}
-        ${metricBox(UI.icon('activity', '', 20), I18n.choose('Net Profit', 'صافي الربح', 'Bénéfice net'), UI.fmtCurrency(d.netProfit), d.netProfit >= 0 ? 'green' : 'red')}
-        ${metricBox(UI.icon('briefcase', '', 20), I18n.choose('Biz Expenses', 'مصاريف العمل', 'Dépenses prof.'), UI.fmtCurrency(d.bizExpTotal), 'orange')}
-        ${metricBox(UI.icon('package', '', 20), I18n.choose('Import Costs', 'تكاليف الاستيراد', 'Coûts d\'importation'), UI.fmtCurrency(d.impExpTotal), 'orange')}
-        ${metricBox(UI.icon('percent', '', 20), t('th_margin'), UI.fmtPct(d.margin), 'blue')}
-        ${metricBox(UI.icon('shopping-cart', '', 20), I18n.choose('Sales Made', 'عمليات البيع', 'Ventes réalisées'), d.sales.length, 'teal')}
-        ${metricBox(UI.icon('box', '', 20), I18n.choose('Units Sold', 'الوحدات المباعة', 'Unités vendues'), d.unitsSold, 'indigo')}
-      </div>
-    </div>
 
-    <!-- Sales Breakdown -->
-    <div class="report-section">
-      <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(124,58,237,0.1);color:var(--primary-light);display:flex;align-items:center;justify-content:center;">${UI.icon('shopping-cart', '', 20)}</div>
-        <div style="font-weight:600">${I18n.choose('Sales Breakdown', 'تفاصيل المبيعات', 'Détails des ventes')}</div>
+      <!-- Sales Breakdown List -->
+      <div style="margin-bottom: 32px;">
+        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${ch('Sales Breakdown', 'تفاصيل المبيعات', 'Détails des ventes')}</h3>
+        ${d.sales.length ? `
+        <div style="overflow-x:auto"><table>
+          <thead><tr style="border-bottom:1px solid var(--border)"><th style="padding:12px 0;color:var(--text-muted);font-weight:600;font-size:0.85rem">${t('th_product')}</th><th>${t('th_qty')}</th><th>${t('th_unit_price')}</th><th>${t('th_revenue')}</th><th>${t('th_profit')}</th><th>${t('th_margin')}</th><th>${t('th_date')}</th></tr></thead>
+          <tbody>
+            ${d.sales.slice(0, 50).map(s => `
+            <tr style="border-bottom:1px solid var(--border)">
+              <td style="padding:16px 0;font-weight:500">${s.productName}</td>
+              <td>${s.quantity}</td>
+              <td class="td-muted">${UI.fmtCurrency(s.sellingPrice)}</td>
+              <td class="text-accent fw-600">${UI.fmtCurrency(s.revenue)}</td>
+              <td class="${s.profit >= 0 ? 'text-success' : 'text-danger'} fw-600">${UI.fmtCurrency(s.profit)}</td>
+              <td><span style="font-size:13px;font-family:monospace;color:var(--text-muted)">${UI.fmtPct(s.profitMargin)}</span></td>
+              <td class="td-muted">${UI.fmtDate(s.saleDate)}</td>
+            </tr>`).join('')}
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="3" style="font-weight:700;padding:16px 0">${ch('TOTAL', 'الإجمالي', 'TOTAL')}</td>
+              <td class="text-accent fw-600" style="padding:16px 0">${UI.fmtCurrency(d.revenue)}</td>
+              <td class="${d.profit >= 0 ? 'text-success' : 'text-danger'} fw-600" style="padding:16px 0">${UI.fmtCurrency(d.profit)}</td>
+              <td colspan="2"></td>
+            </tr>
+          </tfoot>
+        </table></div>` : `<div style="padding:20px 0;color:var(--text-muted);font-size:14px;">${ch('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</div>`}
       </div>
-      ${d.sales.length ? `
-      <div style="overflow-x:auto"><table>
-        <thead><tr><th>${t('th_product')}</th><th>${t('th_qty')}</th><th>${t('th_unit_price')}</th><th>${t('th_revenue')}</th><th>${t('th_cost')}</th><th>${t('th_profit')}</th><th>${t('th_margin')}</th><th>${t('th_customer')}</th><th>${t('th_date')}</th></tr></thead>
-        <tbody>
-          ${d.sales.slice(0, 50).map(s => `
-          <tr>
-            <td style="font-weight:500">${s.productName}</td>
-            <td>${s.quantity}</td>
-            <td>${UI.fmtCurrency(s.sellingPrice)}</td>
-            <td class="text-accent fw-600">${UI.fmtCurrency(s.revenue)}</td>
-            <td class="td-muted">${UI.fmtCurrency(s.cost)}</td>
-            <td class="${s.profit >= 0 ? 'text-success' : 'text-danger'} fw-600">${UI.fmtCurrency(s.profit)}</td>
-            <td><span class="badge ${s.profitMargin >= 20 ? 'badge-success' : s.profitMargin >= 10 ? 'badge-warning' : 'badge-danger'}">${UI.fmtPct(s.profitMargin)}</span></td>
-            <td class="td-muted">${s.customer || '—'}</td>
-            <td class="td-muted">${UI.fmtDate(s.saleDate)}</td>
-          </tr>`).join('')}
-        </tbody>
-        <tfoot>
-          <tr style="background:var(--bg-elevated)">
-            <td colspan="3" style="font-weight:700;padding:12px 14px">${I18n.choose('TOTAL', 'الإجمالي', 'TOTAL')}</td>
-            <td class="text-accent fw-600" style="padding:12px 14px">${UI.fmtCurrency(d.revenue)}</td>
-            <td class="td-muted" style="padding:12px 14px">${UI.fmtCurrency(d.costOfGoods)}</td>
-            <td class="${d.profit >= 0 ? 'text-success' : 'text-danger'} fw-600" style="padding:12px 14px">${UI.fmtCurrency(d.profit)}</td>
-            <td colspan="3"></td>
-          </tr>
-        </tfoot>
-      </table></div>` : `<div class="empty-state" style="padding:40px"><div class="empty-icon">${UI.icon('shopping-cart', '', 32)}</div><h3>${I18n.choose('No sales in this period', 'لا توجد مبيعات في هذه الفترة', 'Aucune vente au cours de cette période')}</h3></div>`}
-    </div>
 
-    <!-- Best Selling Products -->
-    ${d.bestProducts.length ? `
-    <div class="report-section">
-      <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(245,158,11,0.1);color:var(--warning);display:flex;align-items:center;justify-content:center;">${UI.icon('award', '', 20)}</div>
-        <div style="font-weight:600">${t('chart_top_selling')}</div>
-      </div>
-      <div style="padding:16px 20px">
+      <!-- Best Selling Products List -->
+      ${d.bestProducts.length ? `
+      <div style="margin-bottom: 32px;">
+        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${t('chart_top_selling')}</h3>
         ${d.bestProducts.map((p, i) => `
-        <div style="display:flex;align-items:center;gap:14px;padding:10px 0;border-bottom:1px solid var(--border-light)">
-          <div style="width:28px;height:28px;border-radius:50%;background:${i === 0 ? 'rgba(245,158,11,0.2)' : i === 1 ? 'rgba(148,163,184,0.1)' : i === 2 ? 'rgba(180,120,60,0.1)' : 'rgba(124,58,237,0.08)'};display:flex;align-items:center;justify-content:center;font-size:0.85rem;font-weight:700;color:${i === 0 ? 'var(--warning)' : i === 1 ? '#94A3B8' : 'var(--text-muted)'}">${i + 1}</div>
-          <div style="flex:1">
-            <div style="font-weight:600">${p.name}</div>
-            <div style="font-size:0.78rem;color:var(--text-muted)">${p.qty} ${I18n.choose('units sold', 'وحدات مباعة', 'unités vendues')}</div>
-          </div>
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="width:24px;font-size:14px;color:var(--text-muted);font-weight:700;">${i + 1}.</div>
+          <div style="flex:1;font-size:15px;font-weight:500;">${p.name}</div>
           <div style="text-align:right">
-            <div class="text-accent fw-600">${UI.fmtCurrency(p.revenue)}</div>
-            <div style="font-size:0.78rem;color:var(--success)">${UI.fmtCurrency(p.profit)} ${I18n.choose('profit', 'أرباح', 'bénéfice')}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;">${UI.fmtCurrency(p.revenue)}</div>
+            <div style="font-size:13px;color:var(--text-muted);font-family:monospace;">${p.qty} ${ch('units sold', 'وحدات مباعة', 'unités vendues')}</div>
           </div>
         </div>`).join('')}
-      </div>
-    </div>` : ''}
+      </div>` : ''}
 
-    <!-- Business Expenses -->
-    ${d.bizExp.length ? `
-    <div class="report-section">
-      <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(239,68,68,0.1);color:var(--danger);display:flex;align-items:center;justify-content:center;">${UI.icon('briefcase', '', 20)}</div>
-        <div style="font-weight:600">${I18n.choose('Business Expenses', 'مصاريف العمل', 'Dépenses professionnelles')} — ${UI.fmtCurrency(d.bizExpTotal)}</div>
+      <!-- Inventory Value List -->
+      <div style="margin-bottom: 32px;">
+        <h3 style="margin-bottom:16px;font-size:1.1rem;color:var(--text-dark);">${ch('Current Inventory Snapshot', 'نظرة على المخزون الحالي', 'Aperçu du stock actuel')}</h3>
+        <div style="display:flex;align-items:center;padding:16px 0;border-bottom:1px solid var(--border);">
+          <div style="flex:1;font-size:15px;color:var(--text-muted);font-weight:500;">${ch('Total Inventory Value', 'إجمالي قيمة المخزون', 'Valeur totale du stock')}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;text-align:right;padding-right:48px;">${UI.fmtCurrency(inventoryValue)}</div>
+          <div style="width:100px;text-align:right;font-size:13px;font-weight:500;color:var(--text-muted);font-family:monospace;">${products.length} ${ch('products', 'منتجات', 'produits')}</div>
+        </div>
       </div>
-      <div style="overflow-x:auto"><table>
-        <thead><tr><th>${I18n.choose('Title', 'العنوان', 'Titre')}</th><th>${t('th_category')}</th><th>${t('th_cost')}</th><th>${t('th_date')}</th><th>${t('lbl_note')}</th></tr></thead>
-        <tbody>
-          ${d.bizExp.map(e => `
-          <tr>
-            <td style="font-weight:500">${e.title}</td>
-            <td><span class="badge badge-info">${e.category || '—'}</span></td>
-            <td class="text-danger fw-600">${UI.fmtCurrency(e.amount)}</td>
-            <td class="td-muted">${UI.fmtDate(e.expenseDate)}</td>
-            <td class="td-muted">${e.note || '—'}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>` : ''}
-
-    <!-- Inventory Snapshot -->
-    <div class="report-section">
-      <div class="report-section-header">
-        <div class="report-section-icon" style="background:rgba(59,130,246,0.1);color:#60A5FA;display:flex;align-items:center;justify-content:center;">${UI.icon('home', '', 20)}</div>
-        <div style="font-weight:600">${I18n.choose('Current Inventory Snapshot — Value:', 'لقطة للمخزون الحالي — القيمة:', 'Aperçu actuel du stock — Valeur :')} ${UI.fmtCurrency(inventoryValue)}</div>
-      </div>
-      <div style="overflow-x:auto"><table>
-        <thead><tr><th>${t('th_product')}</th><th>${t('th_code')}</th><th>${t('th_in_stock')}</th><th>${t('th_cpu')}</th><th>${t('th_stock_value')}</th><th>${t('th_status')}</th></tr></thead>
-        <tbody>
-          ${products.map(p => `
-          <tr>
-            <td style="font-weight:500">${p.name}</td>
-            <td class="td-muted" style="font-family:monospace">${p.code}</td>
-            <td style="font-weight:700;color:${p.currentStock === 0 ? 'var(--danger)' : p.currentStock <= 5 ? 'var(--warning)' : 'var(--accent)'}">${p.currentStock}</td>
-            <td>${UI.fmtCurrency(p.costPerUnit)}</td>
-            <td class="fw-600">${UI.fmtCurrency(p.costPerUnit * p.currentStock)}</td>
-            <td>${stockBadge(p.stockStatus)}</td>
-          </tr>`).join('')}
-        </tbody>
-      </table></div>
-    </div>`;
-  }
-
-  function metricBox(icon, label, val, color) {
-    const tc = { green: 'var(--accent)', purple: 'var(--primary-light)', orange: 'var(--warning)', red: 'var(--danger)', blue: '#60A5FA', teal: '#2DD4BF', indigo: '#818CF8' };
-    return `
-    <div style="background:var(--bg-elevated);border-radius:10px;padding:14px">
-      <div style="font-size:20px;margin-bottom:6px">${icon}</div>
-      <div style="font-size:1.1rem;font-weight:700;color:${tc[color] || 'var(--text-primary)'}">${val}</div>
-      <div style="font-size:0.75rem;color:var(--text-muted)">${label}</div>
     </div>`;
   }
 
