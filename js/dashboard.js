@@ -99,7 +99,7 @@ const Dashboard = (() => {
       </div>
 
       <!-- Secondary Metrics -->
-      <div style="display:grid;grid-template-columns:repeat(4, 1fr);gap:16px;padding:16px 0 32px 0;border-bottom:1px solid var(--border);margin-bottom:32px;">
+      <div class="dash-kpi-grid" style="padding:16px 0 32px 0;border-bottom:1px solid var(--border);margin-bottom:32px;">
         <div>
           <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${ch('Inventory Valuation', 'تقييم المخزون', 'Valorisation Stock')}</div>
           <div style="font-size:14px;font-weight:700;color:var(--text-main);font-family:monospace;">${UI.fmtCurrency(s.inventoryValue)}</div>
@@ -131,7 +131,7 @@ const Dashboard = (() => {
       </div>
 
       <!-- Tables -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:32px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:32px;">
         <div class="card">
           <div class="card-header">
             <h3 class="card-title" style="margin:0;">${t('recent_sales')}</h3>
