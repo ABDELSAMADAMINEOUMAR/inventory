@@ -180,7 +180,7 @@ const Products = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_qty')} <span class="req">*</span></label>
-        <input class="input" type="text" inputmode="numeric" id="fQty" value="${p.quantity||''}" placeholder="e.g. 100" required>
+        <input class="input" type="text" inputmode="numeric" id="fQty" value="${p.quantity||''}" placeholder="e.g. 100" oninput="Products.calcPreview()" required>
       </div>
       <div class="field">
         <label>${t('lbl_date')}</label>

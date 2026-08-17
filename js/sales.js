@@ -284,14 +284,14 @@ const Sales = (() => {
         <label>${t('lbl_due_date')}</label>
         <input class="input" type="date" id="sDueDate" value="${s.dueDate||''}">
       </div>
-      <div class="field" id="partialWrap" style="display:flex;flex-direction:column;gap:6px">
+      <div class="field" id="partialWrap" style="display:${isCredit?'flex':'none'};flex-direction:column;gap:6px">
         <label>${UI.isRiyalMode() ? 'المبلغ المدفوع مقدماً (ريال)' : I18n.choose('Amount Paid Upfront (FCFA)', 'المبلغ المدفوع مقدماً (FCFA)', 'Montant payé d\'avance (FCFA)')}</label>
         <div class="input-prefix-wrap"><span class="input-prefix">${UI.isRiyalMode() ? 'ريال' : 'F'}</span>
           <input class="input" type="text" id="sAmountPaid" value="${(s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? UI.toInputMoney(s.amountPaid) : ''}" placeholder="${UI.isRiyalMode() ? 'اتركه فارغاً إذا تم الدفع كلياً' : I18n.choose('Leave empty if fully paid', 'اتركه فارغاً إذا تم الدفع كلياً', 'Laisser vide si payé en totalité')}" oninput="Sales.updateCalc()">
         </div>
         ${UI.isRiyalMode() ? '<div id="sAmountPaidFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
       </div>
-      <div class="field col-span-2" id="remBalanceWrap" style="display:block;margin-top:-2px;margin-bottom:4px">
+      <div class="field col-span-2" id="remBalanceWrap" style="display:${isCredit?'block':'none'};margin-top:-2px;margin-bottom:4px">
         <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
           <span style="font-weight:600;font-size:0.85rem;color:var(--danger);display:flex;align-items:center;gap:6px">${UI.icon('clock', '', 14)} ${I18n.choose('Remaining Amount to be Paid by Customer:', 'المبلغ المتبقي على العميل لسداده:', 'Montant restant à payer par le client :')}</span>
           <span style="font-weight:800;font-size:1.05rem;color:var(--danger)" id="sRemainingDisplay">${UI.fmtCurrency(Math.max(0, (s.revenue || 0) - ((s.amountPaid !== undefined && s.amountPaid !== null) ? s.amountPaid : (s.revenue || 0))))}</span>
@@ -345,6 +345,16 @@ const Sales = (() => {
     // Show/hide due date field
     const dueWrap = document.getElementById('dueDateWrap');
     if (dueWrap) dueWrap.style.display = isPaid ? 'none' : 'flex';
+    const partialWrap = document.getElementById('partialWrap');
+    if (partialWrap) partialWrap.style.display = isPaid ? 'none' : 'flex';
+    const remWrap = document.getElementById('remBalanceWrap');
+    if (remWrap) remWrap.style.display = isPaid ? 'none' : 'block';
+    
+    if (isPaid) {
+      const amtPaidInput = document.getElementById('sAmountPaid');
+      if (amtPaidInput) amtPaidInput.value = '';
+    }
+    
     updateCalc();
   }
 
