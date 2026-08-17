@@ -424,7 +424,7 @@ const UI = (() => {
 
       const userRole = (user.role || 'staff').toLowerCase();
       const allowedPages = ROLE_PAGES[userRole] || ROLE_PAGES.staff;
-      document.querySelectorAll('.sidebar-nav .nav-item').forEach(link => {
+      document.querySelectorAll('.top-nav-links .nav-item').forEach(link => {
         const p = link.dataset.page;
         if (p && !allowedPages.includes(p)) {
           link.style.display = 'none';
