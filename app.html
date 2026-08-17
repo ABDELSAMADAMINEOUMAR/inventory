@@ -73,6 +73,11 @@
 
         <!-- Right User Profile & Language -->
         <div style="display:flex; align-items:center; gap: 16px;">
+          <!-- Mobile Menu Button -->
+          <button id="mobileMenuBtn" class="mobile-menu-btn" onclick="document.querySelector('.top-nav-links').classList.toggle('open')" style="background:transparent; border:none; color:var(--text-main); cursor:pointer;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+          </button>
+
           <button class="lang-btn" id="langToggleBtn" onclick="I18n.toggle()"
             style="background:rgba(139, 92, 246, 0.1); border:1px solid rgba(139, 92, 246, 0.2); color:#8b5cf6; padding:6px 12px; border-radius:10px; font-weight:600; cursor:pointer; display:inline-flex; align-items:center; gap:6px;">
             <span>عربي</span>

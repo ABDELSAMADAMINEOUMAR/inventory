@@ -28,7 +28,7 @@ const Inventory = (() => {
 
       <!-- Stock Summary Cards -->
       <!-- Stock Summary -->
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:16px;padding:16px 0 24px 0;border-bottom:1px solid var(--border);margin-bottom:24px;">
+      <div class="dash-kpi-grid" style="padding:16px 0 24px 0;border-bottom:1px solid var(--border);margin-bottom:24px;">
         <div>
           <div style="font-size:10px;color:#9ca3af;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">${t('kpi_products')}</div>
           <div style="font-size:15px;font-weight:700;color:var(--text-main);font-family:monospace;">${products.length}</div>

@@ -56,6 +56,8 @@ const UI = (() => {
       }
     }
     _currentPage = page;
+    const topNav = document.querySelector('.top-nav-links');
+    if (topNav) topNav.classList.remove('open');
 
     // Update header (safely, as outer header may be removed)
     const titleEl = document.getElementById('headerTitle');
