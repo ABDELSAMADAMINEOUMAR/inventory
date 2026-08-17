@@ -83,12 +83,16 @@ class CanAccessCategoriesAndSuppliers(permissions.BasePermission):
 
 class CanAccessSales(permissions.BasePermission):
     """
-    Sales / POS: Admin, Manager, Cashier
+    Sales / POS: Admin, Manager (all). Cashier (read and create only).
     """
     def has_permission(self, request, view):
         if not request.user or not request.user.is_authenticated:
             return False
-        return request.user.role in ['admin', 'manager', 'cashier']
+        if request.user.role in ['admin', 'manager']:
+            return True
+        if request.user.role == 'cashier' and request.method in permissions.SAFE_METHODS + ('POST',):
+            return True
+        return False
 
 
 class CanAccessExpenses(permissions.BasePermission):

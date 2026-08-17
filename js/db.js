@@ -866,3 +866,4 @@ const DB = (() => {
     getDashboardStats, getMonthlyData, getTopProducts, generateProductCode,
   };
 })();
+

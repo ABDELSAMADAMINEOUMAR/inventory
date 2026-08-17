@@ -187,8 +187,8 @@ const Dashboard = (() => {
       prodBody.innerHTML = recentProds.map(p => `
         <tr style="border-bottom:1px solid var(--border);">
           <td style="padding:12px 0;">
-            <div style="font-weight:500;color:var(--text-main);font-size:13.5px;">${p.name}</div>
-            <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;font-family:monospace;">${p.code}</div>
+            <div style="font-weight:500;color:var(--text-main);font-size:13.5px;">`${UI.escapeHTML(p.name)}</div>
+            <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;font-family:monospace;">`${UI.escapeHTML(p.code)}</div>
           </td>
           <td style="padding:12px 0;text-align:right;">
             <div style="font-weight:600;color:var(--text-main);font-family:monospace;">${p.currentStock}</div>
@@ -284,3 +284,4 @@ const Dashboard = (() => {
 
   return { render, dismissAlert };
 })();
+

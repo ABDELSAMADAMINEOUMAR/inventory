@@ -7,6 +7,7 @@ class ApiConfig(AppConfig):
 
     def ready(self):
         try:
+            import api.signals
             from .recovery_seed import ensure_recovered
             ensure_recovered()
         except Exception:

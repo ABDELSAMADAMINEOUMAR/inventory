@@ -383,3 +383,4 @@ const Auth = (() => {
 
   return { login, register, logout, handleExpiredSession, isLoggedIn, currentUser, isOwner, getTenantId, requireAuth, changePassword, updateProfile };
 })();
+

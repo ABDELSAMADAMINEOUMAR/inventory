@@ -69,7 +69,7 @@ const Inventory = (() => {
           <span class="alert-icon">${UI.icon('alert-circle', '', 20)}</span>
           <div class="alert-content">
             <div class="alert-title">${I18n.choose('Low Stock — ' + low.length + ' product(s)', 'مخزون منخفض — ' + low.length + ' منتج(ات)', 'Stock faible — ' + low.length + ' produit(s)')}</div>
-            <div class="alert-body">${low.map(p => `${p.name} (${p.currentStock} ${I18n.choose('left', 'متبقي', 'restant(s)')})`).join(', ')}</div>
+            <div class="alert-body">${low.map(p => ``${UI.escapeHTML(p.name)} (${p.currentStock} ${I18n.choose('left', 'متبقي', 'restant(s)')})`).join(', ')}</div>
           </div>
         </div>
         <button onclick="this.closest('.alert').style.display='none'" style="background:none;border:none;cursor:pointer;font-size:18px;color:inherit;opacity:0.6;padding:4px;" title="${I18n.choose('Dismiss', 'إخفاء', 'Masquer')}">✕</button>
@@ -141,10 +141,10 @@ const Inventory = (() => {
         <td style="padding:12px 10px;">
           <div style="display:flex;align-items:center;gap:8px">
             ${p.image ? '<img src="' + p.image + '" style="width:28px;height:28px;border-radius:6px;object-fit:cover;flex-shrink:0">' : '<div style="width:28px;height:28px;border-radius:6px;background:rgba(124,58,237,0.1);color:var(--primary-light);display:flex;align-items:center;justify-content:center;flex-shrink:0">' + UI.icon('package', '', 14) + '</div>'}
-            <div style="font-weight:600;font-size:0.83rem;line-height:1.2;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.name}">${p.name}</div>
+            <div style="font-weight:600;font-size:0.83rem;line-height:1.2;max-width:140px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="`${UI.escapeHTML(p.name)}">`${UI.escapeHTML(p.name)}</div>
           </div>
         </td>
-        <td style="padding:12px 10px;"><span class="badge badge-purple" style="font-family:monospace;font-size:0.70rem;padding:2px 6px">${p.code}</span></td>
+        <td style="padding:12px 10px;"><span class="badge badge-purple" style="font-family:monospace;font-size:0.70rem;padding:2px 6px">`${UI.escapeHTML(p.code)}</span></td>
         <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.categoryName}">${p.categoryName}</td>
         <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.supplierName}">${p.supplierName}</td>
         <td class="text-center" style="padding:12px 10px;">${p.quantity}</td>
@@ -176,4 +176,5 @@ const Inventory = (() => {
 
   return { render, setFilter };
 })();
+
 
