@@ -1470,7 +1470,7 @@ const UI = (() => {
     navigate, toggleSidebar, closeSidebar,
     toast, confirm, closeConfirm,
     openModal, closeModal, createModal, lockBtn, unlockBtn,
-    handleSearch, closeSearch, showNotifications,
+    handleSearch, closeSearch, showNotifications, escapeHTML,
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,
