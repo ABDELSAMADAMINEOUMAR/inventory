@@ -378,6 +378,17 @@ const UI = (() => {
     }
     return fmt(n, 0) + symbol;
   }
+  function escapeHTML(str) {
+    if (str === null || str === undefined) return '';
+    if (typeof str !== 'string') str = String(str);
+    return str
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
   function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString((typeof I18n !== 'undefined' && I18n.getLang() === 'ar' ? 'ar-EG' : (typeof I18n !== 'undefined' && I18n.getLang() === 'fr' ? 'fr-FR' : 'en-GB')), { day:'2-digit', month:'short', year:'numeric' }); } catch { return d; } }
   function fmtPct(n) { return fmt(n, 1) + '%'; }
 
