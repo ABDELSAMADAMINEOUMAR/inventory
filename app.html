@@ -35,6 +35,18 @@
 
         <!-- Center Nav Links -->
         <nav class="top-nav-links">
+          <div class="mobile-menu-header" style="display:none; width:100%; justify-content:space-between; align-items:center; margin-bottom:24px; padding-bottom:16px; border-bottom:1px solid rgba(0,0,0,0.05);">
+            <div class="logo" style="display:flex; align-items:center; gap:12px;">
+              <div class="logo-mark" style="width:32px;height:32px;background:var(--primary);color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(99,102,241,0.3);"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div>
+              <div>
+                <div class="logo-name" style="font-size:1.1rem;font-weight:800;letter-spacing:-0.5px;color:var(--text-main);">Smart<span style="color:var(--primary);">IMS</span></div>
+                <div class="logo-sub" data-i18n="app_subtitle" style="font-size:0.65rem;color:var(--text-muted);font-weight:500;">Import & sales system</div>
+              </div>
+            </div>
+            <button onclick="document.querySelector('.top-nav-links').classList.remove('open')" style="background:transparent;border:none;color:var(--text-main);cursor:pointer;padding:8px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
           <a href="#dashboard" class="nav-item active" data-page="dashboard" onclick="UI.navigate('dashboard'); return false;">
             <span class="nav-label" id="nav_dashboard" data-i18n="nav_dashboard">Dashboard</span>
           </a>
