@@ -2800,7 +2800,7 @@ input.input.filter-search {
   }
 }
 
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
 
   .sidebar {
     position: fixed !important;
@@ -3562,7 +3562,7 @@ tbody td {
 .mobile-menu-btn { display: none !important; }
 
 /* Mobile Responsiveness Overrides */
-@media (max-width: 768px) {
+@media (max-width: 1024px) {
   .mobile-menu-btn { display: block !important; }
   .top-navbar { height: auto !important; padding: 12px 16px !important; position: relative !important; }
   .nav-container { 
@@ -3660,6 +3660,7 @@ tbody td {
   .dash-kpi-grid, .kpi-grid { grid-template-columns: 1fr !important; }
   .recent-grid { grid-template-columns: 1fr !important; }
 }
+
 
 
 
