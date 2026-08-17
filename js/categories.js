@@ -54,7 +54,7 @@ const Categories = (() => {
           <button class="act-btn del"  onclick="Categories.delete(${c.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>` : ''}
         </div>
       </div>
-      <div style="font-size:1rem;font-weight:700;margin-bottom:4px">`${UI.escapeHTML(c.name)}</div>
+      <div style="font-size:1rem;font-weight:700;margin-bottom:4px">${UI.escapeHTML(c.name)}</div>
       <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">${c.description || I18n.choose('No description', 'لا يوجد وصف', 'Aucune description')}</div>
       <div style="display:flex;align-items:center;gap:6px">
         <span class="badge badge-purple">${prodCount} ${I18n.choose('product(s)', 'منتجات', 'produit(s)')}</span>
@@ -140,7 +140,7 @@ const Categories = (() => {
     const c = DB.getById('categories', id);
     const count = DB.count('products', p => p.categoryId === id);
     if (count > 0) { UI.toast('error', I18n.choose('Cannot Delete', 'لا يمكن الحذف', 'Suppression impossible'), I18n.choose(`This category has ${count} product(s). Move them first.`, `تحتوي هذه الفئة على ${count} منتج. انقلها أولاً.`, `Cette catégorie contient ${count} produit(s). Déplacez-les d'abord.`)); return; }
-    const ok = await UI.confirm(t('confirm_delete'), `"`${UI.escapeHTML(c.name)}" ${t('cannot_undo')}`);
+    const ok = await UI.confirm(t('confirm_delete'), `"${UI.escapeHTML(c.name)}" ${t('cannot_undo')}`);
     if (!ok) return;
     try {
       await DB.remove('categories', id);
@@ -154,4 +154,5 @@ const Categories = (() => {
 
   return { render, openAdd, openEdit, save, delete: del };
 })();
+
 

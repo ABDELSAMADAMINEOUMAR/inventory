@@ -174,7 +174,7 @@ const Expenses = (() => {
         <label>${I18n.choose('Product', 'المنتج', 'Produit')} <span class="req">*</span></label>
         <select class="select" id="ieProduct" required>
           <option value="">${I18n.choose('Select product', 'اختر منتجاً', 'Sélectionner un produit')}</option>
-          ${products.map(p => `<option value="${p.id}" ${(e.productId==p.id||productId==p.id)?'selected':''}>`${UI.escapeHTML(p.name)} (`${UI.escapeHTML(p.code)})</option>`).join('')}
+          ${products.map(p => `<option value="${p.id}" ${(e.productId==p.id||productId==p.id)?'selected':''}>${UI.escapeHTML(p.name)} (${UI.escapeHTML(p.code)})</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -343,5 +343,6 @@ const Expenses = (() => {
 
   return { render, switchTab, openAdd, openAddImport, editImport, saveImport, deleteImport, openAddBusiness, editBusiness, saveBusiness, deleteBusiness };
 })();
+
 
 

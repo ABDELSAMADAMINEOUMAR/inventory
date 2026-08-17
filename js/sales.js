@@ -77,7 +77,7 @@ const Sales = (() => {
         </div>
         <select class="select" onchange="Sales.setFilter('product', this.value)">
           <option value="">${I18n.choose('All Products', 'جميع المنتجات', 'Tous les produits')}</option>
-          ${DB.getAll('products').map(p => `<option value="${p.id}">`${UI.escapeHTML(p.name)}</option>`).join('')}
+          ${DB.getAll('products').map(p => `<option value="${p.id}">${UI.escapeHTML(p.name)}</option>`).join('')}
         </select>
         <select class="select" id="paymentFilter" onchange="Sales.setFilter('payment', this.value)">
           <option value="">${I18n.choose('All Payments', 'جميع المدفوعات', 'Tous les paiements')}</option>
@@ -228,7 +228,7 @@ const Sales = (() => {
         <input class="input" type="text" id="sProductSearch" placeholder="${I18n.choose('Search product by name or code...', 'ابحث عن منتج بالاسم أو الرمز...', 'Rechercher un produit par nom ou code...')}" oninput="Sales.filterProducts()" style="margin-bottom:8px">
         <select class="select" id="sProduct" onchange="Sales.updateCalc()" required>
           <option value="">${I18n.choose('Select product to sell', 'اختر منتجاً للبيع', 'Sélectionner un produit à vendre')}</option>
-          ${products.map(p => `<option value="${p.id}" data-search="${p.name.toLowerCase()} ${p.code.toLowerCase()}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>`${UI.escapeHTML(p.name)} (`${UI.escapeHTML(p.code)}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
+          ${products.map(p => `<option value="${p.id}" data-search="${p.name.toLowerCase()} ${p.code.toLowerCase()}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${UI.escapeHTML(p.name)} (${UI.escapeHTML(p.code)}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -650,4 +650,5 @@ const Sales = (() => {
     updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment, updatePayModalHint, filterProducts,
   };
 })();
+
 

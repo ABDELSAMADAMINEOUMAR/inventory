@@ -54,7 +54,7 @@ const Suppliers = (() => {
         <td>
           <div style="display:flex;align-items:center;gap:10px">
             <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${s.name.charAt(0).toUpperCase()}</div>
-            <div><div style="font-weight:600">`${UI.escapeHTML(s.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${s.address || ''}</div></div>
+            <div><div style="font-weight:600">${UI.escapeHTML(s.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${s.address || ''}</div></div>
           </div>
         </td>
         <td><span class="badge badge-info">${s.country || '—'}</span></td>
@@ -160,7 +160,7 @@ const Suppliers = (() => {
     const s = DB.getById('suppliers', id);
     const c = DB.count('products', p => p.supplierId === id);
     if (c > 0) { UI.toast('error', I18n.choose('Cannot Delete', 'لا يمكن الحذف', 'Suppression impossible'), I18n.choose(`This supplier has ${c} product(s). Remove them first.`, `يحتوي هذا المورد على ${c} منتج. احذفها أولاً.`, `Ce fournisseur contient ${c} produit(s). Supprimez-les d'abord.`)); return; }
-    const ok = await UI.confirm(t('del_supp_title'), `"`${UI.escapeHTML(s.name)}" ${t('supp_del_msg')}`);
+    const ok = await UI.confirm(t('del_supp_title'), `"${UI.escapeHTML(s.name)}" ${t('supp_del_msg')}`);
     if (!ok) return;
     try {
       await DB.remove('suppliers', id);
@@ -174,4 +174,5 @@ const Suppliers = (() => {
 
   return { render, setSearch, openAdd, openEdit, save, delete: del };
 })();
+
 

@@ -283,13 +283,13 @@ const UI = (() => {
     out.forEach(p => {
       body += `<div class="alert alert-danger" style="margin-bottom:8px">
         <span class="alert-icon">${UI.icon('alert-triangle', '', 20)}</span>
-        <div class="alert-content"><div class="alert-title">Out of Stock</div><div class="alert-body">`${UI.escapeHTML(p.name)} — 0 units remaining</div></div>
+        <div class="alert-content"><div class="alert-title">Out of Stock</div><div class="alert-body">${UI.escapeHTML(p.name)} — 0 units remaining</div></div>
       </div>`;
     });
     low.forEach(p => {
       body += `<div class="alert alert-warning" style="margin-bottom:8px">
         <span class="alert-icon">${UI.icon('alert-circle', '', 20)}</span>
-        <div class="alert-content"><div class="alert-title">Low Stock</div><div class="alert-body">`${UI.escapeHTML(p.name)} — Only ${p.currentStock} units left</div></div>
+        <div class="alert-content"><div class="alert-title">Low Stock</div><div class="alert-body">${UI.escapeHTML(p.name)} — Only ${p.currentStock} units left</div></div>
       </div>`;
     });
 
@@ -682,7 +682,7 @@ const UI = (() => {
           return `
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:12px 10px;word-break:break-word;">
-                <strong style="font-size:13.5px;color:var(--text-main);">`${UI.escapeHTML(c.name)}</strong>
+                <strong style="font-size:13.5px;color:var(--text-main);">${UI.escapeHTML(c.name)}</strong>
                 <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.icon('user', '', 12)} <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
               </td>
               <td style="padding:12px 10px;">
@@ -1486,5 +1486,6 @@ window.UI = Object.assign(window.UI || {}, UI);
 
 // Boot
 document.addEventListener('DOMContentLoaded', () => { UI.init(); });
+
 
 

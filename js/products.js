@@ -34,7 +34,7 @@ const Products = (() => {
         </div>
         <select class="select" id="catFilter" onchange="Products.setFilter('cat', this.value)">
           <option value="">${I18n.choose('All Categories', 'جميع الفئات', 'Toutes les catégories')}</option>
-          ${DB.getAll('categories').map(c => `<option value="${c.id}">`${UI.escapeHTML(c.name)}</option>`).join('')}
+          ${DB.getAll('categories').map(c => `<option value="${c.id}">${UI.escapeHTML(c.name)}</option>`).join('')}
         </select>
         <select class="select" id="statusFilter" onchange="Products.setFilter('status', this.value)">
           <option value="">${I18n.choose('All Status', 'جميع الحالات', 'Tous les statuts')}</option>
@@ -103,12 +103,12 @@ const Products = (() => {
       <tr>
         <td>
           ${p.image
-            ? `<img src="${p.image}" class="product-thumb" alt="`${UI.escapeHTML(p.name)}">`
+            ? `<img src="${p.image}" class="product-thumb" alt="${UI.escapeHTML(p.name)}">`
             : `<div class="product-thumb-placeholder">${UI.icon('package', '', 20)}</div>`}
         </td>
-        <td><span class="badge badge-purple" style="font-family:monospace">`${UI.escapeHTML(p.code)}</span></td>
+        <td><span class="badge badge-purple" style="font-family:monospace">${UI.escapeHTML(p.code)}</span></td>
         <td>
-          <div style="font-weight:600;font-size:0.875rem">`${UI.escapeHTML(p.name)}</div>
+          <div style="font-weight:600;font-size:0.875rem">${UI.escapeHTML(p.name)}</div>
           <div style="font-size:0.75rem;color:var(--text-muted)">${p.description?.slice(0,40) || ''}</div>
         </td>
         <td class="td-muted">${p.categoryName}</td>
@@ -166,7 +166,7 @@ const Products = (() => {
         <input class="input" type="text" id="fCatSearch" placeholder="Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
         <select class="select" id="fCat" required>
           <option value="">${I18n.choose('Select category', 'اختر فئة', 'Sélectionner une catégorie')}</option>
-          ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>`${UI.escapeHTML(c.name)}</option>`).join('')}
+          ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>${UI.escapeHTML(c.name)}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -358,7 +358,7 @@ const Products = (() => {
     if (!UI.canEditProducts()) { UI.toast('error', 'Not Allowed', 'You do not have permission to delete products.'); return; }
     const p = DB.getById('products', id);
     if (!p) return;
-    const ok = await UI.confirm(I18n.choose('Delete Product?', 'حذف المنتج؟', 'Supprimer le produit ?'), `"`${UI.escapeHTML(p.name)}" ` + I18n.choose('will be permanently deleted along with all its expenses.', 'سيتم حذفه نهائياً مع جميع مصاريفه.', 'sera définitivement supprimé ainsi que toutes ses dépenses.'));
+    const ok = await UI.confirm(I18n.choose('Delete Product?', 'حذف المنتج؟', 'Supprimer le produit ?'), `"${UI.escapeHTML(p.name)}" ` + I18n.choose('will be permanently deleted along with all its expenses.', 'سيتم حذفه نهائياً مع جميع مصاريفه.', 'sera définitivement supprimé ainsi que toutes ses dépenses.'));
     if (!ok) return;
     try {
       const exps = DB.query('productExpenses', e => e.productId === id);
@@ -386,12 +386,12 @@ const Products = (() => {
       <div>
         ${p.image ? `<img src="${p.image}" style="width:100%;border-radius:12px;object-fit:contain;max-height:200px;background:var(--bg-elevated)">` : `<div style="width:100%;height:180px;background:var(--bg-elevated);border-radius:12px;display:flex;align-items:center;justify-content:center;color:var(--text-muted)">${UI.icon('package', '', 48)}</div>`}
         <div style="margin-top:12px;">
-          <span class="badge badge-purple" style="font-family:monospace">`${UI.escapeHTML(p.code)}</span>
+          <span class="badge badge-purple" style="font-family:monospace">${UI.escapeHTML(p.code)}</span>
           ${stockBadge(p.stockStatus)}
         </div>
       </div>
       <div>
-        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px">`${UI.escapeHTML(p.name)}</h3>
+        <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px">${UI.escapeHTML(p.name)}</h3>
         <div style="display:grid;gap:8px;font-size:0.875rem">
           ${row(t('lbl_category'), p.categoryName)}
           ${row(t('lbl_supplier'), p.supplierName)}
@@ -417,9 +417,9 @@ const Products = (() => {
       <thead><tr><th>${t('lbl_type')}</th><th>${t('lbl_amount')}</th><th>${t('th_date')}</th></tr></thead>
       <tbody>${exps.map(e => `<tr><td>${t('exp_' + e.expenseType.replace(/\s+/g, '_')) || e.expenseType}</td><td class="text-accent">${UI.fmtCurrency(e.amount)}</td><td class="td-muted">${UI.fmtDate(e.date)}</td></tr>`).join('')}</tbody>
     </table>` : ''}
-    ${p.description ? `<div class="divider"></div><p style="color:var(--text-secondary);font-size:0.875rem">`${UI.escapeHTML(p.description)}</p>` : ''}`;
+    ${p.description ? `<div class="divider"></div><p style="color:var(--text-secondary);font-size:0.875rem">${UI.escapeHTML(p.description)}</p>` : ''}`;
 
-    UI.createModal('viewProdModal', `${UI.icon('package', '', 20)} `${UI.escapeHTML(p.name)}`, body,
+    UI.createModal('viewProdModal', `${UI.icon('package', '', 20)} ${UI.escapeHTML(p.name)}`, body,
       `<button class="btn btn-ghost" onclick="UI.closeModal('viewProdModal')">${I18n.choose('Close', 'إغلاق', 'Fermer')}</button>
        <button class="btn btn-primary" onclick="UI.closeModal('viewProdModal');Products.openEdit(${p.id})">${I18n.choose('Edit', 'تعديل', 'Modifier')}</button>`,
       'modal-lg'
@@ -456,4 +456,5 @@ const Products = (() => {
 
   return { render, setFilter, openAdd, openEdit, save, delete: del, view, addExpenseRow, handleImage, calcPreview, filterCategories };
 })();
+
 

@@ -206,7 +206,7 @@ const Users = (() => {
     const u = DB.getById('users', id);
     if (!u) return;
 
-    UI.createModal('editRoleModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit User Role', 'تعديل صلاحيات المستخدم', 'Modifier le rôle de l\'utilisateur')} — `${UI.escapeHTML(u.name)}`,
+    UI.createModal('editRoleModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit User Role', 'تعديل صلاحيات المستخدم', 'Modifier le rôle de l\'utilisateur')} — ${UI.escapeHTML(u.name)}`,
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('Select New Role', 'اختر الدور الجديد', 'Sélectionner un nouveau rôle')}</label>
@@ -243,7 +243,7 @@ const Users = (() => {
     const u = DB.getById('users', id);
     if (!u) return;
 
-    UI.createModal('resetPwdModal', `${UI.icon('lock', '', 20)} ${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')} — `${UI.escapeHTML(u.name)}`,
+    UI.createModal('resetPwdModal', `${UI.icon('lock', '', 20)} ${I18n.choose('Reset Password', 'إعادة تعيين كلمة المرور', 'Réinitialiser le mot de passe')} — ${UI.escapeHTML(u.name)}`,
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('New Password', 'كلمة المرور الجديدة', 'Nouveau mot de passe')} <span class="req">*</span></label>
@@ -280,7 +280,7 @@ const Users = (() => {
 
     const ok = await UI.confirm(
       I18n.choose('Confirm Deletion', 'تأكيد الحذف', 'Confirmer la suppression'),
-      I18n.choose(`Are you sure you want to delete account "`${UI.escapeHTML(u.name)}"? This cannot be undone.`, `هل أنت متأكد من حذف حساب "`${UI.escapeHTML(u.name)}"؟ لا يمكن التراجع عن هذا الإجراء.`, `Êtes-vous sûr de vouloir supprimer le compte "`${UI.escapeHTML(u.name)}" ? Cette action est irréversible.`)
+      I18n.choose(`Are you sure you want to delete account "${UI.escapeHTML(u.name)}"? This cannot be undone.`, `هل أنت متأكد من حذف حساب "${UI.escapeHTML(u.name)}"؟ لا يمكن التراجع عن هذا الإجراء.`, `Êtes-vous sûr de vouloir supprimer le compte "${UI.escapeHTML(u.name)}" ? Cette action est irréversible.`)
     );
     if (!ok) return;
 
@@ -296,4 +296,5 @@ const Users = (() => {
 
   return { render, openAdd, saveNewUser, openEditRole, saveRole, openResetPassword, saveResetPassword, deleteUser };
 })();
+
 

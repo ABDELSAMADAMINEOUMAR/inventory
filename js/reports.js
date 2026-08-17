@@ -242,7 +242,7 @@ const Reports = (() => {
                 ${d.bestProducts.map((p, i) => `
                 <tr class="${i % 2 !== 0 ? 'rpt-row-alt' : ''}">
                   <td><span class="rpt-rank rpt-rank-${i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : 'default'}">${i + 1}</span></td>
-                  <td class="rpt-cell-product">`${UI.escapeHTML(p.name)}</td>
+                  <td class="rpt-cell-product">${UI.escapeHTML(p.name)}</td>
                   <td><span class="rpt-qty-pill">${p.qty}</span></td>
                   <td class="rpt-cell-revenue">${UI.fmtCurrency(p.revenue)}</td>
                   <td class="rpt-cell-profit">${UI.fmtCurrency(p.profit)}</td>
@@ -278,8 +278,8 @@ const Reports = (() => {
               <tbody>
                 ${products.map((p, idx) => `
                 <tr class="${idx % 2 !== 0 ? 'rpt-row-alt' : ''}">
-                  <td class="rpt-cell-product">`${UI.escapeHTML(p.name)}</td>
-                  <td><span class="badge badge-purple" style="font-family:monospace;font-size:0.72rem">`${UI.escapeHTML(p.code)}</span></td>
+                  <td class="rpt-cell-product">${UI.escapeHTML(p.name)}</td>
+                  <td><span class="badge badge-purple" style="font-family:monospace;font-size:0.72rem">${UI.escapeHTML(p.code)}</span></td>
                   <td><span class="rpt-qty-pill ${p.currentStock === 0 ? 'rpt-qty-out' : p.currentStock <= 5 ? 'rpt-qty-low' : 'rpt-qty-ok'}">${p.currentStock}</span></td>
                   <td class="rpt-cell-muted">${UI.fmtCurrency(p.costPerUnit)}</td>
                   <td class="rpt-cell-revenue">${UI.fmtCurrency(p.costPerUnit * p.currentStock)}</td>
@@ -458,4 +458,5 @@ const Reports = (() => {
 
   return { render, setPeriod, exportPDF, exportExcel };
 })();
+
 
