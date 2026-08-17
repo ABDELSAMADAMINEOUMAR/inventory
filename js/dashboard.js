@@ -132,25 +132,25 @@ const Dashboard = (() => {
 
       <!-- Tables -->
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:32px;">
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-            <h3 style="margin:0;font-size:15px;font-weight:700;color:var(--text-main);">${t('recent_sales')}</h3>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title" style="margin:0;">${t('recent_sales')}</h3>
             <button class="btn btn-sm" style="background:transparent;border:none;color:#6366f1;font-weight:500;padding:0;" onclick="UI.navigate('sales')">${t('btn_view_all')} →</button>
           </div>
-          <div class="table-responsive">
-            <table class="table" style="width:100%;border-collapse:collapse;">
+          <div class="table-responsive" style="margin:0;">
+            <table class="table" style="width:100%;border-collapse:collapse;margin:0;">
               <tbody id="recentSalesTbody"></tbody>
             </table>
           </div>
         </div>
 
-        <div>
-          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:12px;">
-            <h3 style="margin:0;font-size:15px;font-weight:700;color:var(--text-main);">${t('recent_products')}</h3>
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title" style="margin:0;">${t('recent_products')}</h3>
             <button class="btn btn-sm" style="background:transparent;border:none;color:#6366f1;font-weight:500;padding:0;" onclick="UI.navigate('products')">${t('btn_view_all')} →</button>
           </div>
-          <div class="table-responsive">
-            <table class="table" style="width:100%;border-collapse:collapse;">
+          <div class="table-responsive" style="margin:0;">
+            <table class="table" style="width:100%;border-collapse:collapse;margin:0;">
               <tbody id="recentProductsTbody"></tbody>
             </table>
           </div>
