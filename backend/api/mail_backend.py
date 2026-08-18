@@ -44,10 +44,8 @@ class ResendEmailBackend(BaseEmailBackend):
         sent_count = 0
         
         for message in email_messages:
-            # We use onboarding@resend.dev as a fallback, or the one from settings
-            from_email = message.from_email
-            if 'webmaster@localhost' in from_email or not from_email:
-                from_email = 'onboarding@resend.dev'
+            # Force onboarding@resend.dev for test mode since domain is not verified
+            from_email = 'onboarding@resend.dev'
                 
             try:
                 # Handle text vs html
