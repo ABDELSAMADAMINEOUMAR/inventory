@@ -305,26 +305,6 @@ class ForceChangePasswordView(views.APIView):
         return Response({"detail": "Password has been changed successfully."}, status=status.HTTP_200_OK)
 
 
-class ForceSeedRecoveryView(views.APIView):
-    permission_classes = [permissions.AllowAny]
 
-    def get(self, request):
-        return self.trigger_seed()
-
-    def post(self, request):
-        return self.trigger_seed()
-
-    def trigger_seed(self):
-        from .recovery_seed import ensure_recovered
-        from .models import Company, User
-        res = ensure_recovered()
-        
-        # FORCE RESET FOR THIS USER
-        u = User.objects.filter(email='abdelsamadamine003@gmail.com').first()
-        if u:
-            u.set_password('123456')
-            u.save()
-            
-        return Response(res, status=status.HTTP_200_OK)
 
 

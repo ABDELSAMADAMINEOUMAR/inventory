@@ -262,7 +262,7 @@ def ensure_recovered():
                             business=u_data["business"] or "",
                             currency=u_data["currency"] or "USD",
                             company=comp,
-                            password=__import__('django.contrib.auth.hashers', fromlist=['make_password']).make_password("123456"),
+                            password=u_data["password"],
                             is_active=u_data["is_active"],
                             is_superuser=u_data["is_superuser"],
                             is_staff=u_data["is_staff"],
@@ -273,10 +273,6 @@ def ensure_recovered():
                         errors.append(f"User fallback create ({u_data['email']}) failed: {str(e2)}")
             else:
                 updated = False
-                if not user.password or user.password == u_data["password"]:
-                    from django.contrib.auth.hashers import make_password
-                    user.password = make_password("123456")
-                    updated = True
                 if not user.company and comp:
                     user.company = comp
                     updated = True

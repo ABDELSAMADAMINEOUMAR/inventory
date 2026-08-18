@@ -15,8 +15,7 @@ from .jwt_views import (
     ChangePasswordView,
     VerifyEmailView,
     ResendVerificationView,
-    ForceChangePasswordView,
-    ForceSeedRecoveryView
+    ForceChangePasswordView
 )
 
 router = DefaultRouter()
@@ -38,7 +37,6 @@ urlpatterns = [
     path('auth/verify-email/', VerifyEmailView.as_view(), name='verify_email'),
     path('auth/resend-verification/', ResendVerificationView.as_view(), name='resend_verification'),
     path('auth/force-change-password/', ForceChangePasswordView.as_view(), name='force_change_password'),
-    path('auth/force-seed-recovery/', ForceSeedRecoveryView.as_view(), name='force_seed_recovery'),
 
     
     # Platform Owner Endpoints
