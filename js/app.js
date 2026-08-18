@@ -1178,7 +1178,7 @@ const UI = (() => {
 
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
       try {
-        await ApiClient.changeCompanyPlan(id, newPlan);
+        await ApiClient.changeCompanyPlan(id, newPlan, monthly_fee);
       } catch (e) {}
     }
     if (typeof DB !== 'undefined') {

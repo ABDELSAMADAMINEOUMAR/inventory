@@ -9,6 +9,7 @@ class Company(models.Model):
         ('basic', 'Basic'),
         ('pro', 'Pro'),
         ('enterprise', 'Enterprise'),
+        ('custom', 'Custom'),
     ]
     STATUS_CHOICES = [
         ('active', 'Active'),
@@ -18,6 +19,7 @@ class Company(models.Model):
     subscription_plan = models.CharField(max_length=50, choices=PLAN_CHOICES, default='free')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
     currency = models.CharField(max_length=10, default='RWF')
+    monthly_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

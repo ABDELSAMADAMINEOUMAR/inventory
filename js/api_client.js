@@ -250,8 +250,8 @@ const ApiClient = (() => {
     }
   }
 
-  async function changeCompanyPlan(id, subscription_plan) {
-    return await _request(`platform/companies/${id}/subscription`, 'PATCH', { subscription_plan });
+  async function changeCompanyPlan(id, subscription_plan, monthly_fee) {
+    return await _request(`platform/companies/${id}/subscription`, 'PATCH', { subscription_plan, monthly_fee });
   }
 
   async function resetUserPassword(id, password) {

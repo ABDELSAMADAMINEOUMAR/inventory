@@ -151,10 +151,17 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
     def change_subscription(self, request, pk=None):
         company = self.get_object()
         new_plan = request.data.get('subscription_plan') or request.data.get('plan')
-        if new_plan not in ['free', 'basic', 'pro', 'enterprise']:
-            return Response({"detail": "Invalid plan. Use 'free', 'basic', 'pro', or 'enterprise'."}, status=status.HTTP_400_BAD_REQUEST)
+        if new_plan not in ['free', 'basic', 'pro', 'enterprise', 'custom']:
+            return Response({"detail": "Invalid plan. Use 'free', 'basic', 'pro', 'enterprise', or 'custom'."}, status=status.HTTP_400_BAD_REQUEST)
         
         company.subscription_plan = new_plan
+        monthly_fee = request.data.get('monthly_fee')
+        if monthly_fee is not None:
+            try:
+                company.monthly_fee = float(monthly_fee)
+            except ValueError:
+                pass
+
         company.save()
 
         AuditLog.objects.create(
