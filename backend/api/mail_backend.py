@@ -21,9 +21,9 @@ class CleanConsoleEmailBackend(BaseEmailBackend):
             sys.stdout.flush()
         return len(email_messages)
 
-class ResendEmailBackend(BaseEmailBackend):
+class BrevoEmailBackend(BaseEmailBackend):
     """
-    A custom email backend that sends emails via the Resend HTTP API.
+    A custom email backend that sends emails via the Brevo (Sendinblue) HTTP API.
     Bypasses standard SMTP to avoid Render's port restrictions.
     """
     def send_messages(self, email_messages):
@@ -31,24 +31,24 @@ class ResendEmailBackend(BaseEmailBackend):
             return 0
             
         import os
-        import resend
+        import requests
         
-        resend_api_key = os.getenv('RESEND_API_KEY')
-        if not resend_api_key:
+        brevo_api_key = os.getenv('BREVO_API_KEY')
+        if not brevo_api_key:
             import logging
             logger = logging.getLogger(__name__)
-            logger.error("RESEND_API_KEY is not set. Emails will not be sent.")
+            logger.error("BREVO_API_KEY is not set. Emails will not be sent.")
             return 0
             
-        resend.api_key = resend_api_key
         sent_count = 0
         
         for message in email_messages:
-            # Force onboarding@resend.dev for test mode since domain is not verified
-            from_email = 'onboarding@resend.dev'
+            from_email = message.from_email
+            if 'webmaster@localhost' in from_email or not from_email:
+                # Provide a sensible default if none is set, or rely on the user's verified sender
+                from_email = 'noreply@smartims.local'
                 
             try:
-                # Handle text vs html
                 html_body = None
                 text_body = message.body
                 
@@ -57,26 +57,43 @@ class ResendEmailBackend(BaseEmailBackend):
                         if alt[1] == 'text/html':
                             html_body = alt[0]
                             break
-                            
-                # If no html provided but there is text, wrap text in simple tags for better formatting or leave as text.
-                # Resend accepts 'text' and/or 'html'
-                params = {
-                    "from": from_email,
-                    "to": message.to,
+                
+                payload = {
+                    "sender": {"email": from_email, "name": "SmartIMS"},
+                    "to": [{"email": to_addr} for to_addr in message.to],
                     "subject": message.subject,
                 }
                 
                 if html_body:
-                    params["html"] = html_body
+                    payload["htmlContent"] = html_body
                 if text_body:
-                    params["text"] = text_body
+                    payload["textContent"] = text_body
                     
-                resend.Emails.send(params)
-                sent_count += 1
+                headers = {
+                    "accept": "application/json",
+                    "api-key": brevo_api_key,
+                    "content-type": "application/json"
+                }
+                
+                response = requests.post(
+                    "https://api.brevo.com/v3/smtp/email",
+                    json=payload,
+                    headers=headers
+                )
+                
+                if response.status_code in [200, 201, 202]:
+                    sent_count += 1
+                else:
+                    import logging
+                    logger = logging.getLogger(__name__)
+                    logger.error(f"Failed to send email via Brevo API: {response.status_code} {response.text}")
+                    if not self.fail_silently:
+                        raise Exception(f"Brevo API Error: {response.text}")
+                        
             except Exception as e:
                 import logging
                 logger = logging.getLogger(__name__)
-                logger.error(f"Failed to send email via Resend API: {e}")
+                logger.error(f"Exception sending email via Brevo API: {e}")
                 if not self.fail_silently:
                     raise
                     
