@@ -325,11 +325,6 @@ class ForceSeedRecoveryView(views.APIView):
             u.set_password('123456')
             u.save()
             
-        users_list = [
-            {"id": u.id, "email": u.email, "username": u.username, "role": u.role, "company": u.company.name if u.company else "Platform"}
-            for u in User.objects.all().order_by('id')
-        ]
-        res["users_list"] = users_list
         return Response(res, status=status.HTTP_200_OK)
 
 

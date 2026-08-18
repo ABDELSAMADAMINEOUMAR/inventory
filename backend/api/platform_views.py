@@ -15,7 +15,21 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
     """
     queryset = Company.objects.all().order_by('-created_at')
     serializer_class = CompanySerializer
-    permission_classes = [permissions.AllowAny]
+
+    def get_permissions(self):
+        if self.action in ['list', 'retrieve', 'update', 'partial_update']:
+            return [permissions.IsAuthenticated()]
+        return [IsPlatformOwner()]
+
+    def get_queryset(self):
+        user = self.request.user
+        if not user or not user.is_authenticated:
+            return Company.objects.none()
+        if user.role == 'platform_owner':
+            return Company.objects.all().order_by('-created_at')
+        if user.company:
+            return Company.objects.filter(id=user.company.id).order_by('-created_at')
+        return Company.objects.none()
 
     def perform_create(self, serializer):
         admin_email = self.request.data.get('admin_email')
