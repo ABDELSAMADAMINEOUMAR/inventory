@@ -85,17 +85,26 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
                 user.status = 'active'
                 user.save()
 
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.info(f"[LOGIN ATTEMPT] User: {user.email}, Role: {user.role}, Is Active: {user.is_active}")
+        if user.company:
+            logger.info(f"[LOGIN ATTEMPT] Company: {user.company.name}, Company Status: {user.company.status}")
+
         if user.company and user.company.status == 'suspended' and user.role != 'platform_owner':
             from rest_framework.exceptions import AuthenticationFailed
+            logger.warning(f"[LOGIN FAILED] Blocked because Company '{user.company.name}' is suspended.")
             raise AuthenticationFailed(
                 detail=f"COMPANY_SUSPENDED: The company '{user.company.name}' has been suspended by Platform Administration. Access is disabled."
             )
         if not user.is_active and user.role != 'platform_owner':
             from rest_framework.exceptions import AuthenticationFailed
+            logger.warning(f"[LOGIN FAILED] Blocked because User '{user.email}' is not active.")
             raise AuthenticationFailed(
                 detail="This account has not been verified yet. Please check your email for the activation link or verify your account first."
             )
 
+        logger.info(f"[LOGIN SUCCESS] User: {user.email} logged in successfully.")
         self.user = user
         refresh = self.get_token(user)
 
@@ -259,6 +268,13 @@ class VerifyEmailView(views.APIView):
             user = User.objects.filter(email__iexact=email).first()
 
         if user is not None:
+            if not token:
+                return Response({"detail": "Token is required."}, status=status.HTTP_400_BAD_REQUEST)
+            from django.contrib.auth.tokens import PasswordResetTokenGenerator
+            token_generator = PasswordResetTokenGenerator()
+            if not token_generator.check_token(user, token):
+                return Response({"detail": "The verification link is invalid or has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
+
             if user.company and user.company.currency:
                 user.currency = user.company.currency
             user.set_password(new_password)
