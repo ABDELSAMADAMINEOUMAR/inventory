@@ -151,7 +151,30 @@ class ProductExpense(models.Model):
         return f"{self.product.code} - {self.expense_type}: {self.amount}"
 
 
+class Invoice(models.Model):
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='invoices', null=True, blank=True)
+    user_id = models.IntegerField(default=1, null=True, blank=True)
+    invoice_number = models.CharField(max_length=50, unique=True)
+    customer = models.CharField(max_length=255, blank=True, null=True)
+    customer_phone = models.CharField(max_length=50, blank=True, null=True)
+    sale_date = models.DateField(blank=True, null=True)
+    note = models.TextField(blank=True, null=True)
+    
+    total_revenue = models.FloatField(default=0.0)
+    amount_paid = models.FloatField(default=0.0)
+    payment_status = models.CharField(max_length=50, default='paid')
+    due_date = models.DateField(null=True, blank=True)
+    paid_at = models.DateField(null=True, blank=True)
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.invoice_number} - {self.customer} - {self.total_revenue}"
+
+
 class Sale(models.Model):
+    invoice = models.ForeignKey(Invoice, on_delete=models.CASCADE, related_name='items', null=True, blank=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='sales', null=True, blank=True)
     user_id = models.IntegerField(default=1, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')

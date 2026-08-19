@@ -660,6 +660,10 @@ const Sales = (() => {
     _editId = id;
     const s = DB.getEnrichedSale(id);
     if (!s) return;
+    if (s.items && s.items.length > 1) {
+       UI.toast('error', I18n.choose('Cannot Edit', 'لا يمكن التعديل', 'Impossible de modifier'), I18n.choose('Editing multi-item invoices is not supported yet.', 'تعديل الفواتير متعددة العناصر غير مدعوم بعد.', 'La modification de factures multi-articles n\'est pas encore supportée.'));
+       return;
+    }
     _paymentStatus = s.paymentStatus || 'paid';
     UI.createModal('saleModal', `${UI.icon('edit', '', 20)} ${I18n.choose('Edit Sale', 'تعديل البيع', 'Modifier la vente')}`,
       saleForm(s),
@@ -713,16 +717,23 @@ const Sales = (() => {
         let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
         const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
 
-        const data = {
-          productId, quantity: qty, sellingPrice,
-          revenue, cost, profit, profitMargin,
-          saleDate, customer, customerPhone, note,
-          paymentStatus, dueDate, amountPaid,
-          paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
+        const invoiceData = {
+          invoice_number: note,
+          customer, customerPhone,
+          saleDate, note,
+          totalRevenue: revenue,
+          amountPaid,
+          paymentStatus,
+          dueDate,
+          paidAt: paymentStatus === 'paid' ? (DB.getById('invoices', _editId)?.paidAt || saleDate) : null,
+          items: [{
+             productId, quantity: qty, sellingPrice,
+             revenue, cost, profit, profitMargin
+          }]
         };
 
         try {
-          await DB.update('sales', _editId, data);
+          await DB.update('invoices', _editId, invoiceData);
           UI.closeModal('saleModal');
           UI.toast('success', I18n.choose('Sale Updated', 'تم تحديث البيع', 'Vente mise à jour'), '');
           UI.navigate('sales');
@@ -769,47 +780,41 @@ const Sales = (() => {
             }
           }
 
-          // Save each item
-          for (let i = 0; i < _cart.length; i++) {
-            const item = _cart[i];
+          // Save cart as a single Invoice
+          const items = _cart.map(item => {
             const itemRevenue = item.sellingPrice * item.qty;
             const itemCost = item.cpu * item.qty;
             const itemProfit = itemRevenue - itemCost;
             const itemMargin = itemRevenue > 0 ? (itemProfit / itemRevenue) * 100 : 0;
-
-            // Proportional allocation (safeguard rounding errors by giving the rest to the last item)
-            let itemAmountPaid;
-            if (i === _cart.length - 1) {
-              itemAmountPaid = Math.min(itemRevenue, remainingPaidToAllocate);
-            } else {
-              itemAmountPaid = (itemRevenue / cartTotalRevenue) * totalAmountPaid;
-            }
-            // Round to 2 decimals for cleanliness if needed, but keeping it exact is fine
-            remainingPaidToAllocate -= itemAmountPaid;
-
-            let itemPaymentStatus = (itemAmountPaid < itemRevenue - 0.01) ? 'credit' : 'paid';
-
-            const data = {
+            return {
               productId: item.productId,
               quantity: item.qty,
               sellingPrice: item.sellingPrice,
               revenue: itemRevenue,
               cost: itemCost,
               profit: itemProfit,
-              profitMargin: itemMargin,
-              saleDate,
-              customer,
-              customerPhone,
-              note: finalNote,
-              paymentStatus: itemPaymentStatus,
-              dueDate: itemPaymentStatus === 'credit' ? dueDate : null,
-              amountPaid: itemAmountPaid,
-              paidAt: itemPaymentStatus === 'paid' ? saleDate : null,
+              profitMargin: itemMargin
             };
+          });
 
-            await DB.insert('sales', data);
-            itemsSaved++;
-          }
+          const invoicePaymentStatus = (totalAmountPaid < cartTotalRevenue - 0.01) ? 'credit' : 'paid';
+
+          const invoiceData = {
+            invoice_number: finalNote,
+            customer,
+            customerPhone,
+            saleDate,
+            note: finalNote,
+            totalRevenue: cartTotalRevenue,
+            amountPaid: totalAmountPaid,
+            paymentStatus: invoicePaymentStatus,
+            dueDate: invoicePaymentStatus === 'credit' ? dueDate : null,
+            paidAt: invoicePaymentStatus === 'paid' ? saleDate : null,
+            items
+          };
+
+          await DB.insert('invoices', invoiceData);
+          itemsSaved = items.length;
 
           UI.closeModal('saleModal');
           UI.toast('success', I18n.choose('Sales Recorded', 'تم تسجيل المبيعات', 'Ventes enregistrées'), `${itemsSaved} ${I18n.choose('items added.', 'عناصر أضيفت.', 'articles ajoutés.')}`);
@@ -897,7 +902,7 @@ const Sales = (() => {
       const isFull  = rem === 0;
 
       try {
-        await DB.update('sales', id, {
+        await DB.update('invoices', id, {
           amountPaid: Math.min(s.revenue, newPaid),
           paymentStatus: isFull ? 'paid' : 'credit',
           paidAt: isFull ? payDate : (s.paidAt || null)
@@ -927,7 +932,7 @@ const Sales = (() => {
     const ok = await UI.confirm(I18n.choose('Delete Sale?', 'حذف عملية البيع؟', 'Supprimer la vente ?'), I18n.choose(`Sale of "${s.productName}" (${s.quantity} units) will be permanently deleted.`, `سيتم حذف عملية بيع "${s.productName}" (${s.quantity} وحدة) نهائياً.`, `La vente de "${s.productName}" (${s.quantity} unité(s)) sera définitivement supprimée.`));
     if (!ok) return;
     try {
-      await DB.remove('sales', id);
+      await DB.remove('invoices', id);
     } catch (err) {
       UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
       return;

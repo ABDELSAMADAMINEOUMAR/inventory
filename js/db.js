@@ -4,7 +4,7 @@
    ============================================= */
 
 const DB = (() => {
-  const TABLES = ['users','categories','suppliers','products','productExpenses','sales','businessExpenses','companies'];
+  const TABLES = ['users','categories','suppliers','products','productExpenses','invoices','sales','businessExpenses','companies'];
   const PREFIX = 'sims_';
 
   // ── Internal helpers ──────────────────────
@@ -645,32 +645,49 @@ const DB = (() => {
 
   /** Get enriched sale (with product info and verified financial figures) */
   function getEnrichedSale(saleId) {
-    const sale = getById('sales', saleId);
-    if (!sale) return null;
-    const product = getEnrichedProduct(sale.productId);
-    const qty = Number(sale.quantity || 0);
-    const sellingPrice = Number(sale.sellingPrice !== undefined ? sale.sellingPrice : (sale.selling_price || 0));
-    const cpu = product ? Number(product.costPerUnit || 0) : 0;
+    const inv = getById('invoices', saleId);
+    if (!inv) return null;
+    
+    const items = inv.items || [];
+    const qty = items.reduce((a, i) => a + (Number(i.quantity) || 1), 0);
+    const profit = items.reduce((a, i) => a + (Number(i.profit) || 0), 0);
+    const cost = items.reduce((a, i) => a + (Number(i.cost) || 0), 0);
+    const revenue = Number(inv.totalRevenue !== undefined ? inv.totalRevenue : (inv.total_revenue || 0));
+    const paid = Number(inv.amountPaid !== undefined ? inv.amountPaid : (inv.amount_paid || 0));
+    
+    const pmRaw = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-    let revenue = (sale.revenue !== undefined && sale.revenue !== null && !isNaN(sale.revenue)) ? Number(sale.revenue) : (sellingPrice * qty);
-    if (revenue === 0 && sellingPrice * qty > 0) revenue = sellingPrice * qty;
+    let productName = "Multiple Items";
+    let productCode = "MIXED";
+    let sellingPrice = revenue;
+    
+    if (items.length === 1) {
+       const pId = items[0].productId || items[0].product;
+       const p = getEnrichedProduct(pId);
+       productName = p ? p.name : "Unknown";
+       productCode = p ? p.code : "";
+       sellingPrice = Number(items[0].sellingPrice !== undefined ? items[0].sellingPrice : (items[0].selling_price || revenue));
+    } else if (items.length > 1) {
+       productName = `Multiple Items (${items.length})`;
+    }
 
-    let cost = (sale.cost !== undefined && sale.cost !== null && !isNaN(sale.cost)) ? Number(sale.cost) : (cpu * qty);
-    if (cost === 0 && cpu * qty > 0) cost = cpu * qty;
-
-    let profit = (sale.profit !== undefined && sale.profit !== null && !isNaN(sale.profit)) ? Number(sale.profit) : (revenue - cost);
-    if ((profit === 0 || isNaN(profit)) && (revenue !== cost || revenue > 0)) profit = revenue - cost;
-
-    const pmRaw = sale.profitMargin !== undefined ? sale.profitMargin : sale.profit_margin;
-    let profitMargin = (pmRaw !== undefined && pmRaw !== null && !isNaN(pmRaw)) ? Number(pmRaw) : (revenue > 0 ? (profit / revenue) * 100 : 0);
-    if ((profitMargin === 0 || isNaN(profitMargin)) && profit !== 0 && revenue > 0) profitMargin = (profit / revenue) * 100;
+    const saleDate = inv.saleDate || inv.sale_date;
+    const dueDate = inv.dueDate || inv.due_date;
 
     return {
-      ...sale,
-      revenue, cost, profit, profitMargin,
+      id: inv.id,
+      productId: items.length === 1 ? (items[0].productId || items[0].product) : null,
+      productName,
+      productCode,
+      quantity: qty,
       sellingPrice,
-      productName: product?.name || 'Unknown',
-      productCode: product?.code || ''
+      revenue, cost, profit, profitMargin: pmRaw,
+      saleDate: saleDate,
+      customer: inv.customer,
+      paymentStatus: inv.paymentStatus || inv.payment_status,
+      amountPaid: paid,
+      dueDate: dueDate,
+      items: items
     };
   }
 
@@ -678,31 +695,48 @@ const DB = (() => {
   function getAllEnrichedSales() {
     const products = getAllEnrichedProducts();
     const prodMap = new Map(products.map(p => [p.id, p]));
-    return getAll('sales').map(sale => {
-      const product = prodMap.get(sale.productId);
-      const qty = Number(sale.quantity || 0);
-      const sellingPrice = Number(sale.sellingPrice !== undefined ? sale.sellingPrice : (sale.selling_price || 0));
-      const cpu = product ? Number(product.costPerUnit || 0) : 0;
+    
+    return getAll('invoices').map(inv => {
+      const items = inv.items || [];
+      const qty = items.reduce((a, i) => a + (Number(i.quantity) || 1), 0);
+      const profit = items.reduce((a, i) => a + (Number(i.profit) || 0), 0);
+      const cost = items.reduce((a, i) => a + (Number(i.cost) || 0), 0);
+      const revenue = Number(inv.totalRevenue !== undefined ? inv.totalRevenue : (inv.total_revenue || 0));
+      const paid = Number(inv.amountPaid !== undefined ? inv.amountPaid : (inv.amount_paid || 0));
+      
+      const pmRaw = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-      let revenue = (sale.revenue !== undefined && sale.revenue !== null && !isNaN(sale.revenue)) ? Number(sale.revenue) : (sellingPrice * qty);
-      if (revenue === 0 && sellingPrice * qty > 0) revenue = sellingPrice * qty;
+      let productName = "Multiple Items";
+      let productCode = "MIXED";
+      let sellingPrice = revenue;
+      
+      if (items.length === 1) {
+         const pId = items[0].productId || items[0].product;
+         const p = prodMap.get(pId);
+         productName = p ? p.name : "Unknown";
+         productCode = p ? p.code : "";
+         sellingPrice = Number(items[0].sellingPrice !== undefined ? items[0].sellingPrice : (items[0].selling_price || revenue));
+      } else if (items.length > 1) {
+         productName = `Multiple Items (${items.length})`;
+      }
 
-      let cost = (sale.cost !== undefined && sale.cost !== null && !isNaN(sale.cost)) ? Number(sale.cost) : (cpu * qty);
-      if (cost === 0 && cpu * qty > 0) cost = cpu * qty;
-
-      let profit = (sale.profit !== undefined && sale.profit !== null && !isNaN(sale.profit)) ? Number(sale.profit) : (revenue - cost);
-      if ((profit === 0 || isNaN(profit)) && (revenue !== cost || revenue > 0)) profit = revenue - cost;
-
-      const pmRaw = sale.profitMargin !== undefined ? sale.profitMargin : sale.profit_margin;
-      let profitMargin = (pmRaw !== undefined && pmRaw !== null && !isNaN(pmRaw)) ? Number(pmRaw) : (revenue > 0 ? (profit / revenue) * 100 : 0);
-      if ((profitMargin === 0 || isNaN(profitMargin)) && profit !== 0 && revenue > 0) profitMargin = (profit / revenue) * 100;
+      const saleDate = inv.saleDate || inv.sale_date;
+      const dueDate = inv.dueDate || inv.due_date;
 
       return {
-        ...sale,
-        revenue, cost, profit, profitMargin,
+        id: inv.id,
+        productId: items.length === 1 ? (items[0].productId || items[0].product) : null,
+        productName,
+        productCode,
+        quantity: qty,
         sellingPrice,
-        productName: product?.name || 'Unknown',
-        productCode: product?.code || ''
+        revenue, cost, profit, profitMargin: pmRaw,
+        saleDate: saleDate,
+        customer: inv.customer,
+        paymentStatus: inv.paymentStatus || inv.payment_status,
+        amountPaid: paid,
+        dueDate: dueDate,
+        items: items
       };
     }).sort((a, b) => new Date(b.saleDate) - new Date(a.saleDate));
   }

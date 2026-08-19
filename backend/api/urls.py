@@ -3,7 +3,7 @@ from rest_framework.routers import DefaultRouter
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import (
     UserViewSet, CategoryViewSet, SupplierViewSet,
-    ProductViewSet, ProductExpenseViewSet, SaleViewSet,
+    ProductViewSet, ProductExpenseViewSet, SaleViewSet, InvoiceViewSet,
     BusinessExpenseViewSet, InventoryEntryViewSet,
     DashboardStatsView, CombinedExpensesView,
     ProfitAndLossReportView, CompanySettingsView
@@ -25,6 +25,7 @@ router.register(r'suppliers', SupplierViewSet, basename='supplier')
 router.register(r'products', ProductViewSet, basename='product')
 router.register(r'product-expenses', ProductExpenseViewSet, basename='productexpense')
 router.register(r'sales', SaleViewSet, basename='sale')
+router.register(r'invoices', InvoiceViewSet, basename='invoice')
 router.register(r'business-expenses', BusinessExpenseViewSet, basename='businessexpense')
 router.register(r'inventory', InventoryEntryViewSet, basename='inventory')
 

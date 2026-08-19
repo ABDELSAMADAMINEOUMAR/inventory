@@ -5,12 +5,12 @@ from datetime import datetime
 from django.db.models import Q
 from .models import (
     Company, User, Category, Supplier, Product,
-    ProductExpense, Sale, BusinessExpense, InventoryEntry
+    ProductExpense, Sale, BusinessExpense, InventoryEntry, Invoice
 )
 from .serializers import (
     CompanySerializer, UserSerializer, CategorySerializer, SupplierSerializer,
     ProductSerializer, ProductExpenseSerializer, SaleSerializer,
-    BusinessExpenseSerializer, InventoryEntrySerializer
+    BusinessExpenseSerializer, InventoryEntrySerializer, InvoiceSerializer
 )
 from .permissions import (
     IsCompanyMember, CanAccessDashboard, CanAccessProducts,
@@ -118,6 +118,12 @@ class ProductExpenseViewSet(CompanyScopedModelViewSet):
 class SaleViewSet(CompanyScopedModelViewSet):
     queryset = Sale.objects.all().order_by('-sale_date', '-created_at')
     serializer_class = SaleSerializer
+    permission_classes = [IsCompanyMember, CanAccessSales]
+
+
+class InvoiceViewSet(CompanyScopedModelViewSet):
+    queryset = Invoice.objects.all().order_by('-sale_date', '-created_at')
+    serializer_class = InvoiceSerializer
     permission_classes = [IsCompanyMember, CanAccessSales]
 
 

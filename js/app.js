@@ -455,13 +455,21 @@ const UI = (() => {
     const page = (hashPage && allowed.includes(hashPage)) ? hashPage : defaultPage;
 
     const isMasterOwner = user && (user.role === 'platform_owner' || user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine');
-    navigate(page);
+    
     if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner) {
+      document.getElementById('app').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;">
+         <div class="spinner" style="width:40px;height:40px;border:4px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
+         <div style="font-weight:600;color:var(--text-secondary)">${I18n.choose('Syncing data...', 'جاري مزامنة البيانات...', 'Synchronisation...')}</div>
+         <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
+      </div>`;
+      
       DB.syncFromBackend().then(() => {
-        if (_currentPage && Auth.isLoggedIn()) {
-          navigate(_currentPage);
+        if (typeof Auth !== 'undefined' && Auth.isLoggedIn()) {
+          navigate(page);
         }
       });
+    } else {
+      navigate(page);
     }
 
     // Handle hash changes

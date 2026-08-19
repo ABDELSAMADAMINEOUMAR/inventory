@@ -33,9 +33,10 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         company = self.get_object()
-        from api.models import Sale, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier, User
+        from api.models import Sale, Invoice, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier, User
         # Manually delete related models to prevent Django foreign key cycle topological sort failures
         Sale.objects.filter(company=company).delete()
+        Invoice.objects.filter(company=company).delete()
         ProductExpense.objects.filter(company=company).delete()
         BusinessExpense.objects.filter(company=company).delete()
         InventoryEntry.objects.filter(company=company).delete()
@@ -216,8 +217,9 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
     def delete_all_companies(self, request):
-        from api.models import Sale, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier
+        from api.models import Sale, Invoice, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier
         Sale.objects.all().delete()
+        Invoice.objects.all().delete()
         ProductExpense.objects.all().delete()
         BusinessExpense.objects.all().delete()
         InventoryEntry.objects.all().delete()

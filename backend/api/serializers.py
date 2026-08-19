@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Company, User, Category, Supplier, Product, ProductExpense, Sale, BusinessExpense, AuditLog, InventoryEntry
+from .models import Company, User, Category, Supplier, Product, ProductExpense, Sale, BusinessExpense, AuditLog, InventoryEntry, Invoice
 
 
 class CompanySerializer(serializers.ModelSerializer):
@@ -140,7 +140,7 @@ class SaleSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sale
         fields = [
-            'id', 'company', 'user_id', 'product', 'product_name', 'product_code', 'quantity', 'selling_price',
+            'id', 'invoice', 'company', 'user_id', 'product', 'product_name', 'product_code', 'quantity', 'selling_price',
             'sale_date', 'customer', 'revenue', 'cost', 'profit', 'profit_margin',
             'payment_status', 'amount_paid', 'due_date', 'created_at', 'updated_at'
         ]
@@ -151,6 +151,41 @@ class SaleSerializer(serializers.ModelSerializer):
 
     def get_product_code(self, obj):
         return obj.product.code if obj.product else ""
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+    items = SaleSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Invoice
+        fields = [
+            'id', 'company', 'user_id', 'invoice_number', 'customer', 'customer_phone', 'sale_date',
+            'note', 'total_revenue', 'amount_paid', 'payment_status', 'due_date', 'paid_at',
+            'created_at', 'updated_at', 'items'
+        ]
+        read_only_fields = ['company', 'user_id', 'created_at', 'updated_at']
+
+    def create(self, validated_data):
+        items_data = self.initial_data.get('items', [])
+        invoice = Invoice.objects.create(**validated_data)
+        for item_data in items_data:
+            # item_data might have camelCase or snake_case
+            product_id = item_data.get('productId') or item_data.get('product')
+            Sale.objects.create(
+                invoice=invoice,
+                company=invoice.company,
+                user_id=invoice.user_id,
+                product_id=product_id,
+                quantity=item_data.get('quantity', 1),
+                selling_price=item_data.get('sellingPrice') or item_data.get('selling_price', 0),
+                sale_date=invoice.sale_date,
+                customer=invoice.customer,
+                revenue=item_data.get('revenue', 0),
+                cost=item_data.get('cost', 0),
+                profit=item_data.get('profit', 0),
+                profit_margin=item_data.get('profitMargin') or item_data.get('profit_margin', 0)
+            )
+        return invoice
 
 
 class BusinessExpenseSerializer(serializers.ModelSerializer):
