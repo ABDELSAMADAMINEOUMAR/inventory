@@ -31,6 +31,20 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
             return Company.objects.filter(id=user.company.id).order_by('-created_at')
         return Company.objects.none()
 
+    def destroy(self, request, *args, **kwargs):
+        company = self.get_object()
+        from api.models import Sale, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier, User
+        # Manually delete related models to prevent Django foreign key cycle topological sort failures
+        Sale.objects.filter(company=company).delete()
+        ProductExpense.objects.filter(company=company).delete()
+        BusinessExpense.objects.filter(company=company).delete()
+        InventoryEntry.objects.filter(company=company).delete()
+        Product.objects.filter(company=company).delete()
+        Category.objects.filter(company=company).delete()
+        Supplier.objects.filter(company=company).delete()
+        User.objects.filter(company=company).exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
+        return super().destroy(request, *args, **kwargs)
+
     def perform_create(self, serializer):
         admin_email = self.request.data.get('admin_email')
         if not admin_email:
@@ -202,6 +216,14 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
     def delete_all_companies(self, request):
+        from api.models import Sale, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier
+        Sale.objects.all().delete()
+        ProductExpense.objects.all().delete()
+        BusinessExpense.objects.all().delete()
+        InventoryEntry.objects.all().delete()
+        Product.objects.all().delete()
+        Category.objects.all().delete()
+        Supplier.objects.all().delete()
         company_count, _ = Company.objects.all().delete()
         user_count, _ = User.objects.exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
         AuditLog.objects.create(

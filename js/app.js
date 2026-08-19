@@ -1338,7 +1338,16 @@ const UI = (() => {
           toast('error', 'Creation Failed', 'this email has already an account');
           return;
         }
-        console.warn('Backend createCompany failed, falling back to local DB:', e.message);
+        if (lowerMsg.includes('admin_email') || lowerMsg.includes('refused')) {
+          toast('error', 'Validation Error', e.message);
+          return;
+        }
+        // If we get an explicit error string that isn't a fetch/network error, show it
+        if (e.message && !e.message.toLowerCase().includes('fetch') && !e.message.toLowerCase().includes('network')) {
+            toast('error', 'Backend Error', e.message);
+            return;
+        }
+        console.warn('Backend createCompany failed (network), falling back to local DB:', e.message);
       }
     }
 

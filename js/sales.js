@@ -9,6 +9,7 @@ const Sales = (() => {
   let _search = '';
   let _filterProduct = '';
   let _filterPayment = '';
+  let _cart = [];
 
   function canViewProfit() {
     if (typeof UI !== 'undefined' && UI.canViewProfit) return UI.canViewProfit();
@@ -221,6 +222,134 @@ const Sales = (() => {
   function saleForm(s = {}) {
     const products = DB.getAllEnrichedProducts().filter(p => p.currentStock > 0 || s.id);
     const isCredit = s.paymentStatus === 'credit';
+    const isEdit = !!s.id;
+
+    if (!isEdit) {
+      // CART FORM (New Sale)
+      return `
+      <div class="form-grid form-grid-2" style="margin-bottom: 20px;">
+        <div class="field">
+          <label>${t('lbl_sale_date')}</label>
+          <input class="input" type="date" id="sSaleDate" value="${new Date().toISOString().split('T')[0]}">
+        </div>
+        <div class="field">
+          <label>${t('lbl_customer')}</label>
+          <input class="input" id="sCustomer" placeholder="${t('lbl_customer')}">
+        </div>
+        <div class="field">
+          <label>${t('lbl_phone')}</label>
+          <input class="input" id="sCustomerPhone" placeholder="+250 ...">
+        </div>
+        <div class="field">
+          <label>${t('lbl_note')}</label>
+          <input class="input" id="sNote" placeholder="${t('lbl_note')}">
+        </div>
+      </div>
+
+      <!-- Cart Section -->
+      <div style="background:var(--bg-card);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:20px;">
+        <div style="padding:12px 16px;background:var(--bg-elevated);border-bottom:1px solid var(--border);font-weight:600;display:flex;align-items:center;gap:8px;">
+          ${UI.icon('shopping-cart', '', 18)} ${I18n.choose('Cart Items', 'عناصر العربة', 'Articles du panier')}
+        </div>
+        <div style="padding:16px;">
+          <table class="table" style="width:100%;margin-bottom:16px;">
+            <thead>
+              <tr style="text-align:left;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">
+                <th style="padding-bottom:8px;">${t('th_product')}</th>
+                <th style="padding-bottom:8px;">${t('th_qty')}</th>
+                <th style="padding-bottom:8px;">${t('th_unit_price')}</th>
+                <th style="padding-bottom:8px;">${t('th_revenue')}</th>
+                <th style="padding-bottom:8px;"></th>
+              </tr>
+            </thead>
+            <tbody id="cartTableBody">
+              <!-- Cart items injected here -->
+            </tbody>
+          </table>
+
+          <!-- Add Item Row -->
+          <div style="display:flex;gap:12px;align-items:flex-end;background:rgba(0,0,0,0.02);padding:12px;border-radius:8px;border:1px dashed var(--border);">
+            <div class="field" style="flex:2;margin-bottom:0;">
+              <label style="font-size:0.75rem;">${t('lbl_product')}</label>
+              <select class="select" id="cProduct" onchange="Sales.updateCartInputs()">
+                <option value="">${I18n.choose('Select product...', 'اختر منتجاً...', 'Sélectionner un produit...')}</option>
+                ${products.map(p => `<option value="${p.id}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" data-price="${p.sellingPrice||0}">${UI.escapeHTML(p.name)} (${UI.escapeHTML(p.code)}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
+              </select>
+            </div>
+            <div class="field" style="flex:1;margin-bottom:0;">
+              <label style="font-size:0.75rem;">${t('lbl_qty_sold')}</label>
+              <input class="input" type="text" inputmode="numeric" id="cQty" placeholder="1">
+            </div>
+            <div class="field" style="flex:1;margin-bottom:0;">
+              <label style="font-size:0.75rem;">${UI.isRiyalMode() ? 'سعر الوحدة' : t('lbl_sell_price')}</label>
+              <input class="input" type="text" id="cPrice" placeholder="0">
+            </div>
+            <button class="btn btn-primary" style="padding:10px 16px;margin-bottom:2px;" onclick="Sales.addToCart()" type="button">
+              ${UI.icon('plus', '', 16)} ${I18n.choose('Add', 'إضافة', 'Ajouter')}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Section -->
+      <div class="form-grid form-grid-2">
+        <div class="field col-span-2">
+          <label>${t('lbl_payment')} <span class="req">*</span></label>
+          <div class="pay-toggle-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:4px">
+            <label id="payOptPaid" onclick="Sales.togglePayment('paid')" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;border:2px solid var(--accent);background:rgba(6,214,160,0.08);transition:var(--transition)">
+              <input type="radio" name="payStatus" value="paid" checked style="display:none">
+              <span style="width:20px;height:20px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotPaid">✓</span>
+              <div>
+                <div style="font-weight:600;font-size:0.875rem;color:var(--accent)">${t('pay_now')}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">${t('pay_now_sub')}</div>
+              </div>
+            </label>
+            <label id="payOptCredit" onclick="Sales.togglePayment('credit')" style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:10px;cursor:pointer;border:2px solid var(--border-light);background:var(--bg-elevated);transition:var(--transition)">
+              <input type="radio" name="payStatus" value="credit" style="display:none">
+              <span style="width:20px;height:20px;border-radius:50%;background:var(--border-light);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;flex-shrink:0" id="payDotCredit"></span>
+              <div>
+                <div style="font-weight:600;font-size:0.875rem;color:var(--text-primary)">${t('pay_later')}</div>
+                <div style="font-size:0.75rem;color:var(--text-muted)">${t('pay_later_sub')}</div>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <div class="field" id="dueDateWrap" style="display:none;flex-direction:column;gap:6px">
+          <label>${t('lbl_due_date')}</label>
+          <input class="input" type="date" id="sDueDate">
+        </div>
+        <div class="field" id="partialWrap" style="display:none;flex-direction:column;gap:6px">
+          <label>${UI.isRiyalMode() ? 'المبلغ المدفوع مقدماً (ريال)' : I18n.choose('Amount Paid Upfront (FCFA)', 'المبلغ المدفوع مقدماً (FCFA)', 'Montant payé d\'avance (FCFA)')}</label>
+          <div class="input-prefix-wrap"><span class="input-prefix">${UI.isRiyalMode() ? 'ريال' : 'F'}</span>
+            <input class="input" type="text" id="sAmountPaid" placeholder="${UI.isRiyalMode() ? 'اتركه فارغاً إذا تم الدفع كلياً' : I18n.choose('Leave empty if fully paid', 'اتركه فارغاً إذا تم الدفع كلياً', 'Laisser vide si payé en totalité')}" oninput="Sales.updateCalc()">
+          </div>
+          ${UI.isRiyalMode() ? '<div id="sAmountPaidFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
+        </div>
+        <div class="field col-span-2" id="remBalanceWrap" style="display:none;margin-top:-2px;margin-bottom:4px">
+          <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.25);border-radius:10px;padding:10px 14px;display:flex;align-items:center;justify-content:space-between">
+            <span style="font-weight:600;font-size:0.85rem;color:var(--danger);display:flex;align-items:center;gap:6px">${UI.icon('clock', '', 14)} ${I18n.choose('Remaining Amount to be Paid:', 'المبلغ المتبقي للسداد:', 'Montant restant à payer :')}</span>
+            <span style="font-weight:800;font-size:1.05rem;color:var(--danger)" id="sRemainingDisplay">${UI.fmtCurrency(0)}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Calculator -->
+      <div style="background:var(--bg-elevated);border:1px solid var(--border);border-radius:14px;padding:18px;margin-top:18px;box-shadow:var(--shadow)">
+        <div style="font-size:0.9rem;font-weight:700;margin-bottom:14px;color:var(--text-primary);display:flex;align-items:center;gap:8px">
+          ${UI.icon('bar-chart-2', '', 18)} ${canViewProfit() ? t('profit_calc') : I18n.choose('Cart Summary', 'ملخص العربة', 'Résumé du panier')}
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px">
+          ${calcBox('sCalcRevenue', t('th_revenue'), 'var(--accent)')}
+          ${canViewProfit() ? calcBox('sCalcCost', t('th_cost'), 'var(--warning)') : ''}
+          ${canViewProfit() ? calcBox('sCalcProfit', t('th_profit'), 'var(--success)') : ''}
+          ${canViewProfit() ? calcBox('sCalcMargin', t('th_margin'), '#60A5FA') : ''}
+          ${calcBox('sCalcRemaining', I18n.choose('Remaining to Pay', 'المتبقي للسداد', 'Restant à payer'), 'var(--danger)')}
+        </div>
+      </div>`;
+    }
+
+    // EDIT FORM (Single Item)
     return `
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
@@ -366,33 +495,133 @@ const Sales = (() => {
     </div>`;
   }
 
-  function updateCalc() {
-    const sel   = document.getElementById('sProduct');
-    const opt   = sel?.selectedOptions[0];
-    const cpu   = parseFloat(opt?.dataset.cpu) || 0;
-    const stock = parseNum(opt?.dataset.stock) || 0;
-    const qty   = parseNum(document.getElementById('sQty')?.value) || 0;
-    const rawPrice = document.getElementById('sSellPrice')?.value;
-    const price    = UI.fromInputMoney(rawPrice) || 0;
+  // ── Cart Functions ─────────────────────────
+  function updateCartInputs() {
+    const sel = document.getElementById('cProduct');
+    const opt = sel?.selectedOptions[0];
+    if (opt && opt.value) {
+      const price = parseFloat(opt.dataset.price) || 0;
+      document.getElementById('cPrice').value = price > 0 ? price : '';
+      document.getElementById('cQty').value = '1';
+    } else {
+      document.getElementById('cPrice').value = '';
+      document.getElementById('cQty').value = '';
+    }
+  }
 
-    const hint = document.getElementById('sStockHint');
-    if (hint) hint.textContent = `${t('available_stock')}: ${stock} ${I18n.choose('units', 'وحدة', 'unités')}`;
+  function addToCart() {
+    const sel = document.getElementById('cProduct');
+    const productId = parseInt(sel?.value);
+    const qty = parseNum(document.getElementById('cQty')?.value);
+    const sellingPrice = UI.fromInputMoney(document.getElementById('cPrice')?.value);
 
-    const priceHint = document.getElementById('sSellPriceFCFAHint');
-    if (priceHint && UI.isRiyalMode()) {
-      priceHint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
+    if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
+      UI.toast('error', I18n.choose('Invalid Input', 'إدخال غير صالح', 'Entrée invalide'), I18n.choose('Please select a product, valid quantity, and price.', 'يرجى اختيار منتج، وكمية وسعر صحيحين.', 'Veuillez sélectionner un produit, une quantité et un prix valides.'));
+      return;
     }
 
-    const revenue = price * qty;
-    const cost    = cpu * qty;
-    const profit  = revenue - cost;
-    const margin  = revenue > 0 ? (profit / revenue) * 100 : 0;
+    const opt = sel.selectedOptions[0];
+    const stock = parseNum(opt.dataset.stock) || 0;
+    const cpu = parseFloat(opt.dataset.cpu) || 0;
+    const name = opt.text.split(' — ')[0];
+
+    // Check if product already in cart to sum quantities
+    const existing = _cart.find(c => c.productId === productId);
+    const totalQty = existing ? existing.qty + qty : qty;
+
+    if (totalQty > stock) {
+      UI.toast('error', I18n.choose('Insufficient Stock', 'مخزون غير كافٍ', 'Stock insuffisant'), I18n.choose(`Only ${stock} units available.`, `يتوفر فقط ${stock} وحدة.`, `Seulement ${stock} unité(s) disponible(s).`));
+      return;
+    }
+
+    if (existing) {
+      existing.qty = totalQty;
+      // update price if it changed? Let's just use the new one or average. Using the new one for simplicity.
+      existing.sellingPrice = sellingPrice;
+    } else {
+      _cart.push({ productId, name, qty, sellingPrice, cpu });
+    }
+
+    // Reset inputs
+    sel.value = '';
+    document.getElementById('cQty').value = '';
+    document.getElementById('cPrice').value = '';
+
+    renderCartTable();
+    updateCalc();
+  }
+
+  function removeFromCart(index) {
+    _cart.splice(index, 1);
+    renderCartTable();
+    updateCalc();
+  }
+
+  function renderCartTable() {
+    const tbody = document.getElementById('cartTableBody');
+    if (!tbody) return;
+
+    if (_cart.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:20px;color:var(--text-muted);font-size:0.85rem;">${I18n.choose('Cart is empty. Add products above.', 'العربة فارغة. أضف منتجات أعلاه.', 'Le panier est vide. Ajoutez des produits ci-dessus.')}</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = _cart.map((item, idx) => `
+      <tr style="border-bottom:1px solid var(--border-light);">
+        <td style="padding:10px 4px;font-weight:500;font-size:0.85rem;">${item.name}</td>
+        <td style="padding:10px 4px;font-size:0.85rem;">${item.qty}</td>
+        <td style="padding:10px 4px;font-size:0.85rem;">${UI.fmtCurrency(item.sellingPrice)}</td>
+        <td style="padding:10px 4px;font-weight:600;color:var(--accent);font-size:0.85rem;">${UI.fmtCurrency(item.qty * item.sellingPrice)}</td>
+        <td style="padding:10px 4px;text-align:right;">
+          <button class="act-btn del" onclick="Sales.removeFromCart(${idx})" title="Remove">${UI.icon('trash', '', 14)}</button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function updateCalc() {
+    let totalRevenue = 0;
+    let totalCost = 0;
+
+    if (_editId) {
+      // Single item edit mode
+      const sel   = document.getElementById('sProduct');
+      const opt   = sel?.selectedOptions[0];
+      const cpu   = parseFloat(opt?.dataset.cpu) || 0;
+      const stock = parseNum(opt?.dataset.stock) || 0;
+      const qty   = parseNum(document.getElementById('sQty')?.value) || 0;
+      const rawPrice = document.getElementById('sSellPrice')?.value;
+      const price    = UI.fromInputMoney(rawPrice) || 0;
+
+      const hint = document.getElementById('sStockHint');
+      if (hint) hint.textContent = `${t('available_stock')}: ${stock} ${I18n.choose('units', 'وحدة', 'unités')}`;
+
+      const priceHint = document.getElementById('sSellPriceFCFAHint');
+      if (priceHint && UI.isRiyalMode()) {
+        priceHint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
+      }
+
+      totalRevenue = price * qty;
+      totalCost = cpu * qty;
+    } else {
+      // Cart mode
+      for (const item of _cart) {
+        totalRevenue += item.sellingPrice * item.qty;
+        totalCost += item.cpu * item.qty;
+      }
+    }
+
+    const profit  = totalRevenue - totalCost;
+    const margin  = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
 
     const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-    set('sCalcRevenue', UI.fmtCurrency(revenue));
-    set('sCalcCost',    UI.fmtCurrency(cost));
+    set('sCalcRevenue', UI.fmtCurrency(totalRevenue));
+    set('sCalcCost',    UI.fmtCurrency(totalCost));
     set('sCalcProfit',  UI.fmtCurrency(profit));
-    set('sCalcCPU',     UI.fmtCurrency(cpu));
+    if (_editId) {
+      const singleCpu = parseFloat(document.getElementById('sProduct')?.selectedOptions[0]?.dataset.cpu) || 0;
+      set('sCalcCPU', UI.fmtCurrency(singleCpu));
+    }
     set('sCalcMargin',  UI.fmtPct(margin));
 
     const paidInput = document.getElementById('sAmountPaid')?.value;
@@ -400,14 +629,14 @@ const Sales = (() => {
     if (paidInput !== undefined && paidInput !== '' && !isNaN(UI.fromInputMoney(paidInput))) {
       paid = UI.fromInputMoney(paidInput);
     } else {
-      paid = (_paymentStatus === 'credit' ? 0 : revenue);
+      paid = (_paymentStatus === 'credit' ? 0 : totalRevenue);
     }
     const paidHint = document.getElementById('sAmountPaidFCFAHint');
     if (paidHint && UI.isRiyalMode()) {
       paidHint.textContent = paidInput ? `= ${UI.fmt(paid, 0)} FCFA` : '';
     }
 
-    const rem = Math.max(0, revenue - paid);
+    const rem = Math.max(0, totalRevenue - paid);
     set('sCalcRemaining', UI.fmtCurrency(rem));
     const remDisp = document.getElementById('sRemainingDisplay');
     if (remDisp) remDisp.textContent = UI.fmtCurrency(rem);
@@ -415,13 +644,15 @@ const Sales = (() => {
 
   function openAdd() {
     _editId = null;
+    _cart = [];
     _paymentStatus = 'paid';
     UI.createModal('saleModal', `${UI.icon('shopping-cart', '', 20)} ${I18n.choose('Record New Sale', 'تسجيل بيع جديد', 'Enregistrer une nouvelle vente')}`,
       saleForm(),
       `<button class="btn btn-ghost" onclick="UI.closeModal('saleModal')">${t('btn_cancel')}</button>
        <button class="btn btn-primary" onclick="Sales.save()">${UI.icon('save', '', 16)} ${I18n.choose('Save Sale', 'حفظ البيع', 'Enregistrer la vente')}</button>`,
-      'modal-lg'
+      'modal-xl'
     );
+    renderCartTable();
     setTimeout(updateCalc, 100);
   }
 
@@ -443,68 +674,150 @@ const Sales = (() => {
     const btn = document.querySelector('#saleModal .btn-primary');
     if (UI.lockBtn(btn)) return;
     try {
-      const productId    = parseInt(document.getElementById('sProduct')?.value);
-      const qty          = parseNum(document.getElementById('sQty')?.value);
-      const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
-      const saleDate     = document.getElementById('sSaleDate')?.value;
-      const customer     = document.getElementById('sCustomer')?.value.trim();
-      const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
-      const note         = document.getElementById('sNote')?.value.trim();
+      if (_editId) {
+        // --- Edit Mode (Single Sale) ---
+        const productId    = parseInt(document.getElementById('sProduct')?.value);
+        const qty          = parseNum(document.getElementById('sQty')?.value);
+        const sellingPrice = UI.fromInputMoney(document.getElementById('sSellPrice')?.value);
+        const saleDate     = document.getElementById('sSaleDate')?.value;
+        const customer     = document.getElementById('sCustomer')?.value.trim();
+        const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
+        const note         = document.getElementById('sNote')?.value.trim();
 
-      if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
-        UI.toast('error', I18n.choose('Missing Fields', 'حقول ناقصة', 'Champs manquants'), I18n.choose('Please fill in all required fields.', 'يرجى ملء جميع الحقول المطلوبة.', 'Veuillez remplir tous les champs requis.')); return;
-      }
+        if (!productId || isNaN(qty) || qty < 1 || isNaN(sellingPrice) || sellingPrice <= 0) {
+          UI.toast('error', I18n.choose('Missing Fields', 'حقول ناقصة', 'Champs manquants'), I18n.choose('Please fill in all required fields.', 'يرجى ملء جميع الحقول المطلوبة.', 'Veuillez remplir tous les champs requis.')); return;
+        }
 
-      const product = DB.getEnrichedProduct(productId);
-      if (!product) { UI.toast('error', I18n.choose('Product not found', 'المنتج غير موجود', 'Produit non trouvé')); return; }
+        const product = DB.getEnrichedProduct(productId);
+        if (!product) { UI.toast('error', I18n.choose('Product not found', 'المنتج غير موجود', 'Produit non trouvé')); return; }
 
-      const availableStock = _editId
-        ? product.currentStock + (DB.getById('sales', _editId)?.quantity || 0)
-        : product.currentStock;
+        const availableStock = product.currentStock + (DB.getById('sales', _editId)?.quantity || 0);
 
-      if (qty > availableStock) {
-        UI.toast('error', I18n.choose('Insufficient Stock', 'مخزون غير كافٍ', 'Stock insuffisant'), I18n.choose(`Only ${availableStock} units available.`, `يتوفر فقط ${availableStock} وحدة.`, `Seulement ${availableStock} unité(s) disponible(s).`)); return;
-      }
+        if (qty > availableStock) {
+          UI.toast('error', I18n.choose('Insufficient Stock', 'مخزون غير كافٍ', 'Stock insuffisant'), I18n.choose(`Only ${availableStock} units available.`, `يتوفر فقط ${availableStock} وحدة.`, `Seulement ${availableStock} unité(s) disponible(s).`)); return;
+        }
 
-      const cpu          = product.costPerUnit;
-      const revenue      = sellingPrice * qty;
-      const cost         = cpu * qty;
-      const profit       = revenue - cost;
-      const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
+        const cpu          = product.costPerUnit;
+        const revenue      = sellingPrice * qty;
+        const cost         = cpu * qty;
+        const profit       = revenue - cost;
+        const profitMargin = revenue > 0 ? (profit / revenue) * 100 : 0;
 
-      const paidInputVal = document.getElementById('sAmountPaid')?.value;
-      let amountPaid;
-      if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
-        amountPaid = UI.fromInputMoney(paidInputVal);
+        const paidInputVal = document.getElementById('sAmountPaid')?.value;
+        let amountPaid;
+        if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
+          amountPaid = UI.fromInputMoney(paidInputVal);
+        } else {
+          amountPaid = (_paymentStatus === 'credit') ? 0 : revenue;
+        }
+        let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
+        const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
+
+        const data = {
+          productId, quantity: qty, sellingPrice,
+          revenue, cost, profit, profitMargin,
+          saleDate, customer, customerPhone, note,
+          paymentStatus, dueDate, amountPaid,
+          paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
+        };
+
+        try {
+          await DB.update('sales', _editId, data);
+          UI.closeModal('saleModal');
+          UI.toast('success', I18n.choose('Sale Updated', 'تم تحديث البيع', 'Vente mise à jour'), '');
+          UI.navigate('sales');
+        } catch (err) {
+          UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message);
+        }
       } else {
-        amountPaid = (_paymentStatus === 'credit') ? 0 : revenue;
+        // --- Cart Mode (Multiple Sales) ---
+        if (_cart.length === 0) {
+          UI.toast('error', I18n.choose('Cart Empty', 'العربة فارغة', 'Panier vide'), I18n.choose('Please add at least one product to the cart.', 'يرجى إضافة منتج واحد على الأقل.', 'Veuillez ajouter au moins un produit.'));
+          return;
+        }
+
+        const saleDate     = document.getElementById('sSaleDate')?.value;
+        const customer     = document.getElementById('sCustomer')?.value.trim();
+        const customerPhone = document.getElementById('sCustomerPhone')?.value.trim();
+        const baseNote     = document.getElementById('sNote')?.value.trim();
+        const invoiceId    = 'INV-' + Math.floor(100000 + Math.random() * 900000);
+        const finalNote    = baseNote ? `${baseNote} (${invoiceId})` : invoiceId;
+
+        // Calculate total revenue for the cart
+        const cartTotalRevenue = _cart.reduce((sum, item) => sum + (item.sellingPrice * item.qty), 0);
+        
+        const paidInputVal = document.getElementById('sAmountPaid')?.value;
+        let totalAmountPaid;
+        if (paidInputVal !== undefined && paidInputVal !== '' && !isNaN(UI.fromInputMoney(paidInputVal))) {
+          totalAmountPaid = UI.fromInputMoney(paidInputVal);
+        } else {
+          totalAmountPaid = (_paymentStatus === 'credit') ? 0 : cartTotalRevenue;
+        }
+        
+        const dueDate = _paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
+
+        // We allocate the totalAmountPaid proportionally across all items
+        let remainingPaidToAllocate = totalAmountPaid;
+        let itemsSaved = 0;
+
+        try {
+          // Verify stock for all items first
+          for (const item of _cart) {
+            const p = DB.getEnrichedProduct(item.productId);
+            if (item.qty > p.currentStock) {
+              throw new Error(I18n.choose(`Insufficient stock for ${item.name}.`, `مخزون غير كافٍ لـ ${item.name}.`, `Stock insuffisant pour ${item.name}.`));
+            }
+          }
+
+          // Save each item
+          for (let i = 0; i < _cart.length; i++) {
+            const item = _cart[i];
+            const itemRevenue = item.sellingPrice * item.qty;
+            const itemCost = item.cpu * item.qty;
+            const itemProfit = itemRevenue - itemCost;
+            const itemMargin = itemRevenue > 0 ? (itemProfit / itemRevenue) * 100 : 0;
+
+            // Proportional allocation (safeguard rounding errors by giving the rest to the last item)
+            let itemAmountPaid;
+            if (i === _cart.length - 1) {
+              itemAmountPaid = Math.min(itemRevenue, remainingPaidToAllocate);
+            } else {
+              itemAmountPaid = (itemRevenue / cartTotalRevenue) * totalAmountPaid;
+            }
+            // Round to 2 decimals for cleanliness if needed, but keeping it exact is fine
+            remainingPaidToAllocate -= itemAmountPaid;
+
+            let itemPaymentStatus = (itemAmountPaid < itemRevenue - 0.01) ? 'credit' : 'paid';
+
+            const data = {
+              productId: item.productId,
+              quantity: item.qty,
+              sellingPrice: item.sellingPrice,
+              revenue: itemRevenue,
+              cost: itemCost,
+              profit: itemProfit,
+              profitMargin: itemMargin,
+              saleDate,
+              customer,
+              customerPhone,
+              note: finalNote,
+              paymentStatus: itemPaymentStatus,
+              dueDate: itemPaymentStatus === 'credit' ? dueDate : null,
+              amountPaid: itemAmountPaid,
+              paidAt: itemPaymentStatus === 'paid' ? saleDate : null,
+            };
+
+            await DB.insert('sales', data);
+            itemsSaved++;
+          }
+
+          UI.closeModal('saleModal');
+          UI.toast('success', I18n.choose('Sales Recorded', 'تم تسجيل المبيعات', 'Ventes enregistrées'), `${itemsSaved} ${I18n.choose('items added.', 'عناصر أضيفت.', 'articles ajoutés.')}`);
+          UI.navigate('sales');
+        } catch (err) {
+          UI.toast('error', I18n.choose('Error', 'خطأ', 'Erreur'), err.message);
+        }
       }
-      let paymentStatus = (amountPaid < revenue - 0.01) ? 'credit' : 'paid';
-      const dueDate = paymentStatus === 'credit' ? (document.getElementById('sDueDate')?.value || null) : null;
-
-      const data = {
-        productId, quantity: qty, sellingPrice,
-        revenue, cost, profit, profitMargin,
-        saleDate, customer, customerPhone, note,
-        paymentStatus, dueDate, amountPaid,
-        paidAt: paymentStatus === 'paid' ? (DB.getById('sales', _editId)?.paidAt || saleDate) : null,
-      };
-
-      try {
-        if (_editId) await DB.update('sales', _editId, data);
-        else await DB.insert('sales', data);
-      } catch (err) {
-        UI.toast('error', I18n.choose('Not Allowed', 'غير مسموح', 'Non autorisé'), err.message || I18n.choose('The server rejected this action.', 'رفض الخادم هذا الإجراء.', 'Le serveur a rejeté cette action.'));
-        return;
-      }
-
-      UI.closeModal('saleModal');
-      const showProfit = canViewProfit();
-      const extra = paymentStatus === 'credit'
-        ? (I18n.choose('Credit — due ', 'آجل — الاستحقاق ', 'Crédit — échéance ') + (dueDate ? UI.fmtDate(dueDate) : I18n.choose('TBD', 'غير محدد', 'À définir')))
-        : (I18n.choose('Revenue: ', 'الإيراد: ', 'Revenu : ') + UI.fmtCurrency(revenue) + (showProfit ? (I18n.choose(' | Profit: ', ' | الربح: ', ' | Bénéfice : ') + UI.fmtCurrency(profit)) : ''));
-      UI.toast('success', _editId ? I18n.choose('Sale Updated', 'تم تحديث البيع', 'Vente mise à jour') : I18n.choose('Sale Recorded', 'تم تسجيل البيع', 'Vente enregistrée'), extra);
-      UI.navigate('sales');
     } finally {
       UI.unlockBtn(btn);
     }
@@ -648,6 +961,7 @@ const Sales = (() => {
     render, setSearch, setFilter, filterPayment, renderTable,
     openAdd, openEdit, save, delete: del,
     updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment, updatePayModalHint, filterProducts,
+    addToCart, removeFromCart, updateCartInputs
   };
 })();
 
