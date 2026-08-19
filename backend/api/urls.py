@@ -28,7 +28,13 @@ router.register(r'sales', SaleViewSet, basename='sale')
 router.register(r'business-expenses', BusinessExpenseViewSet, basename='businessexpense')
 router.register(r'inventory', InventoryEntryViewSet, basename='inventory')
 
+from django.http import JsonResponse
+
+def health_check(request):
+    return JsonResponse({"status": "ok"})
+
 urlpatterns = [
+    path('health/', health_check, name='health'),
     path('auth/login/', CustomTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('auth/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('auth/password-reset/', RequestPasswordResetView.as_view(), name='password_reset'),
