@@ -117,7 +117,7 @@ const Users = (() => {
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('Username (Login ID)', 'اسم المستخدم (تسجيل الدخول)', 'Nom d\'utilisateur (ID de connexion)')} <span class="req">*</span></label>
-          <input class="input" id="addUserUsername" placeholder="e.g. cashier1, staff_ali" required>
+          <input class="input" id="addUserUsername" placeholder="e.g. cashier1, staff_ali" autocomplete="off" required>
         </div>
         <div class="field">
           <label>${I18n.choose('Full Name', 'الاسم الكامل', 'Nom complet')} <span class="req">*</span></label>
@@ -125,7 +125,7 @@ const Users = (() => {
         </div>
         <div class="field">
           <label>${I18n.choose('Initial Password', 'كلمة المرور الابتدائية', 'Mot de passe initial')} <span class="req">*</span></label>
-          <input class="input" type="password" id="addUserPwd" placeholder="Min 6 chars" required>
+          <input class="input" type="password" id="addUserPwd" placeholder="Min 6 chars" autocomplete="new-password" required>
         </div>
         <div class="field">
           <label>${I18n.choose('Role', 'الصلاحية / الدور', 'Rôle')} <span class="req">*</span></label>
