@@ -358,6 +358,13 @@ const DB = (() => {
     rows.push(row);
     _writeTable(table, rows);
     _addToOfflineQueue(table, 'insert', row.id, row);
+    if (typeof UI !== 'undefined' && UI.toast) {
+      if (table === 'users' || table === 'companies') {
+        UI.toast('error', 'Offline Mode', 'Server unreachable. Saved locally, but cannot be synced automatically. You must recreate this when online.');
+      } else {
+        UI.toast('warning', 'Offline Mode', 'Action saved locally. It will sync when the server is reachable.');
+      }
+    }
     return row;
   }
 
@@ -404,6 +411,13 @@ const DB = (() => {
     rows[idx] = _normalizeRecord(table, { ...rows[idx], ...data, userId: rowOwner, user_id: rowOwner, adminId: rowOwner, updatedAt: _now() });
     _writeTable(table, rows);
     _addToOfflineQueue(table, 'update', rows[idx].id, rows[idx]);
+    if (typeof UI !== 'undefined' && UI.toast) {
+      if (table === 'users' || table === 'companies') {
+        UI.toast('error', 'Offline Mode', 'Server unreachable. Saved locally, but cannot be synced automatically. You must apply this change when online.');
+      } else {
+        UI.toast('warning', 'Offline Mode', 'Action saved locally. It will sync when the server is reachable.');
+      }
+    }
     return rows[idx];
   }
 
@@ -447,6 +461,13 @@ const DB = (() => {
     rows.splice(idx, 1);
     _writeTable(table, rows);
     _addToOfflineQueue(table, 'remove', id, null);
+    if (typeof UI !== 'undefined' && UI.toast) {
+      if (table === 'users' || table === 'companies') {
+        UI.toast('error', 'Offline Mode', 'Server unreachable. Deleted locally, but cannot be synced automatically. You must delete this when online.');
+      } else {
+        UI.toast('warning', 'Offline Mode', 'Action saved locally. It will sync when the server is reachable.');
+      }
+    }
     return true;
   }
 
