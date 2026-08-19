@@ -18,15 +18,15 @@ if env_file.exists():
                 k, v = line.split('=', 1)
                 os.environ[k.strip()] = v.strip().strip('"').strip("'")
 
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY and not DEBUG:
     raise ValueError("SECRET_KEY environment variable is missing. This is required in production.")
 elif not SECRET_KEY:
     SECRET_KEY = 'django-insecure-sims-backend-key-change-in-prod'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
 ALLOWED_HOSTS = [h.strip() for h in os.environ.get('ALLOWED_HOSTS', 'inventory-ts07.onrender.com,localhost,127.0.0.1').split(',') if h.strip()]
 
