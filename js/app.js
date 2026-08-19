@@ -1485,7 +1485,7 @@ const UI = (() => {
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,
-    toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecoverTenantsModal, recoverSingleTenant, recoverAllDeletedTenants,
+    toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecoverTenantsModal, recoverSingleTenant, recoverAllDeletedTenants, clearRecoveryBin,
   };
 })();
 
