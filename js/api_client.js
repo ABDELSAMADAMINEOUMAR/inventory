@@ -262,6 +262,18 @@ const ApiClient = (() => {
     return await _request(`platform/companies/${id}`, 'DELETE');
   }
 
+  async function getDeletedCompanies() {
+    return await _request('platform/companies/?deleted=true', 'GET');
+  }
+
+  async function restoreCompany(id) {
+    return await _request(`platform/companies/${id}/restore/`, 'PATCH');
+  }
+
+  async function purgeCompany(id) {
+    return await _request(`platform/companies/${id}/purge/`, 'DELETE');
+  }
+
   async function deleteAllCompanies() {
     return await _request('platform/companies/delete_all', 'DELETE');
   }
@@ -276,8 +288,11 @@ const ApiClient = (() => {
     checkHealth,
     getPlatformStats,
     getCompanies,
+    getDeletedCompanies,
     createCompany,
     deleteCompany,
+    restoreCompany,
+    purgeCompany,
     deleteAllCompanies,
     changeCompanyStatus,
     changeCompanyPlan,

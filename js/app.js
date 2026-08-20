@@ -753,7 +753,7 @@ const UI = (() => {
             </div>
             <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;">
               <button class="btn btn-primary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;box-shadow:0 4px 10px rgba(99,102,241,0.25);" onclick="UI.showCreateCompanyModal()">${UI.icon('plus', '', 16)} Add New Tenant Company</button>
-              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecoverTenantsModal()">${UI.icon('rotate-ccw', '', 16)} Recover Tenants</button>
+              <button class="btn btn-secondary" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;border:1px solid rgba(16,185,129,0.4);color:#10b981;" onclick="UI.showRecycleBinModal()">${UI.icon('trash', '', 16)} Recycle Bin</button>
               <button class="btn btn-danger" style="display:flex;align-items:center;gap:6px;border-radius:10px;font-weight:700;" onclick="UI.removeAllCompanies()">${UI.icon('trash', '', 16)} Remove All Companies</button>
             </div>
           </div>
@@ -1468,6 +1468,103 @@ const UI = (() => {
     }
   }
 
+  async function showRecycleBinModal() {
+    createModal('recycleBinModal', `${UI.icon('trash', '', 20)} Recycle Bin`,
+      `<div style="text-align:center;padding:20px;">
+        <div class="spinner"></div>
+        <p style="color:var(--text-muted);margin-top:10px;">Loading deleted companies...</p>
+      </div>`,
+      `<button class="btn btn-ghost" onclick="UI.closeModal('recycleBinModal')">Close</button>`
+    );
+
+    try {
+      const deletedCompanies = await ApiClient.getDeletedCompanies();
+      let html = '';
+      if (!deletedCompanies || deletedCompanies.length === 0) {
+        html = `
+          <div style="text-align:center;padding:40px 20px;">
+            <div style="width:64px;height:64px;border-radius:50%;background:rgba(239,68,68,0.1);color:#ef4444;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+              ${UI.icon('inbox', '', 32)}
+            </div>
+            <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">Recycle Bin is Empty</h3>
+            <p style="margin:0;color:var(--text-muted);font-size:14px;">No companies have been soft-deleted recently.</p>
+          </div>
+        `;
+      } else {
+        html = `
+          <div style="max-height:400px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+            <table class="table" style="margin:0;width:100%;border-collapse:collapse;">
+              <thead style="background:var(--surface);position:sticky;top:0;z-index:1;">
+                <tr>
+                  <th style="padding:10px;text-align:left;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);">Company</th>
+                  <th style="padding:10px;text-align:left;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);">Deleted At</th>
+                  <th style="padding:10px;text-align:right;font-size:12px;color:var(--text-muted);border-bottom:1px solid var(--border);">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${deletedCompanies.map(c => `
+                  <tr style="border-bottom:1px solid var(--border);">
+                    <td style="padding:10px;">
+                      <strong style="color:var(--text-main);font-size:13.5px;">${UI.escapeHTML(c.name)}</strong>
+                      <div style="font-size:11.5px;color:var(--text-muted);">${c.admin_email}</div>
+                    </td>
+                    <td style="padding:10px;font-size:12px;color:var(--text-muted);">
+                      ${new Date(c.deleted_at).toLocaleDateString()}
+                    </td>
+                    <td style="padding:10px;text-align:right;">
+                      <div style="display:flex;gap:6px;justify-content:flex-end;">
+                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#10b981;border-color:rgba(16,185,129,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.restoreCompanyUI('${c.id}', '${UI.escapeHTML(c.name).replace(/'/g, "\\'")}')" title="Restore Company">${UI.icon('rotate-ccw', '', 12)} Restore</button>
+                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.purgeCompanyUI('${c.id}', '${UI.escapeHTML(c.name).replace(/'/g, "\\'")}')" title="Permanently Purge">${UI.icon('trash-2', '', 12)} Purge</button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+      document.getElementById('recycleBinModal').querySelector('.modal-body').innerHTML = html;
+    } catch (e) {
+      document.getElementById('recycleBinModal').querySelector('.modal-body').innerHTML = `
+        <div style="text-align:center;padding:20px;color:#ef4444;">
+          ${UI.icon('alert-triangle', '', 32)}
+          <p style="margin-top:10px;">Failed to load recycle bin: ${e.message}</p>
+        </div>
+      `;
+    }
+  }
+
+  async function restoreCompanyUI(id, name) {
+    if (!confirm(\`Are you sure you want to restore "\${name}"?\`)) return;
+    try {
+      await ApiClient.restoreCompany(id);
+      UI.toast('success', 'Restored', \`Company "\${name}" has been restored successfully.\`);
+      await showRecycleBinModal(); // Refresh modal
+      if (typeof renderPlatform !== 'undefined') renderPlatform(); // Refresh dashboard behind modal
+    } catch (e) {
+      UI.toast('error', 'Restore Failed', e.message);
+    }
+  }
+
+  async function purgeCompanyUI(id, name) {
+    const userInput = prompt(\`This will permanently delete this company and all its users. This cannot be undone. Type the company name to confirm:\\n\\n"\${name}"\`);
+    if (userInput !== name) {
+      if (userInput !== null) {
+        UI.toast('error', 'Action Cancelled', 'The typed name did not match the company name.');
+      }
+      return;
+    }
+    try {
+      await ApiClient.purgeCompany(id);
+      UI.toast('success', 'Purged', \`Company "\${name}" has been permanently deleted.\`);
+      await showRecycleBinModal(); // Refresh modal
+      if (typeof renderPlatform !== 'undefined') renderPlatform(); // Refresh dashboard behind modal
+    } catch (e) {
+      UI.toast('error', 'Purge Failed', e.message);
+    }
+  }
+
   function lockBtn(btnElement, loadingText = null) {
     if (!btnElement) return false;
     if (btnElement.disabled || btnElement.dataset.locked === '1') return true; // ALREADY LOCKED, ABORT SUBMIT
@@ -1502,7 +1599,7 @@ const UI = (() => {
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,
-    toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecoverTenantsModal, recoverSingleTenant, recoverAllDeletedTenants, clearRecoveryBin,
+    toggleCompanyStatus, promptPlanChange, saveChangedPlan, showCreateCompanyModal, saveNewCompany, resetTenantUserPwd, deleteCompany, removeAllCompanies, showRecycleBinModal, restoreCompanyUI, purgeCompanyUI,
   };
 })();
 
