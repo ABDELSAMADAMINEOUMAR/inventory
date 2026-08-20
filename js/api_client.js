@@ -103,7 +103,11 @@ const ApiClient = (() => {
     config.signal = controller.signal;
 
     try {
-      let response = await fetch(`${BASE_URL}${endpoint}/`, config);
+      // Fix: don't append slash if there are query parameters
+      const urlPath = endpoint.includes('?') ? endpoint.replace('?', '/?') : `${endpoint}/`;
+      // Clean up double slashes just in case, but keep protocol slashes
+      const finalUrl = `${BASE_URL}${urlPath}`.replace(/([^:])\/\//g, '$1/');
+      let response = await fetch(finalUrl, config);
       clearTimeout(timeoutId);
 
       if (response.status === 401 && _getToken()) {
