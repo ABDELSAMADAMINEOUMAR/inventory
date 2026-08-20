@@ -495,11 +495,28 @@ const DB = (() => {
 
   /** Clear only cached tenant data tables right on logout or account switch */
   function clearTenantCache() {
-    const dataTables = ['products', 'categories', 'suppliers', 'sales', 'invoices', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
-    dataTables.forEach(t => {
+    // 1. Automatically wipe all core entities registered in the master TABLES array
+    TABLES.forEach(t => {
       localStorage.removeItem(_key(t));
       sessionStorage.removeItem(_key(t));
     });
+
+    // 2. Wipe auxiliary data caches that aren't synced as standard tables
+    const auxTables = ['audit_logs', 'notifications'];
+    auxTables.forEach(t => {
+      localStorage.removeItem(_key(t));
+      sessionStorage.removeItem(_key(t));
+    });
+
+    // 3. Dynamically wipe all tenant-scoped offline queues to prevent background sync leaks
+    const keysToRemove = [];
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith(PREFIX + 'offline_queue')) {
+        keysToRemove.push(k);
+      }
+    }
+    keysToRemove.forEach(k => localStorage.removeItem(k));
   }
 
   /** Check if DB is initialised */
