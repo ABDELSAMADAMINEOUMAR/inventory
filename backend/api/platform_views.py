@@ -7,6 +7,7 @@ from .models import Company, User, AuditLog, Sale
 from .serializers import CompanySerializer, UserSerializer, AuditLogSerializer
 from .permissions import IsPlatformOwner
 from .utils import on_password_changed, send_verification_email
+from django.db import transaction
 
 
 class PlatformCompanyViewSet(viewsets.ModelViewSet):
@@ -46,6 +47,7 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         User.objects.filter(company=company).exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
         return super().destroy(request, *args, **kwargs)
 
+    @transaction.atomic
     def perform_create(self, serializer):
         admin_email = self.request.data.get('admin_email')
         if not admin_email:

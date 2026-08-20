@@ -3,6 +3,7 @@ from rest_framework.response import Response
 from django.utils import timezone
 from datetime import datetime
 from django.db.models import Q
+from django.db import transaction
 from .models import (
     Company, User, Category, Supplier, Product,
     ProductExpense, Sale, BusinessExpense, InventoryEntry, Invoice
@@ -39,6 +40,7 @@ class UserViewSet(CompanyScopedModelViewSet):
     serializer_class = UserSerializer
     permission_classes = [IsCompanyMember, CanAccessUsers]
 
+    @transaction.atomic
     def perform_create(self, serializer):
         user = self.request.user
         # When an admin creates a staff/cashier user, create immediately active without email verification
