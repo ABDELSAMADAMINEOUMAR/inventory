@@ -495,7 +495,7 @@ const DB = (() => {
 
   /** Clear only cached tenant data tables right on logout or account switch */
   function clearTenantCache() {
-    const dataTables = ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
+    const dataTables = ['products', 'categories', 'suppliers', 'sales', 'invoices', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
     dataTables.forEach(t => {
       localStorage.removeItem(_key(t));
       sessionStorage.removeItem(_key(t));
