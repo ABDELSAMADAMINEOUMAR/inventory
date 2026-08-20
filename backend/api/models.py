@@ -22,6 +22,8 @@ class Company(models.Model):
     monthly_fee = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False)
+    deleted_at = models.DateTimeField(null=True, blank=True)
 
     class Meta:
         verbose_name_plural = "Companies"
@@ -46,7 +48,7 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     password_hash = models.CharField(max_length=255, blank=True, null=True)
     role = models.CharField(max_length=50, choices=ROLE_CHOICES, default='admin')
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name='users')
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, null=True, blank=True, related_name='users')
     status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='active')
     is_active = models.BooleanField(default=False)
     must_change_password = models.BooleanField(default=False)

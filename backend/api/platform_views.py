@@ -26,26 +26,21 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         user = self.request.user
         if not user or not user.is_authenticated:
             return Company.objects.none()
+        
+        # Show recycle bin if requested
+        show_deleted = self.request.query_params.get('deleted', 'false').lower() == 'true'
+        
         if user.role == 'platform_owner':
-            return Company.objects.all().order_by('-created_at')
-        if user.company:
-            return Company.objects.filter(id=user.company.id).order_by('-created_at')
-        return Company.objects.none()
+            qs = Company.objects.all()
+        elif user.company:
+            qs = Company.objects.filter(id=user.company.id)
+        else:
+            return Company.objects.none()
+            
+        if show_deleted or getattr(self, 'action', None) in ['restore', 'purge']:
+            return qs.filter(is_deleted=True).order_by('-deleted_at', '-created_at')
+        return qs.filter(is_deleted=False).order_by('-created_at')
 
-    def destroy(self, request, *args, **kwargs):
-        company = self.get_object()
-        from api.models import Sale, Invoice, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier, User
-        # Manually delete related models to prevent Django foreign key cycle topological sort failures
-        Sale.objects.filter(company=company).delete()
-        Invoice.objects.filter(company=company).delete()
-        ProductExpense.objects.filter(company=company).delete()
-        BusinessExpense.objects.filter(company=company).delete()
-        InventoryEntry.objects.filter(company=company).delete()
-        Product.objects.filter(company=company).delete()
-        Category.objects.filter(company=company).delete()
-        Supplier.objects.filter(company=company).delete()
-        User.objects.filter(company=company).exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
-        return super().destroy(request, *args, **kwargs)
 
     @transaction.atomic
     def perform_create(self, serializer):
@@ -116,18 +111,80 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
             target_id=str(company.id)
         )
 
+    @transaction.atomic
     def perform_destroy(self, instance):
+        from django.utils import timezone
         company_id = str(instance.id)
-        User.objects.filter(company=instance).delete()
-        if hasattr(instance, 'admin_email') and instance.admin_email:
-            User.objects.filter(email__iexact=instance.admin_email).exclude(role='platform_owner').delete()
-        instance.delete()
+        
+        # Soft delete
+        instance.is_deleted = True
+        instance.deleted_at = timezone.now()
+        instance.status = 'suspended'
+        instance.save()
+        
+        # Deactivate users
+        instance.users.update(status='deactivated', is_active=False)
+        
         AuditLog.objects.create(
             actor=self.request.user,
-            action="delete_company",
+            action="soft_delete_company",
             target_type="Company",
             target_id=company_id
         )
+
+    @action(detail=True, methods=['patch'], url_path='restore')
+    @transaction.atomic
+    def restore(self, request, pk=None):
+        company = self.get_object()
+        if not company.is_deleted:
+            return Response({"detail": "Company is not deleted."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        company.is_deleted = False
+        company.deleted_at = None
+        company.status = 'active'
+        company.save()
+        
+        company.users.update(status='active', is_active=True)
+        
+        AuditLog.objects.create(
+            actor=request.user,
+            action="restore_company",
+            target_type="Company",
+            target_id=str(company.id)
+        )
+        return Response(CompanySerializer(company).data)
+
+    @action(detail=True, methods=['delete'], url_path='purge')
+    def purge(self, request, pk=None):
+        company = self.get_object()
+        if not company.is_deleted:
+            return Response({"detail": "Only soft-deleted companies can be purged."}, status=status.HTTP_400_BAD_REQUEST)
+            
+        company_id = str(company.id)
+        from api.models import Sale, Invoice, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier, User
+        # Manually delete related models to prevent Django foreign key cycle topological sort failures
+        Sale.objects.filter(company=company).delete()
+        Invoice.objects.filter(company=company).delete()
+        ProductExpense.objects.filter(company=company).delete()
+        BusinessExpense.objects.filter(company=company).delete()
+        InventoryEntry.objects.filter(company=company).delete()
+        Product.objects.filter(company=company).delete()
+        Category.objects.filter(company=company).delete()
+        Supplier.objects.filter(company=company).delete()
+        User.objects.filter(company=company).exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
+        
+        # Because we added on_delete=models.CASCADE to User, 
+        # deleting the company here will automatically wipe its remaining users.
+        company.delete()
+        
+        AuditLog.objects.create(
+            actor=request.user,
+            action="purge_company",
+            target_type="Company",
+            target_id=company_id
+        )
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
     @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
     def delete_all(self, request):
