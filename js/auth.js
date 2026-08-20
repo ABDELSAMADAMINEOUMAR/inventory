@@ -61,26 +61,10 @@ const Auth = (() => {
   function getTenantId() {
     return typeof DB !== 'undefined' && DB.getTenantId ? DB.getTenantId() : null;
   }
-
   async function login(email, password) {
     const ident = (email || '').toLowerCase().trim();
-    const KNOWN_DEFAULT_USERS = [
-      { id: 10, name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', role: 'platform_owner', company_id: null, business: 'SmartIMS Platform', company_name: 'SmartIMS Platform', currency: 'USD' },
-      { id: 26, name: 'abdou Admin', username: 'abdou_admin', email: 'abdelsamadamineoumar@gmail.com', role: 'admin', company_id: 24, business: 'abdou', company_name: 'abdou', currency: 'FCFA' },
-      { id: 27, name: 'amineoumarexpress_admin', username: 'amineoumarexpress_admin', email: 'abdelsamadamine003@gmail.com', role: 'admin', company_id: 25, business: 'Express Amine oumar', company_name: 'Express Amine oumar', currency: 'FCFA' },
-      { id: 28, name: 'Khoulthoum HAmza', username: 'koulthoum', email: 'koulthoum@madiha.local', role: 'cashier', company_id: 25, business: 'Express Amine oumar', company_name: 'Express Amine oumar', currency: 'FCFA' },
-      { id: 29, name: 'Haggar Terap', username: 'haggar', email: 'hisseinidriss81@gmail.com', role: 'admin', company_id: 26, business: 'Haggar', company_name: 'Haggar', currency: 'RWF' },
-      { id: 30, name: 'Manal import', username: 'manal', email: 'raouda.amine@gmail.com', role: 'admin', company_id: 27, business: 'Manal import', company_name: 'Manal import', currency: 'RWF' },
-      { id: 31, name: 'mohamed', username: 'mohamed', email: 'mohamed@abdou.local', role: 'cashier', company_id: 24, business: 'abdou', company_name: 'abdou', currency: 'FCFA' },
-      { id: 43, name: 'Hadil Shop Admin', username: 'hadil', email: 'madihaamine73@gmail.com', role: 'admin', company_id: 29, business: 'Hadil Shop', company_name: 'Hadil Shop', currency: 'FCFA' }
-    ];
 
-    const matchedDef = KNOWN_DEFAULT_USERS.find(defU => 
-      defU.email.toLowerCase() === ident ||
-      defU.username.toLowerCase() === ident ||
-      defU.email.split('@')[0].toLowerCase() === ident
-    );
-
+    // ── Path 1: Server-verified JWT login (REQUIRED when API is reachable) ──
     if (typeof ApiClient !== 'undefined') {
       try {
         const controller = new AbortController();
@@ -121,110 +105,29 @@ const Auth = (() => {
           setSession(user);
           return { success: true, user, must_change_password: user.must_change_password };
         } else {
+          // Server explicitly rejected the credentials — hard-fail, never fall through
           const errData = await res.json().catch(() => ({}));
           return { success: false, message: errData.detail || 'Invalid email or password.' };
         }
       } catch (e) {
-        console.warn("API login attempt bypassed/timed out, establishing local session:", e);
-      }
-    }
-
-    if (matchedDef) {
-      if (password !== '123456') {
-        return { success: false, message: 'Incorrect password for this account.' };
-      }
-      // Clear previous tenant's cached data before switching accounts
-      if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
-        try { DB.clearTenantCache(); } catch(e) {}
-      }
-      const h = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92';
-      const user = {
-        id: matchedDef.id,
-        name: matchedDef.name,
-        username: matchedDef.username,
-        email: matchedDef.email,
-        role: matchedDef.role,
-        company_id: matchedDef.company_id,
-        company_name: matchedDef.business,
-        business: matchedDef.business,
-        currency: matchedDef.currency,
-        is_active: true,
-        passwordHash: h,
-        password_hash: h,
-        password: '123456'
-      };
-      if (typeof DB !== 'undefined') {
-        try { await DB.update('users', user.id, user); } catch {
-          try { await DB.insert('users', user); } catch {}
+        // Only allow fallback to offline auth for genuine network failures.
+        // AbortError = timeout, TypeError "Failed to fetch" = network unreachable.
+        // Anything else (e.g. malformed response) is treated as a hard failure.
+        const isNetworkError = (
+          e.name === 'AbortError' ||
+          (e instanceof TypeError && /failed to fetch|network/i.test(e.message))
+        );
+        if (!isNetworkError) {
+          console.error('Login failed with unexpected error:', e);
+          return { success: false, message: 'Login failed. Please try again.' };
         }
-      }
-      setSession(user);
-      return { success: true, user, must_change_password: false };
-    }
-
-
-    let users = typeof DB !== 'undefined' && DB.getRawAll ? DB.getRawAll('users') : (typeof DB !== 'undefined' ? DB.getAll('users') : []);
-    const roleWeight = { platform_owner: 1, owner: 2, admin: 2, manager: 3, cashier: 4, staff: 5 };
-    let matchingUsers = users.filter(u => 
-      (u.email && u.email.toLowerCase() === ident) ||
-      (u.username && u.username.toLowerCase() === ident) ||
-      (u.email && u.email.split('@')[0].toLowerCase() === ident) ||
-      (u.name && u.name.toLowerCase() === ident)
-    ).sort((a, b) => (roleWeight[a.role] || 10) - (roleWeight[b.role] || 10));
-    let user = matchingUsers[0];
-    
-
-
-    if (!user) return { success: false, message: 'No account found with this username or email address.' };
-
-    if (typeof DB !== 'undefined') {
-      const companies = DB.getAll('companies');
-      const comp = companies.find(c => c.id == user.company_id || (user.business && c.name && c.name.toLowerCase() === user.business.toLowerCase()));
-      if (comp && (comp.status === 'suspended' || comp.status === 'Suspended')) {
-        return {
-          success: false,
-          suspended: true,
-          message: `COMPANY_SUSPENDED: The company '${comp.name}' has been suspended by Platform Administration. Access is disabled.`
-        };
+        console.warn('API unreachable (network error or timeout). No offline login available.');
+        return { success: false, message: 'Cannot reach the server. Please check your internet connection and try again.' };
       }
     }
 
-    const hash = typeof DB !== 'undefined' && DB.hashPassword ? await DB.hashPassword(password) : null;
-    const storedHash = user.passwordHash || user.password_hash;
-    
-    let isPasswordValid = false;
-    if (password === '123456') {
-      isPasswordValid = true;
-    } else if (storedHash && hash === storedHash) {
-      isPasswordValid = true;
-    }
-
-    if (!isPasswordValid) {
-      return { success: false, message: 'Incorrect password for this account.' };
-    }
-
-    if (!user.company_id && (user.adminId || user.userId || user.user_id)) {
-      user.company_id = user.adminId || user.userId || user.user_id;
-    }
-    if (typeof DB !== 'undefined') {
-      const comp = DB.getAll('companies').find(c => c.id == user.company_id);
-      if (comp && comp.currency) user.currency = comp.currency;
-    }
-    if (!user.currency) user.currency = 'RWF';
-
-    // Wipe old tenant cached data right before establishing new session
-    if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
-      try { DB.clearTenantCache(); } catch(e) {}
-    }
-    setSession(user);
-    if (typeof DB !== 'undefined' && typeof DB.flushOfflineQueue === 'function') {
-      setTimeout(() => { try { DB.flushOfflineQueue(); } catch(e) {} }, 100);
-    }
-    return {
-      success: true,
-      user,
-      must_change_password: Boolean(user.must_change_password)
-    };
+    // If ApiClient module isn't even loaded, the app is misconfigured
+    return { success: false, message: 'Application error: authentication module not loaded. Please refresh the page.' };
   }
 
   async function register(name, business, email, password) {

@@ -185,19 +185,6 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-    @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
-    def delete_all(self, request):
-        count, _ = Company.objects.all().delete()
-        User.objects.exclude(role='platform_owner').delete()
-        AuditLog.objects.create(
-            actor=request.user,
-            action="delete_all_companies",
-            target_type="Company",
-            target_id="ALL"
-        )
-        return Response({"success": True, "deleted_companies": count})
-
     @action(detail=True, methods=['patch'], url_path='status')
     def change_status(self, request, pk=None):
         company = self.get_object()
