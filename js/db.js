@@ -493,30 +493,33 @@ const DB = (() => {
     TABLES.forEach(t => localStorage.removeItem(_key(t)));
   }
 
-  /** Clear only cached tenant data tables right on logout or account switch */
+  /** Clear only cached tenant data tables right on logout or account switch.
+   *  Uses a prefix-based nuclear wipe: removes ALL keys starting with 'sims_'
+   *  except the language preference. This eliminates the need for any hardcoded
+   *  list and guarantees that new tables/features are always wiped automatically. */
   function clearTenantCache() {
-    // 1. Automatically wipe all core entities registered in the master TABLES array
-    TABLES.forEach(t => {
-      localStorage.removeItem(_key(t));
-      sessionStorage.removeItem(_key(t));
-    });
+    // Whitelist: keys that should survive across logins (user-preference, not tenant-data)
+    const KEEP = new Set([PREFIX + 'lang']);
 
-    // 2. Wipe auxiliary data caches that aren't synced as standard tables
-    const auxTables = ['audit_logs', 'notifications'];
-    auxTables.forEach(t => {
-      localStorage.removeItem(_key(t));
-      sessionStorage.removeItem(_key(t));
-    });
-
-    // 3. Dynamically wipe all tenant-scoped offline queues to prevent background sync leaks
-    const keysToRemove = [];
+    // Wipe all sims_* keys from localStorage
+    const lsKeysToRemove = [];
     for (let i = 0; i < localStorage.length; i++) {
       const k = localStorage.key(i);
-      if (k && k.startsWith(PREFIX + 'offline_queue')) {
-        keysToRemove.push(k);
+      if (k && k.startsWith(PREFIX) && !KEEP.has(k)) {
+        lsKeysToRemove.push(k);
       }
     }
-    keysToRemove.forEach(k => localStorage.removeItem(k));
+    lsKeysToRemove.forEach(k => localStorage.removeItem(k));
+
+    // Wipe all sims_* keys from sessionStorage
+    const ssKeysToRemove = [];
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const k = sessionStorage.key(i);
+      if (k && k.startsWith(PREFIX) && !KEEP.has(k)) {
+        ssKeysToRemove.push(k);
+      }
+    }
+    ssKeysToRemove.forEach(k => sessionStorage.removeItem(k));
   }
 
   /** Check if DB is initialised */

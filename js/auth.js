@@ -32,11 +32,21 @@ const Auth = (() => {
     if (typeof DB !== 'undefined' && typeof DB.clearTenantCache === 'function') {
       try { DB.clearTenantCache(); } catch(e) {}
     } else {
-      const TABLES = ['products', 'categories', 'suppliers', 'sales', 'businessExpenses', 'productExpenses', 'audit_logs', 'notifications'];
-      TABLES.forEach(t => {
-        localStorage.removeItem('sims_' + t);
-        sessionStorage.removeItem('sims_' + t);
-      });
+      // Fallback: prefix-based nuclear wipe if DB module isn't loaded yet
+      const PREFIX = 'sims_';
+      const KEEP = new Set([PREFIX + 'lang']);
+      const keysToRemove = [];
+      for (let i = 0; i < localStorage.length; i++) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith(PREFIX) && !KEEP.has(k)) keysToRemove.push(k);
+      }
+      keysToRemove.forEach(k => localStorage.removeItem(k));
+      const ssKeys = [];
+      for (let i = 0; i < sessionStorage.length; i++) {
+        const k = sessionStorage.key(i);
+        if (k && k.startsWith(PREFIX) && !KEEP.has(k)) ssKeys.push(k);
+      }
+      ssKeys.forEach(k => sessionStorage.removeItem(k));
     }
   }
 
