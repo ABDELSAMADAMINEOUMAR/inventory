@@ -566,7 +566,18 @@ const DB = (() => {
   function getProductStock(productId) {
     const product = getById('products', productId);
     if (!product) return 0;
-    const soldQty = sum('sales', 'quantity', s => s.productId === productId);
+    
+    const invoices = getAll('invoices');
+    let soldQty = 0;
+    for (let i = 0; i < invoices.length; i++) {
+      const items = invoices[i].items || [];
+      for (let j = 0; j < items.length; j++) {
+        if ((items[j].productId || items[j].product) === productId) {
+          soldQty += (Number(items[j].quantity) || 0);
+        }
+      }
+    }
+    
     return Math.max(0, (product.quantity || 0) - soldQty);
   }
 
@@ -609,11 +620,14 @@ const DB = (() => {
     const suppliers = getAll('suppliers');
     const suppMap = new Map(suppliers.map(s => [s.id, s.name]));
 
-    const sales = getAll('sales');
+    const invoices = getAll('invoices');
     const soldQtyMap = new Map();
-    for (let i = 0; i < sales.length; i++) {
-      const s = sales[i];
-      soldQtyMap.set(s.productId, (soldQtyMap.get(s.productId) || 0) + (s.quantity || 0));
+    for (let i = 0; i < invoices.length; i++) {
+      const items = invoices[i].items || [];
+      for (let j = 0; j < items.length; j++) {
+        const pId = items[j].productId || items[j].product;
+        soldQtyMap.set(pId, (soldQtyMap.get(pId) || 0) + (Number(items[j].quantity) || 0));
+      }
     }
 
     const expenses = getAll('productExpenses');
@@ -744,7 +758,7 @@ const DB = (() => {
   /** Dashboard summary stats */
   function getDashboardStats() {
     const products = getAllEnrichedProducts();
-    const sales = getAll('sales');
+    const sales = getAllEnrichedSales();
     const bizExp = getAll('businessExpenses');
 
     const totalProducts = products.length;
@@ -754,8 +768,8 @@ const DB = (() => {
     const totalInvestment = products.reduce((a, p) => a + p.totalCost, 0);
     const inventoryValue = products.reduce((a, p) => a + p.costPerUnit * p.currentStock, 0);
 
-    const totalRevenue = sum('sales', 'revenue');
-    const totalProfit = sum('sales', 'profit');
+    const totalRevenue = sales.reduce((a, s) => a + (s.revenue || 0), 0);
+    const totalProfit = sales.reduce((a, s) => a + (s.profit || 0), 0);
     const totalImportExpenses = products.reduce((a, p) => a + p.totalExpenses, 0);
     const totalBizExpenses = sum('businessExpenses', 'amount');
     const totalExpenses = totalImportExpenses + totalBizExpenses;
@@ -765,13 +779,13 @@ const DB = (() => {
 
     const today = new Date().toISOString().split('T')[0];
     const todaySales = sales.filter(s => s.saleDate === today);
-    const salesToday = todaySales.reduce((a, s) => a + s.revenue, 0);
-    const profitToday = todaySales.reduce((a, s) => a + s.profit, 0);
+    const salesToday = todaySales.reduce((a, s) => a + (s.revenue || 0), 0);
+    const profitToday = todaySales.reduce((a, s) => a + (s.profit || 0), 0);
 
     const thisMonth = new Date().toISOString().slice(0, 7);
     const monthSales = sales.filter(s => s.saleDate?.startsWith(thisMonth));
-    const salesThisMonth = monthSales.reduce((a, s) => a + s.revenue, 0);
-    const profitThisMonth = monthSales.reduce((a, s) => a + s.profit, 0);
+    const salesThisMonth = monthSales.reduce((a, s) => a + (s.revenue || 0), 0);
+    const profitThisMonth = monthSales.reduce((a, s) => a + (s.profit || 0), 0);
 
     return {
       totalProducts, totalCategories, totalSuppliers,
@@ -793,7 +807,7 @@ const DB = (() => {
       const locale = (typeof I18n !== 'undefined' && I18n.choose) ? I18n.choose('en', 'ar-EG', 'fr-FR') : 'en';
       const label = d.toLocaleString(locale, { month: 'short', year: '2-digit' });
 
-      const sales = query('sales', s => s.saleDate?.startsWith(month));
+      const sales = getAllEnrichedSales().filter(s => s.saleDate?.startsWith(month));
       const bizExp = query('businessExpenses', e => e.expenseDate?.startsWith(month));
       const revenue = sales.reduce((a, s) => a + (s.revenue || 0), 0);
       const profit = sales.reduce((a, s) => a + (s.profit || 0), 0);
@@ -806,10 +820,20 @@ const DB = (() => {
   /** Get top selling products */
   function getTopProducts(limit = 5) {
     const products = getAll('products');
+    const allSales = getAllEnrichedSales();
     return products.map(p => {
-      const sales = query('sales', s => s.productId === p.id);
-      const totalQty = sales.reduce((a, s) => a + s.quantity, 0);
-      const totalRevenue = sales.reduce((a, s) => a + s.revenue, 0);
+      let totalQty = 0;
+      let totalRevenue = 0;
+      allSales.forEach(s => {
+        if (s.items) {
+          s.items.forEach(i => {
+            if ((i.productId || i.product) === p.id) {
+              totalQty += (Number(i.quantity) || 0);
+              totalRevenue += (Number(i.sellingPrice) || 0) * (Number(i.quantity) || 0);
+            }
+          });
+        }
+      });
       return { ...p, totalQty, totalRevenue };
     }).sort((a, b) => b.totalQty - a.totalQty).slice(0, limit);
   }

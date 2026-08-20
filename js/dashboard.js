@@ -16,7 +16,7 @@ const Dashboard = (() => {
     const s = DB.getDashboardStats();
     const monthly = DB.getMonthlyData(6);
     const top = DB.getTopProducts(5);
-    const allSalesRaw = DB.getAll('sales');
+    const allSalesRaw = DB.getAllEnrichedSales();
     const getPaidAmt  = s => (s.amountPaid !== undefined && s.amountPaid !== null && s.amountPaid !== '') ? Number(s.amountPaid) : Number(s.revenue || 0);
     const getRemAmt   = s => Math.max(0, Number(s.revenue || 0) - getPaidAmt(s));
     const creditSales = allSalesRaw.filter(s => getRemAmt(s) > 0.01);
