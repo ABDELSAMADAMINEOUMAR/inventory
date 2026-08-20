@@ -457,7 +457,7 @@ const UI = (() => {
     const isMasterOwner = user && (user.role === 'platform_owner' || user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine');
     
     if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner) {
-      document.getElementById('app').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;">
+      document.getElementById('pageContent').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;">
          <div class="spinner" style="width:40px;height:40px;border:4px solid var(--primary);border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;"></div>
          <div style="font-weight:600;color:var(--text-secondary)">${I18n.choose('Syncing data...', 'جاري مزامنة البيانات...', 'Synchronisation...')}</div>
          <style>@keyframes spin { to { transform: rotate(360deg); } }</style>
@@ -1536,10 +1536,10 @@ const UI = (() => {
   }
 
   async function restoreCompanyUI(id, name) {
-    if (!confirm(\`Are you sure you want to restore "\${name}"?\`)) return;
+    if (!confirm(`Are you sure you want to restore "${name}"?`)) return;
     try {
       await ApiClient.restoreCompany(id);
-      UI.toast('success', 'Restored', \`Company "\${name}" has been restored successfully.\`);
+      UI.toast('success', 'Restored', `Company "${name}" has been restored successfully.`);
       await showRecycleBinModal(); // Refresh modal
       if (typeof renderPlatform !== 'undefined') renderPlatform(); // Refresh dashboard behind modal
     } catch (e) {
@@ -1548,7 +1548,7 @@ const UI = (() => {
   }
 
   async function purgeCompanyUI(id, name) {
-    const userInput = prompt(\`This will permanently delete this company and all its users. This cannot be undone. Type the company name to confirm:\\n\\n"\${name}"\`);
+    const userInput = prompt(`This will permanently delete this company and all its users. This cannot be undone. Type the company name to confirm:\n\n"${name}"`);
     if (userInput !== name) {
       if (userInput !== null) {
         UI.toast('error', 'Action Cancelled', 'The typed name did not match the company name.');
@@ -1557,7 +1557,7 @@ const UI = (() => {
     }
     try {
       await ApiClient.purgeCompany(id);
-      UI.toast('success', 'Purged', \`Company "\${name}" has been permanently deleted.\`);
+      UI.toast('success', 'Purged', `Company "${name}" has been permanently deleted.`);
       await showRecycleBinModal(); // Refresh modal
       if (typeof renderPlatform !== 'undefined') renderPlatform(); // Refresh dashboard behind modal
     } catch (e) {
