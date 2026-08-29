@@ -252,6 +252,23 @@ const Sales = (() => {
           ${UI.icon('shopping-cart', '', 18)} ${I18n.choose('Cart Items', 'عناصر العربة', 'Articles du panier')}
         </div>
         <div style="padding:16px;">
+          <div style="margin-bottom: 16px;">
+            <div style="display:flex; gap:10px; align-items:center;">
+              <input class="input" type="text" id="barcodeScanner" placeholder="${I18n.choose('Scan Barcode...', 'امسح الباركود...', 'Scanner le code-barres...')}" autofocus onkeydown="Sales.handleBarcodeScan(event)" style="flex:1;">
+              <button class="btn btn-secondary" onclick="Sales.startCameraScan()" type="button" title="${I18n.choose('Scan with Camera', 'مسح بالكاميرا', 'Scanner avec la caméra')}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              </button>
+            </div>
+            <small style="color:var(--text-muted);font-size:0.75rem;">${I18n.choose('Scan a product to add it instantly to the cart.', 'قم بمسح منتج لإضافته فوراً إلى العربة.', 'Scannez un produit pour l\'ajouter instantanément au panier.')}</small>
+            
+            <div id="cameraScannerContainer" style="display:none; margin-top:12px; background:var(--bg-elevated); padding:10px; border-radius:12px; border:1px solid var(--border);">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <strong style="font-size:0.85rem;">${I18n.choose('Camera Scanner', 'ماسح الكاميرا', 'Scanner Caméra')}</strong>
+                <button class="btn btn-sm btn-ghost" onclick="Sales.stopCameraScan()" style="color:var(--danger); padding:4px 8px;">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
+              </div>
+              <div id="qr-reader" style="width:100%; border-radius:8px; overflow:hidden;"></div>
+            </div>
+          </div>
           <table class="table" style="width:100%;margin-bottom:16px;">
             <thead>
               <tr style="text-align:left;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">
@@ -962,11 +979,69 @@ const Sales = (() => {
     }
   }
 
+  function handleBarcodeScan(e) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const code = e.target.value.trim();
+      if (!code) return;
+      
+      const products = DB.getAllEnrichedProducts();
+      const product = products.find(p => p.code.toLowerCase() === code.toLowerCase() && p.currentStock > 0);
+      
+      if (product) {
+        const sel = document.getElementById('cProduct');
+        if (sel) {
+          sel.value = product.id;
+          updateCartInputs();
+          document.getElementById('cQty').value = '1';
+          addToCart();
+          UI.toast('success', I18n.choose('Product Added', 'تم إضافة المنتج', 'Produit ajouté'), product.name);
+          e.target.value = '';
+        }
+      } else {
+        UI.toast('error', I18n.choose('Product Not Found or Out of Stock', 'المنتج غير موجود أو نفذ من المخزون', 'Produit introuvable ou en rupture de stock'), code);
+        e.target.value = '';
+      }
+    }
+  }
+
+  let html5QrcodeScanner = null;
+
+  function startCameraScan() {
+    const container = document.getElementById('cameraScannerContainer');
+    if (container) container.style.display = 'block';
+
+    if (!html5QrcodeScanner) {
+      html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+    }
+    
+    html5QrcodeScanner.render((decodedText, decodedResult) => {
+      // On success
+      stopCameraScan();
+      const input = document.getElementById('barcodeScanner');
+      if (input) {
+        input.value = decodedText;
+        // Simulate enter key press
+        handleBarcodeScan({ key: 'Enter', preventDefault: () => {}, target: input });
+      }
+    }, (errorMessage) => {
+      // parse errors are normal (no barcode found yet)
+    });
+  }
+
+  function stopCameraScan() {
+    const container = document.getElementById('cameraScannerContainer');
+    if (container) container.style.display = 'none';
+    if (html5QrcodeScanner) {
+      html5QrcodeScanner.clear().catch(err => console.error("Failed to clear scanner", err));
+    }
+  }
+
   return {
     render, setSearch, setFilter, filterPayment, renderTable,
     openAdd, openEdit, save, delete: del,
     updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment, updatePayModalHint, filterProducts,
-    addToCart, removeFromCart, updateCartInputs
+    addToCart, removeFromCart, updateCartInputs, handleBarcodeScan, startCameraScan, stopCameraScan
   };
 })();
 

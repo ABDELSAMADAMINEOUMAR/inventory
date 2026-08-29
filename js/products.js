@@ -174,9 +174,13 @@ const Products = (() => {
         <input class="input" id="fSupp" value="${p.supplierName && p.supplierName !== 'N/A' ? p.supplierName : (p.supplierId ? '' : '')}" placeholder="${t('ph_supplier')}">
       </div>
       <div class="field">
-        <label>${t('lbl_price')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
-        <input class="input" type="text" id="fPrice" value="${UI.toInputMoney(p.purchasePrice)}" placeholder="0" oninput="Products.calcPreview()" required>
+        <label>${I18n.choose('Unit Cost', 'تكلفة الوحدة', 'Coût Unitaire')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <input class="input" type="text" id="fUnitCost" value="${UI.toInputMoney(p.unitCost !== undefined ? p.unitCost : (p.quantity > 0 ? (p.purchasePrice || 0) / p.quantity : (p.purchasePrice || 0)))}" placeholder="0" oninput="Products.calcPreview()" required>
         ${UI.isRiyalMode() ? '<div id="fPriceFCFAHint" style="font-size:0.75rem;color:var(--accent);font-weight:600;margin-top:2px"></div>' : ''}
+      </div>
+      <div class="field">
+        <label>${I18n.choose('Selling Price', 'سعر البيع', 'Prix de Vente')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
+        <input class="input" type="text" id="fSellingPrice" value="${UI.toInputMoney(p.sellingPrice || 0)}" placeholder="0" oninput="Products.calcPreview()" required>
       </div>
       <div class="field">
         <label>${t('lbl_qty')} <span class="req">*</span></label>
@@ -246,19 +250,27 @@ const Products = (() => {
   }
 
   function calcPreview() {
-    const rawPrice = document.getElementById('fPrice')?.value;
-    const price = UI.fromInputMoney(rawPrice) || 0;
+    const rawUnitCost = document.getElementById('fUnitCost')?.value;
+    const unitCost = UI.fromInputMoney(rawUnitCost) || 0;
     const hint = document.getElementById('fPriceFCFAHint');
     if (hint && UI.isRiyalMode()) {
-      hint.textContent = rawPrice ? `= ${UI.fmt(price, 0)} FCFA` : '';
+      hint.textContent = rawUnitCost ? `= ${UI.fmt(unitCost, 0)} FCFA` : '';
     }
     const qty   = parseNum(document.getElementById('fQty')?.value) || 1;
+    const sellingPrice = UI.fromInputMoney(document.getElementById('fSellingPrice')?.value) || 0;
+    
     const expAmounts = [...document.querySelectorAll('.expense-amount')].map(i => parseNum(i.value) || 0);
     const totalExp = expAmounts.reduce((a, v) => a + v, 0);
-    const total = price + totalExp;
+    
+    const totalPurchaseCost = unitCost * qty;
+    const total = totalPurchaseCost + totalExp;
     const cpu = qty > 0 ? total / qty : total;
+    
     const el = document.getElementById('costPerUnitPreview');
-    if (el) el.textContent = UI.fmtCurrency(cpu);
+    if (el) {
+       const margin = sellingPrice > 0 ? ((sellingPrice - cpu) / sellingPrice) * 100 : 0;
+       el.innerHTML = `${UI.fmtCurrency(cpu)} <span style="font-size:0.8rem; margin-left:8px; color: ${margin >= 0 ? 'var(--success)' : 'var(--danger)'}">(${margin >= 0 ? '+' : ''}${UI.fmtPct(margin)} ${I18n.choose('margin', 'هامش', 'marge')})</span>`;
+    }
   }
 
   function openAdd() {
@@ -297,24 +309,27 @@ const Products = (() => {
       const name  = document.getElementById('fName')?.value.trim();
       const catId = document.getElementById('fCat')?.value;
       const supplierName = document.getElementById('fSupp')?.value.trim();
-      const price = UI.fromInputMoney(document.getElementById('fPrice')?.value);
+      const unitCost = UI.fromInputMoney(document.getElementById('fUnitCost')?.value);
+      const sellingPrice = UI.fromInputMoney(document.getElementById('fSellingPrice')?.value);
       const qty   = parseNum(document.getElementById('fQty')?.value);
       const currency = UI.getCurrency();
       const rate  = 1;
       const date  = document.getElementById('fDate')?.value;
       const desc  = document.getElementById('fDesc')?.value.trim();
+      
+      const purchasePrice = unitCost * qty;
 
-      if (!name || !catId || isNaN(price) || isNaN(qty)) {
+      if (!name || !catId || isNaN(unitCost) || isNaN(qty)) {
         UI.toast('error', 'Missing Fields', 'Please fill in all required fields.'); return;
       }
-      if (qty < 0 || price < 0) {
+      if (qty < 0 || unitCost < 0) {
         UI.toast('error', 'Invalid values'); return;
       }
 
       const data = {
         code, name, categoryId: parseInt(catId),
         supplierId: null, supplierName,
-        purchasePrice: price, quantity: qty, currency, exchangeRate: rate,
+        purchasePrice: purchasePrice, selling_price: sellingPrice || 0, quantity: qty, currency, exchangeRate: rate,
         purchaseDate: date, description: desc,
         image: _imgData || (DB.getById('products', _editId)?.image || null),
       };

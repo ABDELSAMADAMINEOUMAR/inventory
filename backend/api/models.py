@@ -123,6 +123,7 @@ class Product(models.Model):
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, related_name='products')
     description = models.TextField(blank=True, null=True)
     purchase_price = models.FloatField(default=0.0)
+    selling_price = models.FloatField(default=0.0)
     currency = models.CharField(max_length=10, default='USD')
     exchange_rate = models.FloatField(default=1.0)
     quantity = models.IntegerField(default=0)

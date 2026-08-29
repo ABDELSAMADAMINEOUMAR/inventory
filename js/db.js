@@ -664,8 +664,15 @@ const DB = (() => {
       const soldQty = soldQtyMap.get(product.id) || 0;
       const currentStock = Math.max(0, (product.quantity || 0) - soldQty);
       const stockStatus = currentStock === 0 ? 'out' : (currentStock <= 5 ? 'low' : 'available');
+      
+      const sp = product.sellingPrice !== undefined ? product.sellingPrice : (product.selling_price || 0);
+      const uc = parseFloat(product.purchasePrice || 0);
+
       return {
         ...product,
+        description: product.description,
+        sellingPrice: sp,
+        unitCost: uc,
         categoryName: catMap.get(product.categoryId) || 'N/A',
         supplierName: suppMap.get(product.supplierId) || product.supplierName || 'N/A',
         totalExpenses,

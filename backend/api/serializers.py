@@ -98,7 +98,7 @@ class ProductSerializer(serializers.ModelSerializer):
         model = Product
         fields = [
             'id', 'company', 'user_id', 'code', 'name', 'category', 'category_name', 'supplier', 'supplier_name',
-            'description', 'purchase_price', 'currency', 'exchange_rate', 'quantity',
+            'description', 'purchase_price', 'selling_price', 'currency', 'exchange_rate', 'quantity',
             'purchase_date', 'status', 'total_expenses', 'total_cost', 'cost_per_unit',
             'current_stock', 'stock_status', 'expenses', 'created_at', 'updated_at'
         ]
