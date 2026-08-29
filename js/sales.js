@@ -1005,39 +1005,54 @@ const Sales = (() => {
     }
   }
 
-  let html5QrcodeScanner = null;
+  let html5Qrcode = null;
 
   function startCameraScan() {
     const container = document.getElementById('cameraScannerContainer');
     if (container) container.style.display = 'block';
 
-    if (!html5QrcodeScanner) {
-      html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
-        fps: 10, 
-        qrbox: {width: 250, height: 250},
-        supportedScanTypes: [0] // 0 is SCAN_TYPE_CAMERA, removes the file upload option
-      }, /* verbose= */ false);
+    if (!html5Qrcode) {
+      if (typeof Html5Qrcode !== 'undefined') {
+        html5Qrcode = new Html5Qrcode("qr-reader");
+      } else {
+        UI.toast('error', 'Scanner Not Loaded', 'Please wait for the scanner library to load.');
+        if (container) container.style.display = 'none';
+        return;
+      }
     }
     
-    html5QrcodeScanner.render((decodedText, decodedResult) => {
-      // On success
-      stopCameraScan();
-      const input = document.getElementById('barcodeScanner');
-      if (input) {
-        input.value = decodedText;
-        // Simulate enter key press
-        handleBarcodeScan({ key: 'Enter', preventDefault: () => {}, target: input });
+    html5Qrcode.start(
+      { facingMode: "environment" },
+      { fps: 10, qrbox: {width: 250, height: 250} },
+      (decodedText, decodedResult) => {
+        // On success
+        stopCameraScan();
+        const input = document.getElementById('barcodeScanner');
+        if (input) {
+          input.value = decodedText;
+          // Simulate enter key press
+          handleBarcodeScan({ key: 'Enter', preventDefault: () => {}, target: input });
+        }
+      },
+      (errorMessage) => {
+        // parse errors are normal (no barcode found yet)
       }
-    }, (errorMessage) => {
-      // parse errors are normal (no barcode found yet)
+    ).catch(err => {
+      UI.toast('error', 'Camera Error', 'Could not start camera. Please ensure permissions are granted.');
+      console.error(err);
+      stopCameraScan();
     });
   }
 
   function stopCameraScan() {
     const container = document.getElementById('cameraScannerContainer');
     if (container) container.style.display = 'none';
-    if (html5QrcodeScanner) {
-      html5QrcodeScanner.clear().catch(err => console.error("Failed to clear scanner", err));
+    if (html5Qrcode) {
+      try {
+        html5Qrcode.stop().then(() => {
+          html5Qrcode.clear();
+        }).catch(() => {});
+      } catch (err) {}
     }
   }
 
