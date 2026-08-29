@@ -154,8 +154,20 @@ const Products = (() => {
         </div>
       </div>
       <div class="field">
-        <label>${t('lbl_code')}</label>
-        <input class="input" id="fCode" value="${p.code || 'Auto-generated'}" readonly>
+        <label>${t('lbl_code')} <small style="color:var(--text-muted);font-weight:normal;font-size:0.7rem;">(${I18n.choose('Optional', 'اختياري', 'Optionnel')})</small></label>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <input class="input" id="fCode" value="${p.code && p.code !== 'Auto-generated' ? p.code : ''}" placeholder="${I18n.choose('Scan barcode or leave empty', 'امسح الباركود أو اتركه فارغاً', 'Scannez le code ou laissez vide')}" style="flex:1;">
+          <button class="btn btn-secondary" onclick="Products.startCameraScan()" type="button" title="${I18n.choose('Scan with Camera', 'مسح بالكاميرا', 'Scanner avec la caméra')}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+          </button>
+        </div>
+        <div id="productCameraScannerContainer" style="display:none; margin-top:12px; background:var(--bg-elevated); padding:10px; border-radius:12px; border:1px solid var(--border);">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <strong style="font-size:0.85rem;">${I18n.choose('Camera Scanner', 'ماسح الكاميرا', 'Scanner Caméra')}</strong>
+            <button type="button" class="btn btn-sm btn-ghost" onclick="Products.stopCameraScan()" style="color:var(--danger); padding:4px 8px;">${I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
+          </div>
+          <div id="product-qr-reader" style="width:100%; border-radius:8px; overflow:hidden;"></div>
+        </div>
       </div>
       <div class="field">
         <label>${t('lbl_name')} <span class="req">*</span></label>
@@ -469,7 +481,42 @@ const Products = (() => {
     }
   }
 
-  return { render, setFilter, openAdd, openEdit, save, delete: del, view, addExpenseRow, handleImage, calcPreview, filterCategories };
+  let html5QrcodeScanner = null;
+
+  function startCameraScan() {
+    const container = document.getElementById('productCameraScannerContainer');
+    if (container) container.style.display = 'block';
+
+    if (!html5QrcodeScanner) {
+      if (typeof Html5QrcodeScanner !== 'undefined') {
+        html5QrcodeScanner = new Html5QrcodeScanner("product-qr-reader", { 
+          fps: 10, 
+          qrbox: {width: 250, height: 250},
+          supportedScanTypes: [0] 
+        }, false);
+      } else {
+        UI.toast('error', 'Scanner Not Loaded', 'Please wait for the scanner library to load.');
+        return;
+      }
+    }
+    
+    html5QrcodeScanner.render((decodedText, decodedResult) => {
+      stopCameraScan();
+      const input = document.getElementById('fCode');
+      if (input) {
+        input.value = decodedText;
+        UI.toast('success', I18n.choose('Barcode Scanned', 'تم مسح الباركود', 'Code-barres scanné'), decodedText);
+      }
+    }, (errorMessage) => {});
+  }
+
+  function stopCameraScan() {
+    const container = document.getElementById('productCameraScannerContainer');
+    if (container) container.style.display = 'none';
+    if (html5QrcodeScanner) {
+      html5QrcodeScanner.clear().catch(err => console.error("Failed to clear scanner", err));
+    }
+  }
+
+  return { render, setFilter, openAdd, openEdit, save, delete: del, view, addExpenseRow, handleImage, calcPreview, filterCategories, startCameraScan, stopCameraScan };
 })();
-
-
