@@ -269,20 +269,22 @@ const Sales = (() => {
               <div id="qr-reader" style="width:100%; border-radius:8px; overflow:hidden;"></div>
             </div>
           </div>
-          <table class="table" style="width:100%;margin-bottom:16px;">
-            <thead>
-              <tr style="text-align:left;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">
-                <th style="padding-bottom:8px;">${t('th_product')}</th>
-                <th style="padding-bottom:8px;">${t('th_qty')}</th>
-                <th style="padding-bottom:8px;">${t('th_unit_price')}</th>
-                <th style="padding-bottom:8px;">${t('th_revenue')}</th>
-                <th style="padding-bottom:8px;"></th>
-              </tr>
-            </thead>
-            <tbody id="cartTableBody">
-              <!-- Cart items injected here -->
-            </tbody>
-          </table>
+          <div style="overflow-x:auto;">
+            <table class="table" style="width:100%;min-width:400px;margin-bottom:16px;">
+              <thead>
+                <tr style="text-align:left;color:var(--text-muted);font-size:0.75rem;text-transform:uppercase;">
+                  <th style="padding-bottom:8px;">${t('th_product')}</th>
+                  <th style="padding-bottom:8px;">${t('th_qty')}</th>
+                  <th style="padding-bottom:8px;">${t('th_unit_price')}</th>
+                  <th style="padding-bottom:8px;">${t('th_revenue')}</th>
+                  <th style="padding-bottom:8px;"></th>
+                </tr>
+              </thead>
+              <tbody id="cartTableBody">
+                <!-- Cart items injected here -->
+              </tbody>
+            </table>
+          </div>
 
           <!-- Add Item Row -->
           <div style="display:flex;gap:12px;align-items:flex-end;background:rgba(0,0,0,0.02);padding:12px;border-radius:8px;border:1px dashed var(--border);">
@@ -585,8 +587,10 @@ const Sales = (() => {
 
     tbody.innerHTML = _cart.map((item, idx) => `
       <tr style="border-bottom:1px solid var(--border-light);">
-        <td style="padding:10px 4px;font-weight:500;font-size:0.85rem;">${item.name}</td>
-        <td style="padding:10px 4px;font-size:0.85rem;">${item.qty}</td>
+        <td style="padding:10px 4px;font-weight:500;font-size:0.85rem;white-space:nowrap;">${item.name}</td>
+        <td style="padding:10px 4px;font-size:0.85rem;">
+          <input type="number" class="input" style="width:60px;padding:4px;text-align:center;font-size:0.85rem;height:30px;" value="${item.qty}" min="1" onchange="Sales.updateCartItemQty(${idx}, this.value)">
+        </td>
         <td style="padding:10px 4px;font-size:0.85rem;">${UI.fmtCurrency(item.sellingPrice)}</td>
         <td style="padding:10px 4px;font-weight:600;color:var(--accent);font-size:0.85rem;">${UI.fmtCurrency(item.qty * item.sellingPrice)}</td>
         <td style="padding:10px 4px;text-align:right;">
@@ -594,6 +598,24 @@ const Sales = (() => {
         </td>
       </tr>
     `).join('');
+  }
+
+  function updateCartItemQty(index, newQty) {
+    const qty = parseInt(newQty);
+    if (isNaN(qty) || qty < 1) {
+      renderCartTable();
+      return;
+    }
+    const item = _cart[index];
+    const product = DB.getAllEnrichedProducts().find(p => p.id === item.productId);
+    if (product && qty > product.currentStock) {
+      UI.toast('error', I18n.choose('Insufficient Stock', 'مخزون غير كافٍ', 'Stock insuffisant'), I18n.choose(`Only ${product.currentStock} units available.`, `يتوفر فقط ${product.currentStock} وحدة.`, `Seulement ${product.currentStock} unité(s) disponible(s).`));
+      renderCartTable();
+      return;
+    }
+    _cart[index].qty = qty;
+    renderCartTable();
+    updateCalc();
   }
 
   function updateCalc() {
@@ -1060,7 +1082,7 @@ const Sales = (() => {
     render, setSearch, setFilter, filterPayment, renderTable,
     openAdd, openEdit, save, delete: del,
     updateCalc, togglePayment, markPaid, openPaymentModal, confirmPayment, updatePayModalHint, filterProducts,
-    addToCart, removeFromCart, updateCartInputs, handleBarcodeScan, startCameraScan, stopCameraScan
+    addToCart, removeFromCart, updateCartInputs, handleBarcodeScan, startCameraScan, stopCameraScan, updateCartItemQty
   };
 })();
 
