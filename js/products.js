@@ -144,15 +144,7 @@ const Products = (() => {
     const cats = DB.getAll('categories');
     return `
     <div class="form-grid form-grid-2">
-      <div class="field col-span-2">
-        <label>${t('lbl_image')}</label>
-        <div class="img-upload" id="imgUpload" onclick="document.getElementById('imgInput').click()">
-          <input type="file" id="imgInput" accept="image/*" onchange="Products.handleImage(event)">
-          <div id="imgPreviewWrap">
-            ${p.image ? `<img src="${p.image}" class="img-preview" id="imgPreview">` : `<div class="img-upload-icon">${UI.icon('image', '', 28)}</div><p>${I18n.choose('Click to upload product image', 'انقر لرفع صورة المنتج', 'Cliquez pour télécharger l\'image du produit')}</p><small>${I18n.choose('JPG, PNG, WebP — max 2MB', 'JPG، PNG، WebP — بحد أقصى 2 ميجابايت', 'JPG, PNG, WebP — max 2 Mo')}</small>`}
-          </div>
-        </div>
-      </div>
+
       <div class="field">
         <label>${t('lbl_code')} <small style="color:var(--text-muted);font-weight:normal;font-size:0.7rem;">(${I18n.choose('Optional', 'اختياري', 'Optionnel')})</small></label>
         <div style="display:flex; gap:10px; align-items:center;">
