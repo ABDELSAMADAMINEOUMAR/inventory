@@ -1012,7 +1012,11 @@ const Sales = (() => {
     if (container) container.style.display = 'block';
 
     if (!html5QrcodeScanner) {
-      html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { fps: 10, qrbox: {width: 250, height: 250} }, /* verbose= */ false);
+      html5QrcodeScanner = new Html5QrcodeScanner("qr-reader", { 
+        fps: 10, 
+        qrbox: {width: 250, height: 250},
+        supportedScanTypes: [0] // 0 is SCAN_TYPE_CAMERA, removes the file upload option
+      }, /* verbose= */ false);
     }
     
     html5QrcodeScanner.render((decodedText, decodedResult) => {
