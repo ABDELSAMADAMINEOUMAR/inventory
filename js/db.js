@@ -930,40 +930,54 @@ const DB = (() => {
     const sess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
     const isMasterOwner = sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine');
     if (isMasterOwner) return false;
-    try {
-      const isOnline = await ApiClient.checkHealth();
-      if (!isOnline) {
-        console.warn('Django API is offline or unreachable. Using local cache.');
-        return false;
-      }
-      await flushOfflineQueue();
-      for (const table of TABLES) {
-        if (table === 'users') continue;
-        const endpoint = _apiEndpoint(table);
-        try {
-          const serverData = await ApiClient.getAll(endpoint);
-          if (Array.isArray(serverData)) {
-            const tenantId = getTenantId();
-            const normalized = serverData.map(r => {
-              const rec = _normalizeRecord(table, r);
-              if (tenantId && rec.userId === undefined && rec.user_id === undefined && rec.adminId === undefined && rec.ownerId === undefined && rec.user === undefined) {
-                rec.userId = tenantId;
-                rec.user_id = tenantId;
-              }
-              return rec;
-            });
-            localStorage.setItem(_key(table), JSON.stringify(normalized));
+
+    const MAX_RETRIES = 3;
+    for (let attempt = 1; attempt <= MAX_RETRIES; attempt++) {
+      try {
+        // Force fresh health check on retries to avoid using cached 'false'
+        const isOnline = await ApiClient.checkHealth(attempt > 1);
+        if (!isOnline) {
+          console.warn(`Django API is offline or unreachable (attempt ${attempt}/${MAX_RETRIES}). ${attempt < MAX_RETRIES ? 'Retrying in 2s...' : 'Using local cache.'}`);
+          if (attempt < MAX_RETRIES) {
+            await new Promise(r => setTimeout(r, 2000));
+            continue;
           }
-        } catch (err) {
-          console.warn(`Failed to sync table ${table} from Django API:`, err);
+          return false;
+        }
+        await flushOfflineQueue();
+        let syncedTables = 0;
+        for (const table of TABLES) {
+          if (table === 'users') continue;
+          const endpoint = _apiEndpoint(table);
+          try {
+            const serverData = await ApiClient.getAll(endpoint);
+            if (Array.isArray(serverData)) {
+              const tenantId = getTenantId();
+              const normalized = serverData.map(r => {
+                const rec = _normalizeRecord(table, r);
+                if (tenantId && rec.userId === undefined && rec.user_id === undefined && rec.adminId === undefined && rec.ownerId === undefined && rec.user === undefined) {
+                  rec.userId = tenantId;
+                  rec.user_id = tenantId;
+                }
+                return rec;
+              });
+              localStorage.setItem(_key(table), JSON.stringify(normalized));
+              syncedTables++;
+            }
+          } catch (err) {
+            console.warn(`Failed to sync table ${table} from Django API:`, err);
+          }
+        }
+        console.log(`Successfully synchronized ${syncedTables} tables from Django backend!`);
+        return true;
+      } catch (e) {
+        console.error(`Failed during syncFromBackend (attempt ${attempt}/${MAX_RETRIES}):`, e);
+        if (attempt < MAX_RETRIES) {
+          await new Promise(r => setTimeout(r, 2000));
         }
       }
-      console.log('Successfully synchronized all data from Django backend!');
-      return true;
-    } catch (e) {
-      console.error('Failed during syncFromBackend:', e);
-      return false;
     }
+    return false;
   }
 
   return {

@@ -98,7 +98,7 @@ const ApiClient = (() => {
     }
 
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 8000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
     config.signal = controller.signal;
 
     try {
@@ -207,7 +207,7 @@ const ApiClient = (() => {
   let _lastHealthCheck = 0;
   let _lastHealthResult = false;
 
-  /** Check if backend API is reachable with 10s caching and 500ms timeout */
+  /** Check if backend API is reachable using lightweight /health/ endpoint */
   async function checkHealth(force = false) {
     const now = Date.now();
     if (!force && (now - _lastHealthCheck < 30000)) {
@@ -215,13 +215,12 @@ const ApiClient = (() => {
     }
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 2000);
-      const headers = {};
-      const token = _getToken();
-      if (token) headers['Authorization'] = `Bearer ${token}`;
-      const res = await fetch(`${BASE_URL}dashboard/`, { headers, signal: controller.signal });
+      // 15s timeout to handle Render free-tier cold starts (can take 10-30s)
+      const timeoutId = setTimeout(() => controller.abort(), 15000);
+      // Use lightweight health endpoint — no auth required, instant response
+      const res = await fetch(`${BASE_URL}health/`, { signal: controller.signal });
       clearTimeout(timeoutId);
-      _lastHealthResult = res.status === 200 || res.status === 401 || res.status === 403;
+      _lastHealthResult = res.ok;
       _lastHealthCheck = Date.now();
       return _lastHealthResult;
     } catch {
