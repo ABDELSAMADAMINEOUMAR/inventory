@@ -118,7 +118,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             'refresh': str(refresh),
             'access': str(refresh.access_token),
             'role': user.role,
-            'company_id': None if user.role in ('owner', 'platform_owner') else (user.company_id if user.company else None),
+            'company_id': user.company_id if user.company else None,
             'name': user.name,
             'email': user.email,
             'must_change_password': bool(user.must_change_password),

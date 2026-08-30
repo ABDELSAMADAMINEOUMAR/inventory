@@ -170,9 +170,12 @@ const DB = (() => {
       const sess = uSess || JSON.parse(sessionStorage.getItem('sims_session'));
       if (!sess) return null;
       if (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com') return null;
+      
+      // Always prioritize company_id for all roles (including owner and admin)
       if (sess.company_id && Number(sess.company_id) > 0) return Number(sess.company_id);
       if (sess.company && Number(sess.company) > 0) return Number(sess.company);
-      if (sess.role === 'admin') return Number(sess.id);
+      
+      // Fallback only if company_id is completely missing
       return Number(sess.adminId || sess.userId || sess.user_id || sess.ownerId || sess.id || 1);
     } catch (e) { return null; }
   }
