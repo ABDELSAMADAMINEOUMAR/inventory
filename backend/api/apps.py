@@ -6,9 +6,4 @@ class ApiConfig(AppConfig):
     name = 'api'
 
     def ready(self):
-        try:
-            import api.signals
-            from .recovery_seed import ensure_recovered
-            ensure_recovered()
-        except Exception:
-            pass
+        import api.signals  # noqa: F401

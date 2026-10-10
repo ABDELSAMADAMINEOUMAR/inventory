@@ -145,8 +145,8 @@ const Inventory = (() => {
           </div>
         </td>
         <td style="padding:12px 10px;"><span class="badge badge-purple" style="font-family:monospace;font-size:0.70rem;padding:2px 6px">${UI.escapeHTML(p.code)}</span></td>
-        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.categoryName}">${p.categoryName}</td>
-        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${p.supplierName}">${p.supplierName}</td>
+        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.escapeHTML(p.categoryName)}">${UI.escapeHTML(p.categoryName)}</td>
+        <td class="td-muted" style="padding:12px 10px;max-width:100px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" title="${UI.escapeHTML(p.supplierName)}">${UI.escapeHTML(p.supplierName)}</td>
         <td class="text-center" style="padding:12px 10px;">${p.quantity}</td>
         <td class="text-center td-muted" style="padding:12px 10px;">${sold}</td>
         <td style="padding:12px 10px;font-weight:700;font-size:0.95rem;text-align:center;color:${p.currentStock === 0 ? 'var(--danger)' : p.currentStock <= 5 ? 'var(--warning)' : 'var(--accent)'}">${p.currentStock}</td>

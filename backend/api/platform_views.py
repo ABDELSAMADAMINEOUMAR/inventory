@@ -4,9 +4,9 @@ from rest_framework.decorators import action
 from django.shortcuts import get_object_or_404
 from django.db.models import Sum, Count
 from .models import Company, User, AuditLog, Sale
-from .serializers import CompanySerializer, UserSerializer, AuditLogSerializer
-from .permissions import IsPlatformOwner
-from .utils import on_password_changed, send_verification_email
+from .serializers import CompanySerializer, TenantCompanySerializer, UserSerializer, AuditLogSerializer
+from .permissions import IsPlatformOwner, IsPlatformOwnerOrCompanyAdmin
+from .utils import on_password_changed, send_verification_email, set_validated_password
 from django.db import transaction
 
 
@@ -18,9 +18,18 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
     serializer_class = CompanySerializer
 
     def get_permissions(self):
-        if self.action in ['list', 'retrieve', 'update', 'partial_update']:
+        # Tenants may read their own company; only their admin may edit it (name/currency only,
+        # see TenantCompanySerializer). Everything else is reserved for Platform Owners.
+        if self.action in ['list', 'retrieve']:
             return [permissions.IsAuthenticated()]
+        if self.action in ['update', 'partial_update']:
+            return [IsPlatformOwnerOrCompanyAdmin()]
         return [IsPlatformOwner()]
+
+    def get_serializer_class(self):
+        if getattr(self.request.user, 'role', None) == 'platform_owner':
+            return CompanySerializer
+        return TenantCompanySerializer
 
     def get_queryset(self):
         user = self.request.user
@@ -83,6 +92,7 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         import secrets
         admin_password = self.request.data.get('admin_password') or secrets.token_urlsafe(16)
         admin_name = self.request.data.get('admin_name') or f"{company.name} Admin"
+        set_validated_password(User(username=admin_username, email=clean_email, name=admin_name), admin_password, field='admin_password')
 
         user = User.objects.create(
             username=admin_username,
@@ -171,7 +181,7 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         Product.objects.filter(company=company).delete()
         Category.objects.filter(company=company).delete()
         Supplier.objects.filter(company=company).delete()
-        User.objects.filter(company=company).exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
+        User.objects.filter(company=company).exclude(role='platform_owner').delete()
         
         # Because we added on_delete=models.CASCADE to User, 
         # deleting the company here will automatically wipe its remaining users.
@@ -263,6 +273,11 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['delete', 'post'], url_path='delete_all')
     def delete_all_companies(self, request):
+        if request.data.get('confirm') != 'DELETE ALL COMPANIES':
+            return Response(
+                {"detail": "This permanently deletes every tenant. Send {\"confirm\": \"DELETE ALL COMPANIES\"} to proceed."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         from api.models import Sale, Invoice, ProductExpense, BusinessExpense, InventoryEntry, Product, Category, Supplier
         Sale.objects.all().delete()
         Invoice.objects.all().delete()
@@ -272,8 +287,9 @@ class PlatformCompanyViewSet(viewsets.ModelViewSet):
         Product.objects.all().delete()
         Category.objects.all().delete()
         Supplier.objects.all().delete()
+        # Delete tenant users first: the database's foreign keys are not deferrable (CockroachDB).
+        user_count, _ = User.objects.exclude(role='platform_owner').delete()
         company_count, _ = Company.objects.all().delete()
-        user_count, _ = User.objects.exclude(role='platform_owner').exclude(email__iexact='abdouamine@gmail.com').delete()
         AuditLog.objects.create(
             actor=request.user,
             action="delete_all_companies",
@@ -338,8 +354,7 @@ class PlatformResetPasswordView(views.APIView):
 
     def post(self, request, pk=None):
         user = get_object_or_404(User, pk=pk)
-        new_password = request.data.get('password') or 'resetpass123'
-        user.set_password(new_password)
+        set_validated_password(user, request.data.get('password'))
         user.must_change_password = True
         user.save()
         on_password_changed(user, request=request)

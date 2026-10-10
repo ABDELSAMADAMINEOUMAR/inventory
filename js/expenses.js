@@ -87,7 +87,7 @@ const Expenses = (() => {
     <div style="margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
         <div>
-          <div style="font-weight:600;color:var(--text-main);font-size:14px;">${r.product.name} <span style="color:#9ca3af;font-family:monospace;margin-left:6px;font-size:12px;">${r.product.code}</span></div>
+          <div style="font-weight:600;color:var(--text-main);font-size:14px;">${UI.escapeHTML(r.product.name)} <span style="color:#9ca3af;font-family:monospace;margin-left:6px;font-size:12px;">${UI.escapeHTML(r.product.code)}</span></div>
           <div style="font-size:12px;color:var(--text-muted);margin-top:2px;">${I18n.choose('Total:', 'الإجمالي:', 'Total :')} ${UI.fmtCurrency(r.total)} | ${r.product.quantity} ${I18n.choose('units', 'وحدات', 'unités')} | ${I18n.choose('CPUnit:', 'التكلفة للوحدة:', 'Coût/Unité :')} ${UI.fmtCurrency(r.total/r.product.quantity)}</div>
         </div>
         <div style="font-weight:700;color:var(--warning);font-family:monospace;">${UI.fmtCurrency(r.total)}</div>
@@ -106,10 +106,10 @@ const Expenses = (() => {
           <tbody>
             ${r.exps.map(e => `
             <tr style="border-bottom:1px solid var(--border);">
-              <td style="padding:12px 10px;"><span class="badge badge-muted">${e.expenseType}</span></td>
+              <td style="padding:12px 10px;"><span class="badge badge-muted">${UI.escapeHTML(e.expenseType)}</span></td>
               <td class="text-accent fw-600" style="padding:12px 10px;">${UI.fmtCurrency(e.amount)}</td>
               <td class="td-muted" style="padding:12px 10px;">${UI.fmtDate(e.date)}</td>
-              <td class="td-muted" style="padding:12px 10px;">${e.note||'—'}</td>
+              <td class="td-muted" style="padding:12px 10px;">${UI.escapeHTML(e.note||'—')}</td>
               <td style="padding:12px 10px;"><div class="actions">
                 <button class="act-btn edit" onclick="Expenses.editImport(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
                 <button class="act-btn del"  onclick="Expenses.deleteImport(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
@@ -143,11 +143,11 @@ const Expenses = (() => {
         <tbody>
           ${exps.map(e => `
           <tr style="border-bottom:1px solid var(--border);">
-            <td style="padding:12px 10px;font-weight:500">${e.title}</td>
-            <td style="padding:12px 10px;"><span class="badge badge-info">${e.category||'—'}</span></td>
+            <td style="padding:12px 10px;font-weight:500">${UI.escapeHTML(e.title)}</td>
+            <td style="padding:12px 10px;"><span class="badge badge-info">${UI.escapeHTML(e.category||'—')}</span></td>
             <td class="text-accent fw-600" style="padding:12px 10px;">${UI.fmtCurrency(e.amount)}</td>
             <td class="td-muted" style="padding:12px 10px;">${UI.fmtDate(e.expenseDate)}</td>
-            <td class="td-muted" style="max-width:200px;padding:12px 10px;">${e.note||'—'}</td>
+            <td class="td-muted" style="max-width:200px;padding:12px 10px;">${UI.escapeHTML(e.note||'—')}</td>
             <td style="padding:12px 10px;"><div class="actions">
               <button class="act-btn edit" onclick="Expenses.editBusiness(${e.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
               <button class="act-btn del"  onclick="Expenses.deleteBusiness(${e.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>
@@ -193,7 +193,7 @@ const Expenses = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_note')}</label>
-        <input class="input" id="ieNote" value="${e.note||''}" placeholder="${I18n.choose('Optional note', 'ملاحظة اختيارية', 'Note optionnelle')}">
+        <input class="input" id="ieNote" value="${UI.escapeHTML(e.note||'')}" placeholder="${I18n.choose('Optional note', 'ملاحظة اختيارية', 'Note optionnelle')}">
       </div>
     </div>`;
   }
@@ -261,7 +261,7 @@ const Expenses = (() => {
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
         <label>${I18n.choose('Title', 'العنوان', 'Titre')} <span class="req">*</span></label>
-        <input class="input" id="beTitle" value="${e.title||''}" placeholder="e.g. Office Rent - July" required>
+        <input class="input" id="beTitle" value="${UI.escapeHTML(e.title||'')}" placeholder="e.g. Office Rent - July" required>
       </div>
       <div class="field">
         <label>${t('th_category')}</label>
@@ -280,7 +280,7 @@ const Expenses = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_note')}</label>
-        <textarea class="textarea" id="beNote" placeholder="${I18n.choose('Optional note…', 'ملاحظة اختيارية…', 'Note optionnelle…')}">${e.note||''}</textarea>
+        <textarea class="textarea" id="beNote" placeholder="${I18n.choose('Optional note…', 'ملاحظة اختيارية…', 'Note optionnelle…')}">${UI.escapeHTML(e.note||'')}</textarea>
       </div>
     </div>`;
   }

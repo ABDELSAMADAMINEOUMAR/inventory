@@ -116,14 +116,9 @@ const ApiClient = (() => {
           const retryController = new AbortController();
           const retryTimeoutId = setTimeout(() => retryController.abort(), 8000);
           config.signal = retryController.signal;
-          response = await fetch(`${BASE_URL}${endpoint}/`, config);
+          response = await fetch(finalUrl, config);
           clearTimeout(retryTimeoutId);
         } else {
-          const sess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
-          const isMasterOwner = sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com');
-          if (isMasterOwner) {
-            throw new Error('API request unauthorized or offline for master account.');
-          }
           if (typeof Auth !== 'undefined' && Auth.handleExpiredSession) {
             Auth.handleExpiredSession();
           } else if (typeof Auth !== 'undefined' && Auth.logout) {
@@ -277,7 +272,7 @@ const ApiClient = (() => {
   }
 
   async function deleteAllCompanies() {
-    return await _request('platform/companies/delete_all', 'DELETE');
+    return await _request('platform/companies/delete_all', 'DELETE', { confirm: 'DELETE ALL COMPANIES' });
   }
 
   return {

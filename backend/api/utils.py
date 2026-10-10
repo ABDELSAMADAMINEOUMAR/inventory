@@ -67,33 +67,63 @@ def on_password_changed(user, request=None):
         logger.error("Password notification email failed for %s: %s", user.email, e, exc_info=True)
 
 
+from urllib.parse import urlencode
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.contrib.auth.password_validation import validate_password
+from django.core.exceptions import ValidationError as DjangoValidationError
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
+from rest_framework.exceptions import ValidationError
 
 token_generator = PasswordResetTokenGenerator()
+
+
+def set_validated_password(user, password, field='password'):
+    """Validate a password against AUTH_PASSWORD_VALIDATORS and set it (without saving)."""
+    if not password:
+        raise ValidationError({field: ["A password is required."]})
+    try:
+        validate_password(password, user=user)
+    except DjangoValidationError as e:
+        raise ValidationError({field: list(e.messages)})
+    user.set_password(password)
+
+
+def _frontend_base(request=None):
+    """
+    Pick the frontend base URL for emailed links. The request's Origin/Referer is only
+    honoured when it matches an origin in CORS_ALLOWED_ORIGINS; otherwise FRONTEND_URL is used.
+    This prevents attackers from making the server email links that point to their own site.
+    """
+    default = getattr(settings, 'FRONTEND_URL', '').rstrip('/')
+    if request is None:
+        return default
+    allowed = {o.rstrip('/') for o in getattr(settings, 'CORS_ALLOWED_ORIGINS', [])}
+    referer = request.headers.get('Referer') or ''
+    origin = request.headers.get('Origin') or ''
+    candidates = []
+    if referer:
+        candidates.append(referer.split('?')[0].split('#')[0].rsplit('/', 1)[0])
+    if origin and origin != 'null':
+        candidates.append(origin)
+    for cand in candidates:
+        parts = cand.split('/')
+        cand_origin = '/'.join(parts[:3])
+        if cand_origin in allowed:
+            if '.github.io' in cand_origin and '/inventory' not in cand:
+                return f"{cand_origin}/inventory"
+            return cand.rstrip('/')
+    return default
+
+
+def build_frontend_link(request, page, **params):
+    return f"{_frontend_base(request)}/{page}?{urlencode(params)}"
 
 
 def send_verification_email(user, request=None):
     uid = urlsafe_base64_encode(force_bytes(user.pk))
     token = token_generator.make_token(user)
-    origin = "http://127.0.0.1:8000"
-    if request:
-        referer = request.headers.get('Referer') or request.META.get('HTTP_REFERER')
-        req_origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN')
-        if referer and "verify-email.html" not in referer and "reset-password.html" not in referer:
-            origin = referer.split('?')[0].rsplit('/', 1)[0]
-        elif req_origin and req_origin != "null":
-            origin = req_origin
-        if ".github.io" in origin and "/inventory" not in origin:
-            origin = f"{origin.rstrip('/')}/inventory"
-    link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
-    logger.info(f"\n========================================================================\n"
-                f"CLICKABLE VERIFICATION LINK (Copy this exact line):\n{link}\n"
-                f"========================================================================")
-    print(f"\n========================================================================\n"
-          f"CLICKABLE VERIFICATION LINK (Copy this exact line):\n{link}\n"
-          f"========================================================================\n", flush=True)
+    link = build_frontend_link(request, 'verify-email.html', uid=uid, token=token, email=user.email)
     try:
         send_mail(
             subject="SmartIMS: Activate Your Account & Set Password",
@@ -107,4 +137,3 @@ def send_verification_email(user, request=None):
     except Exception as e:
         logger.error("Failed to send account verification email to %s: %s", user.email, e, exc_info=True)
         raise e
-

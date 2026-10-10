@@ -22,6 +22,10 @@ class CustomJWTAuthentication(JWTAuthentication):
         if not user.is_active or user.status != 'active':
             raise AuthenticationFailed('User is inactive or deactivated', code='user_inactive')
 
+        company = user.company
+        if user.role != 'platform_owner' and company is not None and (company.status != 'active' or company.is_deleted):
+            raise AuthenticationFailed('COMPANY_SUSPENDED: This company account is suspended.', code='company_suspended')
+
         user.token_role = validated_token.get('role', user.role)
         user.token_company_id = validated_token.get('company_id', user.company_id)
         return user

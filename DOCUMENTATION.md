@@ -319,7 +319,7 @@ Inserts into DOM → User sees the products table
 
 | Token | Lifetime | Purpose |
 |-------|----------|---------|
-| Access Token | 1 day | Sent with every API request |
+| Access Token | 1 hour | Sent with every API request |
 | Refresh Token | 7 days | Used to get a new access token when it expires |
 
 When the access token expires:
@@ -339,6 +339,31 @@ When the access token expires:
 - **Company isolation** enforced at the database query level
 - **Forced password change** for new users created by admin
 - **XSS protection**, Content-Type nosniff, X-Frame-Options DENY
+- **Password policy**: Django validators (min 8 chars, not common, not all numeric, not similar to the username) on every path that sets a password
+- **Suspended/deleted companies** are rejected on every request, not only at login
+- **Cross-tenant references are rejected**: product/category/supplier/invoice IDs must belong to the caller's company
+- **Roles**: `platform_owner` can never be assigned through the API; users cannot change their own role or company
+- **Emailed links** (reset/verification) only use `FRONTEND_URL` or an origin in `CORS_ALLOWED_ORIGINS`
+- **Stock and totals are enforced by the server**: overselling is rejected and invoice totals are computed from the line items
+- Only the frontend files (`*.html`, `css/`, `js/`, favicons) are served as static files; backend source is never served
+
+### Required Environment Variables (production)
+
+| Variable | Purpose |
+|----------|---------|
+| `SECRET_KEY` | Django secret key (required when `DEBUG` is not `true`) |
+| `DATABASE_URL` | PostgreSQL/CockroachDB connection string. Never commit it. |
+| `FRONTEND_URL` | Base URL used in emailed links, e.g. `https://abdelsamadamineoumar.github.io/inventory` |
+| `CORS_ALLOWED_ORIGINS` | Comma-separated frontend origins |
+| `EMAIL_BACKEND` / `BREVO_API_KEY` / `EMAIL_HOST…` | Email delivery |
+
+### Running the Tests
+
+```bash
+cd backend
+pip install -r requirements.txt
+SECRET_KEY=test python manage.py test api
+```
 
 ---
 

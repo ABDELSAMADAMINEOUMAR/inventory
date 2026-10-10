@@ -19,3 +19,9 @@ Thumbs.db
 backups/
 backend/backups/
 sims_backup_*.json*
+
+# Local data dumps and build output
+backend/data_export.json
+staticfiles/
+backend/staticfiles/
+backend/media/

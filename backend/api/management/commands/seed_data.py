@@ -9,6 +9,10 @@ class Command(BaseCommand):
     help = 'Seed the database with initial demo inventory data matching js/db.js'
 
     def handle(self, *args, **options):
+        from django.conf import settings
+        from django.core.management.base import CommandError
+        if not settings.DEBUG:
+            raise CommandError("Refusing to run: this command wipes data and creates demo accounts with known passwords. Only run it with DEBUG=True on a development database.")
         self.stdout.write(self.style.NOTICE("Starting database seeding..."))
 
         if User.objects.exists() or Category.objects.exists():
