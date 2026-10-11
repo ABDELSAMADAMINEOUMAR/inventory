@@ -194,7 +194,7 @@ const Reports = (() => {
               <tbody>
                 ${d.sales.slice(0, 50).map((s, idx) => `
                 <tr class="${idx % 2 !== 0 ? 'rpt-row-alt' : ''}">
-                  <td class="rpt-cell-product">${s.productName}</td>
+                  <td class="rpt-cell-product">${UI.escapeHTML(s.productName)}</td>
                   <td><span class="rpt-qty-pill">${s.quantity}</span></td>
                   <td class="rpt-cell-muted">${UI.fmtCurrency(s.sellingPrice)}</td>
                   <td class="rpt-cell-revenue">${UI.fmtCurrency(s.revenue)}</td>

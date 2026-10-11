@@ -97,8 +97,7 @@ const Auth = (() => {
             token: data.access,
             refreshToken: data.refresh
           };
-          if (user.role === 'platform_owner' || user.email === 'abdouamine@gmail.com') {
-            user.role = 'platform_owner';
+          if (user.role === 'platform_owner') {
             user.name = 'Platform Super Owner';
             user.company_name = 'SaaS Platform';
           }
@@ -134,8 +133,8 @@ const Auth = (() => {
     if (!name || !email || !password) {
       return { success: false, message: 'Please fill in all required fields.' };
     }
-    if (password.length < 6) {
-      return { success: false, message: 'Password must be at least 6 characters.' };
+    if (password.length < 8) {
+      return { success: false, message: 'Password must be at least 8 characters.' };
     }
     let users = [];
     if (typeof ApiClient !== 'undefined' && await ApiClient.checkHealth()) {
@@ -180,8 +179,6 @@ const Auth = (() => {
   let _expiredHandled = false;
   function handleExpiredSession() {
     if (_expiredHandled) return;
-    const sess = getSession();
-    if (sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine')) return;
     _expiredHandled = true;
     clearSession();
     try {
@@ -280,7 +277,7 @@ const Auth = (() => {
       window.location.href = 'index.html';
       return false;
     }
-    const isMaster = user && (user.role === 'platform_owner' || user.email === 'abdouamine@gmail.com');
+    const isMaster = user && user.role === 'platform_owner';
     const needsChange = !isMaster && user && user.must_change_password === true;
     if (needsChange) {
       window.location.href = `verify-email.html?uid=${user.id || 1}&token=force_change&email=${encodeURIComponent(user.email)}`;

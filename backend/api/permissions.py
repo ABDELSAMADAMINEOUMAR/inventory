@@ -133,3 +133,15 @@ class CanAccessSettings(permissions.BasePermission):
         if not request.user or not request.user.is_authenticated:
             return False
         return request.user.role == 'admin'
+
+
+class IsPlatformOwnerOrCompanyAdmin(permissions.BasePermission):
+    """
+    Platform Owners, or the admin of a company (object-level checks are done by queryset scoping).
+    """
+    def has_permission(self, request, view):
+        if not request.user or not request.user.is_authenticated:
+            return False
+        if request.user.role == 'platform_owner':
+            return True
+        return request.user.role == 'admin' and request.user.company_id is not None

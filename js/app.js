@@ -172,8 +172,8 @@ const UI = (() => {
     el.innerHTML = `
       <span class="toast-icon">${icons[type] || 'ℹ'}</span>
       <div class="toast-text">
-        <div class="toast-title">${title}</div>
-        ${message ? `<div class="toast-msg">${message}</div>` : ''}
+        <div class="toast-title">${escapeHTML(title)}</div>
+        ${message ? `<div class="toast-msg">${escapeHTML(message)}</div>` : ''}
       </div>
       <button class="toast-dismiss" onclick="this.parentElement.remove()">✕</button>
     `;
@@ -258,7 +258,7 @@ const UI = (() => {
         <div class="search-result-item" onclick="UI.navigate('${r.page}');document.getElementById('globalSearch').value='';UI.closeSearch();">
           <span class="search-result-type">${r.type}</span>
           <div>
-            <div class="search-result-name">${r.name}</div>
+            <div class="search-result-name">${escapeHTML(r.name)}</div>
             <div class="search-result-sub">${r.sub || ''}</div>
           </div>
         </div>`).join('');
@@ -389,6 +389,22 @@ const UI = (() => {
       .replace(/'/g, '&#39;');
   }
 
+  // Escape a value for use inside a single-quoted JS string in an inline HTML event handler
+  // (e.g. onclick="fn('${escapeJsAttr(x)}')"). HTML-escaping alone is not enough there,
+  // because the browser decodes &#39; back into a quote before running the handler.
+  function escapeJsAttr(str) {
+    if (str === null || str === undefined) return '';
+    const js = String(str)
+      .replace(/\\/g, '\\\\')
+      .replace(/'/g, '\\x27')
+      .replace(/"/g, '\\x22')
+      .replace(/</g, '\\x3c')
+      .replace(/>/g, '\\x3e')
+      .replace(/\r/g, '\\r')
+      .replace(/\n/g, '\\n');
+    return escapeHTML(js);
+  }
+
   function fmtDate(d) { if (!d) return '—'; try { return new Date(d).toLocaleDateString((typeof I18n !== 'undefined' && I18n.getLang() === 'ar' ? 'ar-EG' : (typeof I18n !== 'undefined' && I18n.getLang() === 'fr' ? 'fr-FR' : 'en-GB')), { day:'2-digit', month:'short', year:'numeric' }); } catch { return d; } }
   function fmtPct(n) { return fmt(n, 1) + '%'; }
 
@@ -399,17 +415,7 @@ const UI = (() => {
     document.body.classList.remove('theme-nordic');
     if (!Auth.requireAuth()) return;
 
-    // Auto-upgrade only the master platform owner account (`abdouamine@gmail.com`)
     let user = Auth.currentUser();
-    if (user && user.role !== 'platform_owner' && (user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine')) {
-      user.name = 'Platform Super Owner';
-      user.username = 'abdouamine';
-      user.email = 'abdouamine@gmail.com';
-      user.role = 'platform_owner';
-      user.company_name = 'SaaS Platform';
-      sessionStorage.setItem('sims_session', JSON.stringify(user));
-      localStorage.setItem('sims_session', JSON.stringify(user));
-    }
     if (user) {
       const initials = user.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0,2) || 'A';
       const el = document.getElementById('userAvatarSidebar');
@@ -454,7 +460,7 @@ const UI = (() => {
     const hashPage = window.location.hash.slice(1);
     const page = (hashPage && allowed.includes(hashPage)) ? hashPage : defaultPage;
 
-    const isMasterOwner = user && (user.role === 'platform_owner' || user.email?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine@gmail.com' || user.username?.toLowerCase() === 'abdouamine');
+    const isMasterOwner = user && user.role === 'platform_owner';
     
     if (typeof DB !== 'undefined' && DB.syncFromBackend && !isMasterOwner) {
       document.getElementById('pageContent').innerHTML = `<div style="display:flex;align-items:center;justify-content:center;height:100vh;flex-direction:column;gap:16px;">
@@ -555,7 +561,7 @@ const UI = (() => {
               </div>
               <div class="field">
                 <label>${I18n.choose('New Password', 'كلمة المرور الجديدة', 'Nouveau mot de passe')}</label>
-                <input class="input" type="password" id="newPwd" placeholder="New password (min 6 chars)">
+                <input class="input" type="password" id="newPwd" placeholder="New password (min 8 chars)">
               </div>
               <div class="field">
                 <label>${I18n.choose('Confirm New Password', 'تأكيد كلمة المرور الجديدة', 'Confirmer le nouveau mot de passe')}</label>
@@ -611,7 +617,7 @@ const UI = (() => {
       e.preventDefault();
       const np = document.getElementById('newPwd').value;
       const cp = document.getElementById('confirmPwd').value;
-      if (np.length < 6) { UI.toast('error', 'Password too short', 'Minimum 6 characters.'); return; }
+      if (np.length < 8) { UI.toast('error', 'Password too short', 'Minimum 8 characters.'); return; }
       if (np !== cp)     { UI.toast('error', 'Passwords do not match'); return; }
       const res = await Auth.changePassword(document.getElementById('currentPwd').value, np);
       if (res.success) {
@@ -702,7 +708,7 @@ const UI = (() => {
             <tr style="border-bottom:1px solid var(--border)">
               <td style="padding:12px 10px;word-break:break-word;">
                 <strong style="font-size:13.5px;color:var(--text-main);">${UI.escapeHTML(c.name)}</strong>
-                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.icon('user', '', 12)} <span style="color:var(--primary);font-weight:600;">${c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com'}</span></div>
+                <div style="font-size:11.5px;color:var(--text-muted);margin-top:2px;display:flex;align-items:center;gap:4px;">${UI.icon('user', '', 12)} <span style="color:var(--primary);font-weight:600;">${escapeHTML(c.admin_email || 'admin@' + c.name.toLowerCase().replace(/\s+/g, '') + '.com')}</span></div>
               </td>
               <td style="padding:12px 10px;">
                 <span class="badge" style="background:${planColor};color:#fff;padding:4px 8px;border-radius:6px;font-size:11px;font-weight:600;white-space:nowrap;">
@@ -724,11 +730,11 @@ const UI = (() => {
               </td>
               <td style="padding:12px 10px;">
                 <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.promptPlanChange('${c.id}', '${c.subscription_plan}')">${UI.icon('award', '', 12)} Plan</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.promptPlanChange('${c.id}', '${escapeJsAttr(c.subscription_plan)}')">${UI.icon('award', '', 12)} Plan</button>
                   <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;display:inline-flex;align-items:center;gap:4px;" onclick="UI.toggleCompanyStatus('${c.id}', '${c.status === 'active' ? 'suspended' : 'active'}')">
                     ${c.status === 'active' ? UI.icon('pause', '', 12) + ' Suspend' : UI.icon('play', '', 12) + ' Activate'}
                   </button>
-                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.deleteCompany('${c.id}', '${(c.name||'Company').replace(/'/g, "\\'")}')" title="Delete Company">${UI.icon('trash', '', 12)} Delete</button>
+                  <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.deleteCompany('${c.id}', '${escapeJsAttr(c.name||'Company')}')" title="Delete Company">${UI.icon('trash', '', 12)} Delete</button>
                 </div>
               </td>
             </tr>
@@ -996,8 +1002,8 @@ const UI = (() => {
       return `
         <div style="display:flex;justify-content:space-between;align-items:center;padding:14px;background:var(--bg);border:1px solid var(--border);border-radius:12px;margin-bottom:10px;">
           <div>
-            <div style="font-weight:700;font-size:14.5px;color:var(--text-main);">${comp.name}</div>
-            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">${UI.icon('mail', '', 12)} ${comp.admin_email} | Tier: <strong style="text-transform:uppercase;">${comp.subscription_plan}</strong></div>
+            <div style="font-weight:700;font-size:14.5px;color:var(--text-main);">${escapeHTML(comp.name)}</div>
+            <div style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:4px;">${UI.icon('mail', '', 12)} ${escapeHTML(comp.admin_email)} | Tier: <strong style="text-transform:uppercase;">${escapeHTML(comp.subscription_plan)}</strong></div>
           </div>
           <div>
             ${isRestored 
@@ -1066,8 +1072,8 @@ const UI = (() => {
           currency: comp.currency || 'FCFA',
           admin_name: adm ? adm.name : `${comp.name} Admin`,
           admin_username: adm ? adm.username : comp.name.toLowerCase().replace(/\s+/g, '_'),
-          admin_email: comp.admin_email,
-          admin_password: 'RecoveredPassword123!'
+          admin_email: comp.admin_email
+          // No admin_password: the server generates a random one and emails a set-password link.
         });
       } catch (e) {
         console.warn('Backend restore warning:', e.message);
@@ -1082,10 +1088,9 @@ const UI = (() => {
       }
 
       if (adm) {
-        const pwHash = await DB.hashPassword('RecoveredPassword123!');
         const users = DB.getAll('users');
         if (!users.some(u => u.email && u.email.toLowerCase() === adm.email.toLowerCase())) {
-          DB.insert('users', { ...adm, passwordHash: pwHash, password_hash: pwHash, password: 'RecoveredPassword123!' });
+          DB.insert('users', { ...adm });
         }
       }
     }
@@ -1114,8 +1119,8 @@ const UI = (() => {
             currency: comp.currency || 'FCFA',
             admin_name: adm ? adm.name : `${comp.name} Admin`,
             admin_username: adm ? adm.username : comp.name.toLowerCase().replace(/\s+/g, '_'),
-            admin_email: comp.admin_email,
-            admin_password: 'RecoveredPassword123!'
+            admin_email: comp.admin_email
+            // No admin_password: the server generates a random one and emails a set-password link.
           });
         } catch (e) {}
       }
@@ -1130,11 +1135,10 @@ const UI = (() => {
       });
       localStorage.setItem('sims_companies', JSON.stringify(rows));
 
-      const pwHash = await DB.hashPassword('RecoveredPassword123!');
       const existingUsers = DB.getAll('users');
       for (const adm of archivedAdmins) {
         if (!existingUsers.some(u => u.email && u.email.toLowerCase() === adm.email.toLowerCase())) {
-          DB.insert('users', { ...adm, passwordHash: pwHash });
+          DB.insert('users', { ...adm });
         }
       }
     }
@@ -1416,23 +1420,23 @@ const UI = (() => {
         createModal('tenantCreatedModal', `${UI.icon('mail', '', 20)} Tenant Created & Activation Invitation Ready!`,
           `<div style="text-align:center;padding:10px 0;">
             <div style="width:64px;height:64px;border-radius:50%;background:rgba(16,185,129,0.15);color:#10b981;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">${UI.icon('mail', '', 32)}</div>
-            <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">${name}</h3>
-            <p style="margin:0 0 16px;color:var(--text-muted);font-size:13.5px;">Send the activation invitation directly to <strong>${adminEmail}</strong>:</p>
+            <h3 style="margin:0 0 8px;font-size:18px;color:var(--text-main);">${escapeHTML(name)}</h3>
+            <p style="margin:0 0 16px;color:var(--text-muted);font-size:13.5px;">Send the activation invitation directly to <strong>${escapeHTML(adminEmail)}</strong>:</p>
             
             <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:16px;text-align:left;margin-bottom:16px;">
               <div style="font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px;">DIRECT ACTIVATION & PASSWORD LINK</div>
               <div style="display:flex;gap:8px;margin-bottom:12px;">
-                <input type="text" readonly class="input" value="${activationUrl}" style="font-size:12px;background:var(--surface);cursor:text;" onclick="this.select()">
-                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;" onclick="navigator.clipboard.writeText('${activationUrl}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">${UI.icon('copy', '', 14)} Copy Link</button>
+                <input type="text" readonly class="input" value="${escapeHTML(activationUrl)}" style="font-size:12px;background:var(--surface);cursor:text;" onclick="this.select()">
+                <button class="btn btn-secondary" style="white-space:nowrap;font-size:12px;font-weight:700;display:inline-flex;align-items:center;gap:4px;" onclick="navigator.clipboard.writeText('${escapeJsAttr(activationUrl)}'); UI.toast('success', 'Copied!', 'Activation link copied to clipboard.');">${UI.icon('copy', '', 14)} Copy Link</button>
               </div>
               <div style="font-size:12px;color:var(--text-muted);margin-bottom:4px;">TENANT ADMIN CREDENTIALS</div>
-              <div style="font-size:13.5px;color:var(--text-main);margin-bottom:4px;"><strong>Username:</strong> ${adminUsername}</div>
-              <div style="font-size:13.5px;color:var(--text-main);"><strong>Email:</strong> ${adminEmail}</div>
+              <div style="font-size:13.5px;color:var(--text-main);margin-bottom:4px;"><strong>Username:</strong> ${escapeHTML(adminUsername)}</div>
+              <div style="font-size:13.5px;color:var(--text-main);"><strong>Email:</strong> ${escapeHTML(adminEmail)}</div>
             </div>
 
             <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">
-              <a href="${gmailComposeUrl}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Gmail ↗</a>
-              <a href="${mailtoUrl}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Email App</a>
+              <a href="${escapeHTML(gmailComposeUrl)}" target="_blank" class="btn btn-primary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Gmail ↗</a>
+              <a href="${escapeHTML(mailtoUrl)}" class="btn btn-secondary" style="font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;">${UI.icon('mail', '', 16)} Send via Email App</a>
             </div>
           </div>`,
           `<button class="btn btn-ghost" style="width:100%;font-weight:700;" onclick="UI.closeModal('tenantCreatedModal')">Done</button>`
@@ -1506,15 +1510,15 @@ const UI = (() => {
                   <tr style="border-bottom:1px solid var(--border);">
                     <td style="padding:10px;">
                       <strong style="color:var(--text-main);font-size:13.5px;">${UI.escapeHTML(c.name)}</strong>
-                      <div style="font-size:11.5px;color:var(--text-muted);">${c.admin_email}</div>
+                      <div style="font-size:11.5px;color:var(--text-muted);">${escapeHTML(c.admin_email)}</div>
                     </td>
                     <td style="padding:10px;font-size:12px;color:var(--text-muted);">
                       ${new Date(c.deleted_at).toLocaleDateString()}
                     </td>
                     <td style="padding:10px;text-align:right;">
                       <div style="display:flex;gap:6px;justify-content:flex-end;">
-                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#10b981;border-color:rgba(16,185,129,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.restoreCompanyUI('${c.id}', '${UI.escapeHTML(c.name).replace(/'/g, "\\'")}')" title="Restore Company">${UI.icon('rotate-ccw', '', 12)} Restore</button>
-                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.purgeCompanyUI('${c.id}', '${UI.escapeHTML(c.name).replace(/'/g, "\\'")}')" title="Permanently Purge">${UI.icon('trash-2', '', 12)} Purge</button>
+                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#10b981;border-color:rgba(16,185,129,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.restoreCompanyUI('${c.id}', '${escapeJsAttr(c.name)}')" title="Restore Company">${UI.icon('rotate-ccw', '', 12)} Restore</button>
+                        <button class="btn btn-sm btn-outline" style="padding:4px 8px;font-size:11.5px;color:#ef4444;border-color:rgba(239,68,68,0.3);display:inline-flex;align-items:center;gap:4px;" onclick="UI.purgeCompanyUI('${c.id}', '${escapeJsAttr(c.name)}')" title="Permanently Purge">${UI.icon('trash-2', '', 12)} Purge</button>
                       </div>
                     </td>
                   </tr>
@@ -1595,7 +1599,7 @@ const UI = (() => {
     navigate, toggleSidebar, closeSidebar,
     toast, confirm, closeConfirm,
     openModal, closeModal, createModal, lockBtn, unlockBtn,
-    handleSearch, closeSearch, showNotifications, escapeHTML,
+    handleSearch, closeSearch, showNotifications, escapeHTML, escapeJsAttr,
     fmt, fmtCurrency, fmtDate, fmtPct, canViewProfit, canEditProducts, updateStockBadge, getUnreadAlerts, getCurrency, getCurrencySymbol,
     parseArabicDigits, isRiyalMode, toMarketRiyal, fromMarketRiyal, toInputMoney, fromInputMoney,
     init, Settings, getCurrentPage: () => _currentPage,

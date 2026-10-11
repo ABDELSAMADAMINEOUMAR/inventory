@@ -73,24 +73,9 @@ const DB = (() => {
     return copy;
   }
 
-  const DEFAULT_COMPANIES = [
-    { id: 24, name: 'abdou', subscription_plan: 'free', status: 'active', currency: 'FCFA' },
-    { id: 25, name: 'Express Amine oumar', subscription_plan: 'free', status: 'active', currency: 'FCFA' },
-    { id: 26, name: 'Haggar', subscription_plan: 'free', status: 'active', currency: 'RWF' },
-    { id: 27, name: 'Manal import', subscription_plan: 'free', status: 'active', currency: 'RWF' },
-    { id: 29, name: 'Hadil Shop', subscription_plan: 'free', status: 'active', currency: 'FCFA' }
-  ];
-
-  const DEFAULT_USERS = [
-    { id: 10, name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', role: 'platform_owner', company_id: null, password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 26, name: 'abdou Admin', username: 'abdou_admin', email: 'abdelsamadamineoumar@gmail.com', role: 'admin', company_id: 24, business: 'abdou', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 27, name: 'amineoumarexpress_admin', username: 'amineoumarexpress_admin', email: 'abdelsamadamine003@gmail.com', role: 'admin', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 28, name: 'Khoulthoum HAmza', username: 'koulthoum', email: 'koulthoum@Madiha.local', role: 'cashier', company_id: 25, business: 'Express Amine oumar', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 29, name: 'Haggar Terap', username: 'haggar', email: 'hisseinidriss81@gmail.com', role: 'admin', company_id: 26, business: 'Haggar', currency: 'RWF', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 30, name: 'Manal import', username: 'manal', email: 'raouda.amine@gmail.com', role: 'admin', company_id: 27, business: 'Manal import', currency: 'RWF', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 31, name: 'mohamed', username: 'mohamed', email: 'mohamed@abdou.local', role: 'cashier', company_id: 24, business: 'abdou', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' },
-    { id: 43, name: 'Hadil Shop Admin', username: 'hadil', email: 'madihaamine73@gmail.com', role: 'admin', company_id: 29, business: 'Hadil Shop', currency: 'FCFA', password: '123456', passwordHash: '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92' }
-  ];
+  // No built-in accounts: every login is verified by the server.
+  const DEFAULT_COMPANIES = [];
+  const DEFAULT_USERS = [];
 
   function _readTable(table) {
     try {
@@ -169,7 +154,7 @@ const DB = (() => {
       const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
       const sess = uSess || JSON.parse(sessionStorage.getItem('sims_session'));
       if (!sess) return null;
-      if (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com') return null;
+      if (sess.role === 'platform_owner') return null;
       
       // Always prioritize company_id for all roles (including owner and admin)
       if (sess.company_id && Number(sess.company_id) > 0) return Number(sess.company_id);
@@ -239,7 +224,7 @@ const DB = (() => {
     if (!tenantId) return all;
 
     const uSess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
-    if (uSess && (uSess.role === 'platform_owner' || uSess.email?.toLowerCase() === 'abdouamine@gmail.com')) return all;
+    if (uSess && uSess.role === 'platform_owner') return all;
 
     const uCompany = uSess ? Number(uSess.company_id || uSess.company || 0) : 0;
 
@@ -545,19 +530,7 @@ const DB = (() => {
     }
     if (isInitialised()) return;
 
-    // Seed ONLY the Platform Super Owner account for fresh production management
-    const platHash = await hashPassword('123456');
-    insert('users', { name: 'Platform Super Owner', username: 'abdouamine@gmail.com', email: 'abdouamine@gmail.com', passwordHash: platHash, role: 'platform_owner', phone: '+18005550000', business: 'SaaS Platform', currency: 'USD' });
-
-    // Seed empty clean categories
-    const cats = [
-      { name: 'General', description: 'General merchandise' },
-      { name: 'Electronics', description: 'Electronic devices and accessories' },
-      { name: 'Clothing', description: 'Garments and fashion items' },
-      { name: 'Food & Beverage', description: 'Consumable food and drink products' }
-    ];
-    cats.forEach(c => insert('categories', c));
-
+    // All business data comes from the server after login; nothing is seeded locally.
     localStorage.setItem(PREFIX + 'init_v2', '1');
   }
 
@@ -928,7 +901,7 @@ const DB = (() => {
   async function syncFromBackend() {
     if (typeof ApiClient === 'undefined') return false;
     const sess = typeof Auth !== 'undefined' && Auth.currentUser ? Auth.currentUser() : null;
-    const isMasterOwner = sess && (sess.role === 'platform_owner' || sess.email?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine@gmail.com' || sess.username?.toLowerCase() === 'abdouamine');
+    const isMasterOwner = sess && sess.role === 'platform_owner';
     if (isMasterOwner) return false;
 
     const MAX_RETRIES = 3;

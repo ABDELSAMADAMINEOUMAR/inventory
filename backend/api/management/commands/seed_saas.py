@@ -11,6 +11,10 @@ class Command(BaseCommand):
     help = 'Seed the database with Multi-Tenant SaaS demo data (1 platform owner, 2 companies, 4 roles each)'
 
     def handle(self, *args, **options):
+        from django.conf import settings
+        from django.core.management.base import CommandError
+        if not settings.DEBUG:
+            raise CommandError("Refusing to run: this command wipes data and creates demo accounts with known passwords. Only run it with DEBUG=True on a development database.")
         self.stdout.write(self.style.NOTICE("Starting SaaS Multi-Tenant database seeding..."))
 
         # Clear existing data

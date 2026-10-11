@@ -174,8 +174,8 @@ const Sales = (() => {
       <tr style="border-bottom:1px solid var(--border);${rowStyle}">
         <td class="td-muted" style="padding:14px 10px;font-size:0.8rem">#${s.id}</td>
         <td style="padding:14px 10px;">
-          <div style="font-weight:600;font-size:0.875rem">${s.productName}</div>
-          <div style="font-size:0.72rem;color:var(--text-muted)">${s.productCode}</div>
+          <div style="font-weight:600;font-size:0.875rem">${UI.escapeHTML(s.productName)}</div>
+          <div style="font-size:0.72rem;color:var(--text-muted)">${UI.escapeHTML(s.productCode)}</div>
         </td>
         <td class="text-center" style="padding:14px 10px;">${s.quantity}</td>
         <td style="padding:14px 10px;">${UI.fmtCurrency(s.sellingPrice)}</td>
@@ -187,7 +187,7 @@ const Sales = (() => {
             ${UI.fmtPct(s.profitMargin)}
           </span>
         </td>` : ''}
-        <td style="padding:14px 10px;font-weight:500">${s.customer || '—'}</td>
+        <td style="padding:14px 10px;font-weight:500">${UI.escapeHTML(s.customer || '—')}</td>
         <td class="td-muted" style="padding:14px 10px;">${UI.fmtDate(s.saleDate)}</td>
         <td style="padding:14px 10px;">${paymentBadge(isCredit ? 'credit' : 'paid', isOverdue)}</td>
         <td style="padding:14px 10px;">
@@ -376,7 +376,7 @@ const Sales = (() => {
         <input class="input" type="text" id="sProductSearch" placeholder="${I18n.choose('Search product by name or code...', 'ابحث عن منتج بالاسم أو الرمز...', 'Rechercher un produit par nom ou code...')}" oninput="Sales.filterProducts()" style="margin-bottom:8px">
         <select class="select" id="sProduct" onchange="Sales.updateCalc()" required>
           <option value="">${I18n.choose('Select product to sell', 'اختر منتجاً للبيع', 'Sélectionner un produit à vendre')}</option>
-          ${products.map(p => `<option value="${p.id}" data-search="${p.name.toLowerCase()} ${p.code.toLowerCase()}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${UI.escapeHTML(p.name)} (${UI.escapeHTML(p.code)}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
+          ${products.map(p => `<option value="${p.id}" data-search="${UI.escapeHTML(p.name.toLowerCase() + ' ' + p.code.toLowerCase())}" data-cpu="${p.costPerUnit}" data-stock="${p.currentStock}" ${s.productId==p.id?'selected':''}>${UI.escapeHTML(p.name)} (${UI.escapeHTML(p.code)}) — ${I18n.choose('Stock:', 'المخزون:', 'Stock :')} ${p.currentStock}</option>`).join('')}
         </select>
       </div>
       <div class="field">
@@ -397,11 +397,11 @@ const Sales = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_customer')}</label>
-        <input class="input" id="sCustomer" value="${s.customer||''}" placeholder="${t('lbl_customer')}">
+        <input class="input" id="sCustomer" value="${UI.escapeHTML(s.customer||'')}" placeholder="${t('lbl_customer')}">
       </div>
       <div class="field">
         <label>${t('lbl_phone')}</label>
-        <input class="input" id="sCustomerPhone" value="${s.customerPhone||''}" placeholder="+250 ...">
+        <input class="input" id="sCustomerPhone" value="${UI.escapeHTML(s.customerPhone||'')}" placeholder="+250 ...">
       </div>
 
       <!-- ── Payment Section ── -->
@@ -448,7 +448,7 @@ const Sales = (() => {
 
       <div class="field col-span-2">
         <label>${t('lbl_note')}</label>
-        <input class="input" id="sNote" value="${s.note||''}" placeholder="${t('lbl_note')}">
+        <input class="input" id="sNote" value="${UI.escapeHTML(s.note||'')}" placeholder="${t('lbl_note')}">
       </div>
     </div>
 
@@ -587,7 +587,7 @@ const Sales = (() => {
 
     tbody.innerHTML = _cart.map((item, idx) => `
       <tr style="border-bottom:1px solid var(--border-light);">
-        <td style="padding:10px 4px;font-weight:500;font-size:0.85rem;white-space:nowrap;">${item.name}</td>
+        <td style="padding:10px 4px;font-weight:500;font-size:0.85rem;white-space:nowrap;">${UI.escapeHTML(item.name)}</td>
         <td style="padding:10px 4px;font-size:0.85rem;">
           <input type="number" class="input" style="width:60px;padding:4px;text-align:center;font-size:0.85rem;height:30px;" value="${item.qty}" min="1" onchange="Sales.updateCartItemQty(${idx}, this.value)">
         </td>
@@ -907,7 +907,7 @@ const Sales = (() => {
       </div>
     </div>`;
 
-    UI.createModal('payModal', `${UI.icon('credit-card', '', 20)} ${I18n.choose('Add Customer Payment', 'سداد دفعة العميل', 'Ajouter un paiement client')} — ${customer}`,
+    UI.createModal('payModal', `${UI.icon('credit-card', '', 20)} ${I18n.choose('Add Customer Payment', 'سداد دفعة العميل', 'Ajouter un paiement client')} — ${UI.escapeHTML(customer)}`,
       body,
       `<button class="btn btn-ghost" onclick="UI.closeModal('payModal')">${t('btn_cancel')}</button>
        <button class="btn btn-primary" onclick="Sales.confirmPayment(${id})">${UI.icon('save', '', 16)} ${I18n.choose('Save Payment', 'حفظ الدفعة', 'Enregistrer le paiement')}</button>`,

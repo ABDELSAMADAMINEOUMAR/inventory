@@ -111,8 +111,8 @@ const Products = (() => {
           <div style="font-weight:600;font-size:0.875rem">${UI.escapeHTML(p.name)}</div>
           <div style="font-size:0.75rem;color:var(--text-muted)">${p.description?.slice(0,40) || ''}</div>
         </td>
-        <td class="td-muted">${p.categoryName}</td>
-        <td class="td-muted">${p.supplierName}</td>
+        <td class="td-muted">${UI.escapeHTML(p.categoryName)}</td>
+        <td class="td-muted">${UI.escapeHTML(p.supplierName)}</td>
         <td class="text-center">${p.quantity}</td>
         <td>
           <div style="display:flex;align-items:center;gap:6px;">
@@ -163,19 +163,19 @@ const Products = (() => {
       </div>
       <div class="field">
         <label>${t('lbl_name')} <span class="req">*</span></label>
-        <input class="input" id="fName" value="${p.name || ''}" placeholder="${t('ph_name')}" required>
+        <input class="input" id="fName" value="${UI.escapeHTML(p.name || '')}" placeholder="${t('ph_name')}" required>
       </div>
       <div class="field">
         <label>${t('lbl_category')} <span class="req">*</span></label>
         <input class="input" type="text" id="fCatSearch" placeholder="Search category..." oninput="Products.filterCategories()" style="margin-bottom:6px">
         <select class="select" id="fCat" required>
           <option value="">${I18n.choose('Select category', 'اختر فئة', 'Sélectionner une catégorie')}</option>
-          ${cats.map(c => `<option value="${c.id}" data-search="${c.name.toLowerCase()}" ${p.categoryId==c.id?'selected':''}>${UI.escapeHTML(c.name)}</option>`).join('')}
+          ${cats.map(c => `<option value="${c.id}" data-search="${UI.escapeHTML(c.name.toLowerCase())}" ${p.categoryId==c.id?'selected':''}>${UI.escapeHTML(c.name)}</option>`).join('')}
         </select>
       </div>
       <div class="field">
         <label>${t('lbl_supplier')}</label>
-        <input class="input" id="fSupp" value="${p.supplierName && p.supplierName !== 'N/A' ? p.supplierName : (p.supplierId ? '' : '')}" placeholder="${t('ph_supplier')}">
+        <input class="input" id="fSupp" value="${UI.escapeHTML(p.supplierName && p.supplierName !== 'N/A' ? p.supplierName : '')}" placeholder="${t('ph_supplier')}">
       </div>
       <div class="field">
         <label>${I18n.choose('Unit Cost', 'تكلفة الوحدة', 'Coût Unitaire')} (${UI.isRiyalMode() ? 'ريال' : UI.getCurrency()}) <span class="req">*</span></label>
@@ -196,7 +196,7 @@ const Products = (() => {
       </div>
       <div class="field col-span-2">
         <label>${t('lbl_desc')}</label>
-        <textarea class="textarea" id="fDesc" placeholder="${I18n.choose('Product description…', 'وصف المنتج…', 'Description du produit…')}">${p.description||''}</textarea>
+        <textarea class="textarea" id="fDesc" placeholder="${I18n.choose('Product description…', 'وصف المنتج…', 'Description du produit…')}">${UI.escapeHTML(p.description||'')}</textarea>
       </div>
     </div>
 
@@ -412,8 +412,8 @@ const Products = (() => {
       <div>
         <h3 style="font-size:1.1rem;font-weight:700;margin-bottom:8px">${UI.escapeHTML(p.name)}</h3>
         <div style="display:grid;gap:8px;font-size:0.875rem">
-          ${row(t('lbl_category'), p.categoryName)}
-          ${row(t('lbl_supplier'), p.supplierName)}
+          ${row(t('lbl_category'), UI.escapeHTML(p.categoryName))}
+          ${row(t('lbl_supplier'), UI.escapeHTML(p.supplierName))}
           ${row(t('lbl_date'), UI.fmtDate(p.purchaseDate))}
           ${row(t('lbl_price'), UI.fmtCurrency(p.purchasePrice))}
           ${row(t('lbl_qty'), p.quantity)}

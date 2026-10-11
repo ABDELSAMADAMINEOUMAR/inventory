@@ -93,13 +93,13 @@ const Users = (() => {
         <div style="display:flex;align-items:center;gap:12px;">
           <div style="width:40px;height:40px;border-radius:10px;background:var(--primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;box-shadow:0 4px 12px rgba(124,58,237,0.3);">${initials}</div>
           <div>
-            <div style="font-weight:700;color:var(--text);">${u.name || 'Unnamed'} ${isMe ? `<span style="font-size:11px;color:var(--primary);margin-left:4px;">(${I18n.choose('You', 'أنت', 'Vous')})</span>` : ''}</div>
-            <div style="font-size:12px;color:var(--text-muted);">${u.phone || ''}</div>
+            <div style="font-weight:700;color:var(--text);">${UI.escapeHTML(u.name || 'Unnamed')} ${isMe ? `<span style="font-size:11px;color:var(--primary);margin-left:4px;">(${I18n.choose('You', 'أنت', 'Vous')})</span>` : ''}</div>
+            <div style="font-size:12px;color:var(--text-muted);">${UI.escapeHTML(u.phone || '')}</div>
           </div>
         </div>
       </td>
       <td style="padding:16px;color:var(--text-muted);font-size:14px;font-weight:600;">${u.username || u.email || '—'}</td>
-      <td style="padding:16px;font-weight:500;">${u.business || 'My Business'}</td>
+      <td style="padding:16px;font-weight:500;">${UI.escapeHTML(u.business || 'My Business')}</td>
       <td style="padding:16px;">${getRoleBadge(u.role)}</td>
       <td style="padding:16px;color:var(--text-muted);font-size:13px;">${u.createdAt ? new Date(u.createdAt).toLocaleDateString(locale, { day: '2-digit', month: 'short', year: 'numeric' }) : '—'}</td>
       <td style="padding:16px;text-align:right;">
@@ -125,7 +125,7 @@ const Users = (() => {
         </div>
         <div class="field">
           <label>${I18n.choose('Initial Password', 'كلمة المرور الابتدائية', 'Mot de passe initial')} <span class="req">*</span></label>
-          <input class="input" type="password" id="addUserPwd" placeholder="Min 6 chars" autocomplete="new-password" required>
+          <input class="input" type="password" id="addUserPwd" placeholder="Min 8 chars" autocomplete="new-password" required>
         </div>
         <div class="field">
           <label>${I18n.choose('Role', 'الصلاحية / الدور', 'Rôle')} <span class="req">*</span></label>
@@ -155,8 +155,8 @@ const Users = (() => {
       UI.toast('error', I18n.choose('Error', 'خطأ', 'Erreur'), I18n.choose('Please fill in all required fields.', 'يرجى ملء جميع الحقول المطلوبة', 'Veuillez remplir tous les champs requis.'));
       return;
     }
-    if (password.length < 6) {
-      UI.toast('error', I18n.choose('Password Error', 'خطأ في كلمة المرور', 'Erreur de mot de passe'), I18n.choose('Password must be at least 6 characters.', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل', 'Le mot de passe doit comporter au moins 6 caractères.'));
+    if (password.length < 8) {
+      UI.toast('error', I18n.choose('Password Error', 'خطأ في كلمة المرور', 'Erreur de mot de passe'), I18n.choose('Password must be at least 8 characters.', 'يجب أن تكون كلمة المرور 8 أحرف على الأقل', 'Le mot de passe doit comporter au moins 8 caractères.'));
       return;
     }
 
@@ -247,7 +247,7 @@ const Users = (() => {
       `<div class="form-grid">
         <div class="field">
           <label>${I18n.choose('New Password', 'كلمة المرور الجديدة', 'Nouveau mot de passe')} <span class="req">*</span></label>
-          <input class="input" type="password" id="newResetPwd" placeholder="Min 6 chars" required>
+          <input class="input" type="password" id="newResetPwd" placeholder="Min 8 chars" required>
         </div>
       </div>`,
       `<button class="btn btn-ghost" onclick="UI.closeModal('resetPwdModal')">${t('btn_cancel') || I18n.choose('Cancel', 'إلغاء', 'Annuler')}</button>
@@ -258,8 +258,8 @@ const Users = (() => {
   async function saveResetPassword() {
     if (!_editUserId) return;
     const pwd = document.getElementById('newResetPwd')?.value;
-    if (!pwd || pwd.length < 6) {
-      UI.toast('error', I18n.choose('Password Error', 'خطأ في كلمة المرور', 'Erreur de mot de passe'), I18n.choose('Password must be at least 6 characters.', 'يجب أن تكون كلمة المرور 6 أحرف على الأقل', 'Le mot de passe doit comporter au moins 6 caractères.'));
+    if (!pwd || pwd.length < 8) {
+      UI.toast('error', I18n.choose('Password Error', 'خطأ في كلمة المرور', 'Erreur de mot de passe'), I18n.choose('Password must be at least 8 characters.', 'يجب أن تكون كلمة المرور 8 أحرف على الأقل', 'Le mot de passe doit comporter au moins 8 caractères.'));
       return;
     }
 

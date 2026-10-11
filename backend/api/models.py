@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
+from django.core.validators import MinValueValidator
 
 
 class Company(models.Model):
@@ -74,6 +75,7 @@ class User(AbstractUser):
 
 class AuditLog(models.Model):
     actor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name='audit_logs')
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, null=True, blank=True, related_name='audit_logs')
     action = models.CharField(max_length=255)
     target_type = models.CharField(max_length=100)
     target_id = models.CharField(max_length=100)
@@ -122,11 +124,11 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.SET_NULL, null=True, related_name='products')
     supplier = models.ForeignKey(Supplier, on_delete=models.SET_NULL, null=True, related_name='products')
     description = models.TextField(blank=True, null=True)
-    purchase_price = models.FloatField(default=0.0)
-    selling_price = models.FloatField(default=0.0)
+    purchase_price = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
+    selling_price = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     currency = models.CharField(max_length=10, default='USD')
-    exchange_rate = models.FloatField(default=1.0)
-    quantity = models.IntegerField(default=0)
+    exchange_rate = models.FloatField(default=1.0, validators=[MinValueValidator(0)])
+    quantity = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     purchase_date = models.DateField(blank=True, null=True)
     status = models.CharField(max_length=50, default='available')
     created_at = models.DateTimeField(auto_now_add=True)
@@ -144,7 +146,7 @@ class ProductExpense(models.Model):
     user_id = models.IntegerField(default=1, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='expenses')
     expense_type = models.CharField(max_length=100)
-    amount = models.FloatField(default=0.0)
+    amount = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     note = models.CharField(max_length=255, blank=True, null=True)
     date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -157,20 +159,23 @@ class ProductExpense(models.Model):
 class Invoice(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='invoices', null=True, blank=True)
     user_id = models.IntegerField(default=1, null=True, blank=True)
-    invoice_number = models.CharField(max_length=50, unique=True)
+    invoice_number = models.CharField(max_length=50)
     customer = models.CharField(max_length=255, blank=True, null=True)
     customer_phone = models.CharField(max_length=50, blank=True, null=True)
     sale_date = models.DateField(blank=True, null=True)
     note = models.TextField(blank=True, null=True)
     
-    total_revenue = models.FloatField(default=0.0)
-    amount_paid = models.FloatField(default=0.0)
+    total_revenue = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
+    amount_paid = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     payment_status = models.CharField(max_length=50, default='paid')
     due_date = models.DateField(null=True, blank=True)
     paid_at = models.DateField(null=True, blank=True)
     
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('company', 'invoice_number')
 
     def __str__(self):
         return f"{self.invoice_number} - {self.customer} - {self.total_revenue}"
@@ -181,8 +186,8 @@ class Sale(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='sales', null=True, blank=True)
     user_id = models.IntegerField(default=1, null=True, blank=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='sales')
-    quantity = models.IntegerField(default=1)
-    selling_price = models.FloatField(default=0.0)
+    quantity = models.IntegerField(default=1, validators=[MinValueValidator(1)])
+    selling_price = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     sale_date = models.DateField(blank=True, null=True)
     customer = models.CharField(max_length=255, blank=True, null=True)
     revenue = models.FloatField(default=0.0)
@@ -190,20 +195,20 @@ class Sale(models.Model):
     profit = models.FloatField(default=0.0)
     profit_margin = models.FloatField(default=0.0)
     payment_status = models.CharField(max_length=50, default='paid')
-    amount_paid = models.FloatField(null=True, blank=True)
+    amount_paid = models.FloatField(null=True, blank=True, validators=[MinValueValidator(0)])
     due_date = models.DateField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
         # Auto-calculate revenue, cost, profit if not set
-        self.revenue = self.selling_price * self.quantity
+        self.revenue = round(self.selling_price * self.quantity, 2)
         total_expenses = sum(exp.amount for exp in self.product.expenses.all())
         total_cost = self.product.purchase_price + total_expenses
         cost_per_unit = total_cost / self.product.quantity if self.product.quantity > 0 else total_cost
-        self.cost = cost_per_unit * self.quantity
-        self.profit = self.revenue - self.cost
-        self.profit_margin = (self.profit / self.revenue * 100) if self.revenue > 0 else 0.0
+        self.cost = round(cost_per_unit * self.quantity, 2)
+        self.profit = round(self.revenue - self.cost, 2)
+        self.profit_margin = round(self.profit / self.revenue * 100, 2) if self.revenue > 0 else 0.0
         super().save(*args, **kwargs)
 
     def __str__(self):
@@ -214,7 +219,7 @@ class BusinessExpense(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE, related_name='business_expenses', null=True, blank=True)
     user_id = models.IntegerField(default=1, null=True, blank=True)
     title = models.CharField(max_length=255)
-    amount = models.FloatField(default=0.0)
+    amount = models.FloatField(default=0.0, validators=[MinValueValidator(0)])
     category = models.CharField(max_length=100)
     expense_date = models.DateField(blank=True, null=True)
     note = models.CharField(max_length=255, blank=True, null=True)
@@ -232,7 +237,7 @@ class InventoryEntry(models.Model):
     entry_type = models.CharField(max_length=50, choices=[('in', 'Stock In'), ('out', 'Stock Out'), ('adjustment', 'Adjustment')], default='in')
     quantity = models.IntegerField(default=0)
     notes = models.TextField(blank=True, null=True)
-    entry_date = models.DateField(default=timezone.now)
+    entry_date = models.DateField(default=timezone.localdate)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

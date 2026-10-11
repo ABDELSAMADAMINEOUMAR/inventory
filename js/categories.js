@@ -55,7 +55,7 @@ const Categories = (() => {
         </div>
       </div>
       <div style="font-size:1rem;font-weight:700;margin-bottom:4px">${UI.escapeHTML(c.name)}</div>
-      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">${c.description || I18n.choose('No description', 'لا يوجد وصف', 'Aucune description')}</div>
+      <div style="font-size:0.82rem;color:var(--text-muted);margin-bottom:12px">${UI.escapeHTML(c.description || I18n.choose('No description', 'لا يوجد وصف', 'Aucune description'))}</div>
       <div style="display:flex;align-items:center;gap:6px">
         <span class="badge badge-purple">${prodCount} ${I18n.choose('product(s)', 'منتجات', 'produit(s)')}</span>
       </div>
@@ -67,7 +67,7 @@ const Categories = (() => {
     <div class="form-grid">
       <div class="field">
         <label>${I18n.choose('Category Name', 'اسم الفئة', 'Nom de la catégorie')} <span class="req">*</span></label>
-        <input class="input" id="catName" value="${c.name || ''}" placeholder="e.g. Electronics or ملابس" required>
+        <input class="input" id="catName" value="${UI.escapeHTML(c.name || '')}" placeholder="e.g. Electronics or ملابس" required>
       </div>
       <div class="field">
         <label>${I18n.choose('Category Icon Identifier (Optional)', 'معرف أيقونة الفئة (اختياري)', 'Identifiant d\'icône (Optionnel)')}</label>
@@ -75,7 +75,7 @@ const Categories = (() => {
       </div>
       <div class="field" style="grid-column:1/-1">
         <label>${t('lbl_desc')}</label>
-        <textarea class="textarea" id="catDesc" placeholder="${I18n.choose('Brief description of this category…', 'وصف مختصر لهذه الفئة…', 'Brève description de cette catégorie…')}">${c.description || ''}</textarea>
+        <textarea class="textarea" id="catDesc" placeholder="${I18n.choose('Brief description of this category…', 'وصف مختصر لهذه الفئة…', 'Brève description de cette catégorie…')}">${UI.escapeHTML(c.description || '')}</textarea>
       </div>
     </div>`;
   }
